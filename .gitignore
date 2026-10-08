@@ -1,0 +1,33 @@
+﻿# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# Local configuration / credentials
+config/local.php
+
+# Uploaded user/provider files
+uploads/documents/*
+uploads/providers/*
+uploads/services/*
+
+# Keep upload directories
+!uploads/documents/.gitkeep
+!uploads/providers/.gitkeep
+!uploads/services/.gitkeep
+
+# Backup files
+*.backup
+*.bak
+*.old
+
+# IDE / editor
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
