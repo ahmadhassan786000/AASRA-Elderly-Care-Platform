@@ -20,7 +20,7 @@ function money($v): string { return 'PKR ' . number_format((float)$v, 0); }
 function fmt_date($d, string $f = 'd M Y'): string { return $d ? date($f, strtotime((string)$d)) : '—'; }
 
 /* ---------- flash messages & alerts (every alert is dismissible) ---------- */
-function flash(string $type, string $msg): void { $_SESSION['flash'][] = ['type' => $type, 'msg' => $msg]; }
+function flash(string $type, string $msg): void { $_SESSION['flash'] = [['type' => $type, 'msg' => $msg]]; }
 function alert_html(string $type, string $msg): string {
     $icons = ['success' => 'check-circle-fill', 'danger' => 'exclamation-triangle-fill', 'warning' => 'exclamation-circle-fill', 'info' => 'info-circle-fill'];
     $i = $icons[$type] ?? 'info-circle-fill';

@@ -67,6 +67,7 @@ window.AASRA = window.AASRA || {};
       host = document.getElementById('toastHost');
       if (!host) { host = document.createElement('div'); host.id = 'toastHost'; host.className = 'toast-host'; document.body.appendChild(host); }
     }
+    host.querySelectorAll('.alert').forEach(oldAlert => oldAlert.remove());
     const icons = { success: 'check-circle-fill', danger: 'exclamation-triangle-fill', warning: 'exclamation-circle-fill', info: 'info-circle-fill' };
     const d = document.createElement('div');
     d.className = 'alert alert-' + type + ' alert-dismissible fade show d-flex align-items-start gap-2'; d.setAttribute('role', 'alert');
