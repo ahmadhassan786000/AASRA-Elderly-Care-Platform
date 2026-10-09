@@ -9,7 +9,7 @@
       <ul class="navbar-nav mx-md-auto gap-md-1">
         <li class="nav-item"><a class="nav-link <?= $nav === 'home' ? 'active' : '' ?>" href="<?= e(url('')) ?>">Home</a></li>
         <li class="nav-item"><a class="nav-link <?= $nav === 'services' ? 'active' : '' ?>" href="<?= e(url('services')) ?>">Services</a></li>
-        <li class="nav-item"><a class="nav-link <?= $nav === 'how' ? 'active' : '' ?>" href="<?= e(url('how-it-works')) ?>">How It Works</a></li>
+        <li class="nav-item"><a class="nav-link <?= $nav === 'guides' ? 'active' : '' ?>" href="<?= e(url('guides')) ?>">Guides</a></li>
       </ul>
       <div class="d-flex align-items-center gap-2 mt-3 mt-md-0">
         <?php include APP_ROOT . '/includes/partials/theme_toggle.php'; ?>
