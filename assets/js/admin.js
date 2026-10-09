@@ -28,6 +28,13 @@ document.addEventListener('DOMContentLoaded', () => {
       document.querySelectorAll('[data-live-when="' + r.key + '"]').forEach(n => n.classList.toggle('d-none', n.dataset.when !== r.status));
     }
     (r.extra || []).forEach(x => document.querySelectorAll('[data-live-key="' + x.key + '"]').forEach(n => n.innerHTML = x.badge));
+    if (payload.action === 'verification' && Number.isInteger(r.pendingVerificationCount)) {
+      const count = document.getElementById('pendingVerificationCount');
+      if (count) {
+        count.textContent = r.pendingVerificationCount;
+        count.hidden = r.pendingVerificationCount < 1;
+      }
+    }
   }
 
   document.addEventListener('click', e => {

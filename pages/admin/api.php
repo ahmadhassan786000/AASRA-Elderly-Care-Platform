@@ -34,7 +34,8 @@ case 'verification':
         $extra[] = ['key' => "provider_status:$id", 'badge' => badge('Active')];
     }
     notify(null, $id, 'Verification ' . strtolower($value), 'Your verification status is now ' . $value . '.' . ($note ? ' Note: ' . $note : ''), 'verification');
-    json_out(['ok' => true, 'message' => $value === 'Approved' ? 'Provider approved and activated.' : ($value === 'Rejected' ? 'Provider rejected.' : 'Provider set to pending.'), 'key' => "provider_verification:$id", 'status' => $value, 'badge' => badge($value), 'extra' => $extra]);
+    $pendingVerificationCount = (int) val("SELECT COUNT(*) FROM providers p WHERE p.verification_status='Pending' AND EXISTS (SELECT 1 FROM provider_documents d WHERE d.provider_id=p.id)");
+json_out(['ok' => true, 'message' => $value === 'Approved' ? 'Provider approved and activated.' : ($value === 'Rejected' ? 'Provider rejected.' : 'Provider set to pending.'), 'key' => "provider_verification:$id", 'status' => $value, 'badge' => badge($value), 'extra' => $extra, 'pendingVerificationCount' => $pendingVerificationCount]);
 
 case 'doc_status':
     if (!in_array($value, ['Approved', 'Rejected'], true)) fail('Invalid status.');

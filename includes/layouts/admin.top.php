@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 include __DIR__ . '/head.php';
 
 $cu = current_user();
@@ -16,7 +16,7 @@ $items = [
 ];
 
 $pendingV = (int) val(
-    "SELECT COUNT(*) FROM providers WHERE verification_status='Pending'"
+    "SELECT COUNT(*) FROM providers p WHERE p.verification_status='Pending' AND EXISTS (SELECT 1 FROM provider_documents d WHERE d.provider_id=p.id)"
 );
 ?>
 
@@ -60,8 +60,8 @@ $pendingV = (int) val(
                     <i class="bi <?= e($ic) ?>"></i>
                     <span><?= e($label) ?></span>
 
-                    <?php if ($k === 'verification' && $pendingV > 0): ?>
-                        <span class="side-count"><?= $pendingV ?></span>
+                    <?php if ($k === 'verification'): ?>
+                        <span class="side-count" id="pendingVerificationCount"<?= $pendingV < 1 ? ' hidden' : '' ?>><?= $pendingV ?></span>
                     <?php endif; ?>
                 </a>
             <?php endforeach; ?>
