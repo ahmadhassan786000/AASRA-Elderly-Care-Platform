@@ -76,3 +76,7 @@ window.AASRA = window.AASRA || {};
     if (host.closest('.app-content')) window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 })();
+
+document.getElementById('mobileThemeToggle')?.addEventListener('click', function () {
+    document.getElementById('themeToggle')?.click();
+});

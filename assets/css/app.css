@@ -383,3 +383,197 @@ html:has(.auth-body){background:#126c37}.auth-body{margin:0;padding:0;background
 }
 
 
+
+/* User mobile account menu */
+.user-mobile-account{
+  margin-top:1rem;
+  padding-top:1rem;
+  border-top:1px solid var(--line);
+}
+
+.user-mobile-account-title{
+  display:flex;
+  align-items:center;
+  gap:.7rem;
+  padding:.65rem .75rem;
+  margin-bottom:.35rem;
+  color:var(--ink);
+  font-weight:700;
+}
+
+.user-mobile-account-title i{
+  font-size:1.2rem;
+  color:var(--brand);
+}
+
+.user-mobile-account-link{
+  display:flex;
+  align-items:center;
+  gap:.75rem;
+  position:relative;
+  padding:.7rem .75rem;
+  border-radius:10px;
+  color:var(--ink);
+  text-decoration:none;
+  font-weight:600;
+}
+
+.user-mobile-account-link:hover{
+  background:var(--surface-2);
+  color:var(--brand);
+}
+
+.user-mobile-account-link i{
+  width:1.25rem;
+  text-align:center;
+  font-size:1.05rem;
+}
+
+.user-mobile-account-link.text-danger:hover{
+  color:var(--bs-danger)!important;
+  background:rgba(220,53,69,.08);
+}
+
+.mobile-notification-badge{
+  margin-left:auto;
+  min-width:1.35rem;
+  height:1.35rem;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:0 .35rem;
+  border-radius:999px;
+  background:var(--brand);
+  color:#fff;
+  font-size:.7rem;
+  font-weight:800;
+}
+
+/* User mobile theme row */
+.user-mobile-theme{
+  display:flex;
+  align-items:center;
+  gap:.75rem;
+  position:relative;
+  padding:.7rem .75rem;
+  border-radius:10px;
+  color:var(--ink);
+  font-weight:600;
+}
+
+.user-mobile-theme > i{
+  width:1.25rem;
+  text-align:center;
+  font-size:1.05rem;
+  color:var(--brand);
+}
+
+.user-mobile-theme > span{
+  flex:1;
+}
+
+.user-mobile-theme-control{
+  display:flex;
+  align-items:center;
+}
+
+.user-mobile-theme-control .theme-toggle{
+  margin:0;
+}
+
+
+
+
+
+/* User header: desktop controls vs mobile account menu */
+@media (max-width: 991.98px){
+  .user-area .site-header .d-flex.align-items-center.gap-2.mt-3.mt-lg-0 > .icon-btn,
+  .user-area .site-header .d-flex.align-items-center.gap-2.mt-3.mt-lg-0 > .dropdown,
+  .user-area .site-header .d-flex.align-items-center.gap-2.mt-3.mt-lg-0 > .theme-toggle{
+    display:none !important;
+  }
+
+  .user-area .site-header .user-mobile-account{
+    display:block !important;
+  }
+
+  .user-area .site-header .user-mobile-theme{
+    display:flex !important;
+  }
+}
+
+
+/* User header responsive controls */
+@media (max-width: 991.98px){
+
+  /* Hide desktop notification icon */
+  .user-area .site-header .d-flex.align-items-center.gap-2.mt-3.mt-lg-0 > .icon-btn{
+    display:none !important;
+  }
+
+  /* Hide desktop Account dropdown */
+  .user-area .site-header .d-flex.align-items-center.gap-2.mt-3.mt-lg-0 > .dropdown{
+    display:none !important;
+  }
+
+  /* Keep mobile account menu visible */
+  .user-area .site-header .user-mobile-account{
+    display:block !important;
+    width:100%;
+  }
+
+  /* Keep mobile theme row visible */
+  .user-area .site-header .user-mobile-theme{
+    display:flex !important;
+  }
+
+  /* Keep the theme toggle inside mobile theme row visible */
+  .user-area .site-header .user-mobile-theme .icon-btn{
+    display:flex !important;
+  }
+}
+
+/* Keep mobile account section hidden on desktop without affecting header spacing */
+@media (min-width:992px){
+  .user-mobile-account{
+    display:none !important;
+  }
+}
+
+/* User header must start exactly at the top */
+body.user-area{
+  margin:0 !important;
+  padding:0 !important;
+}
+
+body.user-area .site-header{
+  margin-top:0 !important;
+  padding-top:0 !important;
+  top:0 !important;
+}
+
+body.user-area .site-header .navbar{
+  margin-top:0 !important;
+}
+
+/* User page: header flush with viewport top */
+html:has(body.user-area){
+  margin:0 !important;
+  padding:0 !important;
+}
+
+html:has(body.user-area) body{
+  margin:0 !important;
+  padding:0 !important;
+}
+
+body.user-area .site-header{
+  position:relative !important;
+  top:auto !important;
+  margin:0 !important;
+  padding:0 !important;
+}
+
+body.user-area .site-header .navbar{
+  margin:0 auto !important;
+}
