@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 function current_user(): ?array { return $_SESSION['user'] ?? null; }
 function home_for_role(string $role): string { return ['admin' => 'admin', 'provider' => 'provider'][$role] ?? 'user'; }
 

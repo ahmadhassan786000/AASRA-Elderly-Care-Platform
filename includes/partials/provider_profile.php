@@ -16,6 +16,16 @@
       <?php if ($p['skills']): ?><h2 class="h5">Skills</h2><p><?= e($p['skills']) ?></p><?php endif; ?>
       <h2 class="h5">Services</h2>
       <p><?php foreach ($svcs as $s): ?><span class="tag me-1"><?= e($s['service_name']) ?></span><?php endforeach; ?></p>
+      <?php $offs = listed_offerings((int)$p['id']); if ($offs): ?>
+      <h2 class="h5">Offerings</h2>
+      <div class="list-group list-group-flush mb-2">
+        <?php foreach ($offs as $o): ?><div class="list-group-item px-0">
+          <div class="d-flex justify-content-between gap-3 flex-wrap"><div><b><?= e($o['title']) ?></b> <span class="tag ms-1"><?= e($o['service_name']) ?></span></div><div class="fw-bold text-nowrap"><?= $o['price'] !== null ? e(money($o['price'])) : e(money($p['charges'])) ?><small class="text-secondary fw-normal"> / visit</small></div></div>
+          <?php if ($o['description']): ?><p class="mb-1 text-secondary"><?= nl2br(e($o['description'])) ?></p><?php endif; ?>
+          <?php if ($o['experience'] || $o['availability']): ?><div class="small text-secondary"><?php if ($o['experience']): ?><span class="me-3"><i class="bi bi-briefcase me-1"></i><?= e($o['experience']) ?></span><?php endif; ?><?php if ($o['availability']): ?><span><i class="bi bi-clock me-1"></i><?= e($o['availability']) ?></span><?php endif; ?></div><?php endif; ?>
+        </div><?php endforeach; ?>
+      </div>
+      <?php endif; ?>
     </div>
     <div class="card-soft mt-4">
       <h2 class="h5">Reviews</h2>

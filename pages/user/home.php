@@ -18,7 +18,6 @@ $rec = array_map(fn($x) => $x[1], array_slice($rec, 0, 3));
 $recTitle = $rec ? 'Recommended for you' : 'More verified providers';
 if (!$rec) $rec = array_slice(listed_providers([], 6), 3, 3);
 $favIds = array_column(rows('SELECT provider_id FROM favorites WHERE user_id=?', [$u['id']]), 'provider_id');
-$next = row("SELECT b.*,p.name provider_name,s.service_name FROM bookings b JOIN providers p ON p.id=b.provider_id JOIN services s ON s.id=b.service_id WHERE b.user_id=? AND b.status IN ('Pending','Accepted','Confirmed') AND b.booking_date>=CURDATE() ORDER BY b.booking_date,b.booking_time LIMIT 1", [$u['id']]);
 layout('user', ['title' => 'Home', 'nav' => 'home', 'js' => ['home.js']]);
 ?>
 <section class="hero"><div class="container">
@@ -29,7 +28,6 @@ layout('user', ['title' => 'Home', 'nav' => 'home', 'js' => ['home.js']]);
     <label class="sp-field"><i class="bi bi-geo-alt"></i><input class="form-control" name="location" placeholder="Area (optional)" aria-label="Area"></label>
     <button class="btn btn-success px-4">Search</button>
   </form>
-  <?php if ($next): ?><div class="card-soft mt-4 d-inline-flex align-items-center gap-3 py-3"><span class="stat-ic"><i class="bi bi-calendar-event"></i></span><div><div class="small text-secondary">Your next booking</div><b><?= e($next['service_name']) ?></b> with <?= e($next['provider_name']) ?> · <?= e(fmt_date($next['booking_date'])) ?>, <?= e(date('g:i A', strtotime($next['booking_time']))) ?> <?= badge($next['status']) ?></div><a class="btn btn-sm btn-outline-success" href="<?= e(url('user/bookings')) ?>">Manage</a></div><?php endif; ?>
 </div></section>
 
 <section class="section"><div class="container">

@@ -6,13 +6,94 @@ function provider_completeness(array $p): array {
     $done = count(array_filter($checks));
     return ['pct' => (int)round($done / count($checks) * 100), 'checks' => $checks];
 }
+// Syncs which admin-defined service types a provider is listed under (used by Account Settings and the admin
+// provider editor). It only adds and removes what changed, so existing offerings are never wiped by a save:
+//  - newly ticked types get a starting offering built from the provider's own details;
+//  - unticking an ACTIVE type removes the listing and, with it, the provider's offerings under that type;
+//  - listings under types the admin has since deactivated are kept untouched.
 function save_provider_services(int $pid, array $ids): void {
-    $valid = array_column(rows("SELECT id FROM services WHERE status='Active'"), 'id');
-    $ids = array_values(array_intersect(array_map('intval', $ids), array_map('intval', $valid)));
-    $pdo = db(); $pdo->beginTransaction();
-    q('DELETE FROM provider_services WHERE provider_id=?', [$pid]);
-    foreach ($ids as $sid) q('INSERT INTO provider_services(provider_id,service_id) VALUES(?,?)', [$pid, $sid]);
-    $pdo->commit();
+    $want = array_values(array_unique(array_map('intval', $ids)));
+    $active = array_map('intval', array_column(rows("SELECT id FROM services WHERE status='Active'"), 'id'));
+    $want = array_values(array_intersect($want, $active));
+    $have = array_map('intval', array_column(rows('SELECT service_id FROM provider_services WHERE provider_id=?', [$pid]), 'service_id'));
+    $drop = array_values(array_diff(array_intersect($have, $active), $want));
+    $add = array_values(array_diff($want, $have));
+    if (!$drop && !$add) return;
+    $prov = $add ? row('SELECT charges,availability,experience FROM providers WHERE id=?', [$pid]) : false;
+    db_begin();
+    try {
+        foreach ($drop as $sid) q('DELETE FROM provider_services WHERE provider_id=? AND service_id=?', [$pid, $sid]); // offerings cascade
+        foreach ($add as $sid) {
+            q('INSERT INTO provider_services(provider_id,service_id) VALUES(?,?)', [$pid, $sid]);
+            $name = (string)val('SELECT service_name FROM services WHERE id=?', [$sid]);
+            q('INSERT IGNORE INTO provider_offerings(provider_id,service_id,title,price,availability,experience) VALUES(?,?,?,?,?,?)',
+              [$pid, $sid, $name, $prov['charges'] ?? null, $prov['availability'] ?? null, $prov['experience'] ?? null]);
+        }
+        db_commit();
+    } catch (Throwable $e) { db_rollback(); throw $e; }
+}
+
+/* ---------- provider service offerings ----------
+   A provider may create many offerings, but each one must sit under a service type the administrator created and
+   left Active. provider_services (the "listed under" table used by search and booking) is kept in step: it gains a
+   row with a provider's first offering of a type and loses it when the last one of that type is deleted. */
+const OFFERING_MAX_PER_PROVIDER = 50;
+
+function provider_offerings(int $pid): array {
+    return rows('SELECT o.*,s.service_name,s.status service_status FROM provider_offerings o JOIN services s ON s.id=o.service_id WHERE o.provider_id=? ORDER BY s.service_name,o.title', [$pid]);
+}
+// One offering, only if it belongs to provider $pid (the id always comes from the logged-in session, never the browser).
+function provider_offering(int $pid, int $id) {
+    return row('SELECT o.*,s.service_name,s.status service_status FROM provider_offerings o JOIN services s ON s.id=o.service_id WHERE o.id=? AND o.provider_id=?', [$id, $pid]);
+}
+// Validates the offering form. Returns [cleanValues, errors]. $pid/$ignoreId are used for the duplicate-title rule;
+// $existing is the offering being edited (its service type is fixed), or null when creating.
+function offering_validate(int $pid, ?array $existing): array {
+    $sid = $existing ? (int)$existing['service_id'] : (is_array($_POST['service_id'] ?? null) ? 0 : (int)($_POST['service_id'] ?? 0));
+    $c = ['service_id' => $sid, 'title' => post('title'), 'description' => post('description'), 'price' => post('price'),
+          'availability' => post('availability'), 'experience' => post('experience')];
+    $err = [];
+    if (!$existing && !row("SELECT id FROM services WHERE id=? AND status='Active'", [$sid])) $err['service_id'] = 'Please choose one of the available services.';
+    if (mb_strlen($c['title']) < 3 || mb_strlen($c['title']) > 150) $err['title'] = 'Please enter a title (3–150 characters).';
+    if (mb_strlen($c['description']) > 1000) $err['description'] = 'Description must not exceed 1,000 characters.';
+    if (!preg_match('/^\d{1,7}(\.\d{1,2})?$/', $c['price']) || (float)$c['price'] > 1000000) $err['price'] = 'Price must be a number between 0 and 1,000,000 PKR.';
+    if (mb_strlen($c['availability']) > 255) $err['availability'] = 'Availability must not exceed 255 characters.';
+    if (mb_strlen($c['experience']) > 120) $err['experience'] = 'Experience must not exceed 120 characters.';
+    if (!isset($err['title']) && !isset($err['service_id']) &&
+        val('SELECT COUNT(*) FROM provider_offerings WHERE provider_id=? AND service_id=? AND title=? AND id<>?', [$pid, $sid, $c['title'], $existing ? (int)$existing['id'] : 0]))
+        $err['title'] = 'You already have an offering with this title under this service.';
+    if (!$existing && !$err && (int)val('SELECT COUNT(*) FROM provider_offerings WHERE provider_id=?', [$pid]) >= OFFERING_MAX_PER_PROVIDER)
+        $err['general'] = 'You have reached the limit of ' . OFFERING_MAX_PER_PROVIDER . ' offerings. Delete one before adding another.';
+    return [$c, $err];
+}
+function offering_create(int $pid, array $c): int {
+    db_begin();
+    try {
+        q('INSERT IGNORE INTO provider_services(provider_id,service_id) VALUES(?,?)', [$pid, $c['service_id']]);
+        $st = q('INSERT INTO provider_offerings(provider_id,service_id,title,description,price,availability,experience) VALUES(?,?,?,?,?,?,?)',
+            [$pid, $c['service_id'], $c['title'], $c['description'] === '' ? null : $c['description'], $c['price'],
+             $c['availability'] === '' ? null : $c['availability'], $c['experience'] === '' ? null : $c['experience']]);
+        $id = (int)mysqli_stmt_insert_id($st);
+        db_commit();
+        return $id;
+    } catch (Throwable $e) { db_rollback(); throw $e; }
+}
+function offering_update(int $pid, int $id, array $c): void {
+    q('UPDATE provider_offerings SET title=?,description=?,price=?,availability=?,experience=? WHERE id=? AND provider_id=?',
+        [$c['title'], $c['description'] === '' ? null : $c['description'], $c['price'],
+         $c['availability'] === '' ? null : $c['availability'], $c['experience'] === '' ? null : $c['experience'], $id, $pid]);
+}
+function offering_delete(int $pid, int $id): bool {
+    $o = provider_offering($pid, $id);
+    if (!$o) return false;
+    db_begin();
+    try {
+        q('DELETE FROM provider_offerings WHERE id=? AND provider_id=?', [$id, $pid]);
+        if (!val('SELECT COUNT(*) FROM provider_offerings WHERE provider_id=? AND service_id=?', [$pid, $o['service_id']]))
+            q('DELETE FROM provider_services WHERE provider_id=? AND service_id=?', [$pid, $o['service_id']]);
+        db_commit();
+    } catch (Throwable $e) { db_rollback(); throw $e; }
+    return true;
 }
 // Accept/reject/complete a booking that belongs to provider $pid. Returns a flash [type,msg].
 function provider_booking_action(int $pid, string $name): array {

@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 $u = require_role('provider'); $p = current_provider(); $pid = (int)$p['id'];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {

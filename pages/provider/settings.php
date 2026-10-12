@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 $u = require_role('provider');
 require_once APP_ROOT . '/includes/provider_helpers.php';
 require_once APP_ROOT . '/includes/password_form.php';
@@ -403,6 +403,12 @@ layout('provider', [
                         </div>
                     </div>
                 <?php endforeach; ?>
+            </div>
+
+            <div class="form-text">
+                Unticking a service removes your offerings under it.
+                Add or edit individual offerings in
+                <a href="<?= e(url('provider/services')) ?>">My services</a>.
             </div>
 
             <div

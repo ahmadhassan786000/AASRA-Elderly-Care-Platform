@@ -12,7 +12,6 @@
         <li class="nav-item"><a class="nav-link <?= $nav === 'guides' ? 'active' : '' ?>" href="<?= e(url('guides')) ?>">Guides</a></li>
       </ul>
       <div class="d-flex align-items-center gap-2 mt-3 mt-md-0">
-        <?php include APP_ROOT . '/includes/partials/theme_toggle.php'; ?>
         <a class="icon-btn" href="<?= e($cu ? home_for_role($cu['role']) : url('login')) ?>" aria-label="<?= $cu ? 'My account' : 'Log in' ?>" title="<?= $cu ? e($cu['name']) : 'Log in' ?>"><i class="bi bi-person-circle"></i></a>
       </div>
     </div>

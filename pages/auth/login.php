@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 if (current_user() && auth_refresh()) redirect(home_for_role(current_user()['role']));
 
 $errors = [];

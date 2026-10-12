@@ -5,17 +5,7 @@ window.AASRA = window.AASRA || {};
   A.url = p => (A.base || '') + '/' + String(p).replace(/^\//, '');
   A.esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
-  // ---------- theme toggle (persisted) ----------
-  function setTheme(t) {
-    document.documentElement.setAttribute('data-bs-theme', t);
-    try { localStorage.setItem('aasra-theme', t); } catch (e) {}
-    document.querySelectorAll('#themeToggle i').forEach(i => i.className = 'bi ' + (t === 'dark' ? 'bi-sun' : 'bi-moon-stars'));
-  }
   document.addEventListener('DOMContentLoaded', () => {
-    setTheme(document.documentElement.getAttribute('data-bs-theme') || 'light');
-    document.querySelectorAll('#themeToggle').forEach(b => b.addEventListener('click', () =>
-      setTheme(document.documentElement.getAttribute('data-bs-theme') === 'dark' ? 'light' : 'dark')));
-
     // ---------- every alert gets a close button ----------
     const ensureClose = el => {
       if (el.matches('.alert') && !el.querySelector('.btn-close') && !el.hasAttribute('data-permanent')) {
@@ -77,7 +67,3 @@ window.AASRA = window.AASRA || {};
     if (host.closest('.app-content')) window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 })();
-
-document.getElementById('mobileThemeToggle')?.addEventListener('click', function () {
-    document.getElementById('themeToggle')?.click();
-});

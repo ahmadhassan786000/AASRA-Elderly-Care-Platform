@@ -15,3 +15,13 @@ define('SOCIAL_LINKS', [
     ['LinkedIn',  'bi-linkedin',  'https://www.linkedin.com/'],
     ['YouTube',   'bi-youtube',   'https://www.youtube.com/'],
 ]);
+// Central database configuration.
+if (!defined('AASRA_DB_CONFIG')) {
+    define('AASRA_DB_CONFIG', [
+        'host' => 'localhost',
+        'name' => 'aasra_db',
+        'user' => 'root',
+        'pass' => '',
+        'port' => 3306,
+    ]);
+}

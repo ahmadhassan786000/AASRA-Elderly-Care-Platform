@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 include __DIR__ . '/head.php';
 $cu = current_user(); $nav = $nav ?? '';
 $navServices = active_services();
@@ -26,7 +26,6 @@ $unread = (int)val('SELECT COUNT(*) FROM notifications WHERE user_id=? AND is_re
 
       </ul>
       <div class="d-flex align-items-center gap-2 mt-3 mt-lg-0">
-        <?php include APP_ROOT . '/includes/partials/theme_toggle.php'; ?>
         <a class="icon-btn position-relative" href="<?= e(url('user/notifications')) ?>" aria-label="Notifications"><i class="bi bi-bell"></i><?php if ($unread): ?><span class="dot-badge"><?= $unread ?></span><?php endif; ?></a>
         <div class="dropdown d-none d-lg-block">
           <button class="btn btn-outline-success d-flex align-items-center gap-2" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-person-circle"></i> Account</button>
@@ -74,8 +73,6 @@ $unread = (int)val('SELECT COUNT(*) FROM notifications WHERE user_id=? AND is_re
             <span>Notifications</span>
             <?php if ($unread): ?><span class="mobile-notification-badge"><?= $unread ?></span><?php endif; ?>
           </a>
-<a href="#" class="user-mobile-account-link user-mobile-theme" id="mobileThemeToggle"><i class="bi bi-moon-stars"></i><span>Theme</span></a>
-
           <a class="user-mobile-account-link text-danger" href="<?= e(url('logout')) ?>">
             <i class="bi bi-box-arrow-right"></i>
             <span>Logout</span>

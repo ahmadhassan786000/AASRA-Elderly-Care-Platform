@@ -18,7 +18,7 @@ function page_head(string $title, string $sub = '', string $right = ''): void {
     echo '<div class="page-head"><div><h1>' . e($title) . '</h1>' . ($sub ? '<p>' . e($sub) . '</p>' : '') . '</div>' . $right . '</div>';
 }
 function filter_reset(string $path): string { return '<a class="btn btn-outline-secondary" href="' . e(url($path)) . '">Reset</a>'; }
-function delete_error(PDOException $e): string {
-    if (($e->errorInfo[0] ?? '') === '23000') return 'This record has related bookings, ratings or complaints and cannot be deleted. Deactivate it instead.';
+function delete_error(Throwable $e): string {
+    if (db_is_integrity_error($e)) return 'This record has related bookings, ratings or complaints and cannot be deleted. Deactivate it instead.';
     throw $e;
 }

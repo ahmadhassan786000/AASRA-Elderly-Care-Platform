@@ -1,0 +1,6 @@
+# Keeps editors from re-adding a UTF-8 BOM to PHP files. A BOM in any included file is output as stray
+# characters before <!doctype>, which browsers render as blank space above the page header.
+root = true
+
+[*.php]
+charset = utf-8

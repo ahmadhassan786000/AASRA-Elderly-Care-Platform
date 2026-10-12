@@ -35,6 +35,7 @@ return [
     'provider/profile'       => 'provider/profile',
     'provider/settings'      => 'provider/settings',
     'provider/services'      => 'provider/services',
+    'provider/services/(\d+)/edit' => ['provider/service_edit', 'id'],
     'provider/availability'  => 'provider/availability',
     'provider/requests'      => 'provider/requests',
     'provider/bookings'      => 'provider/bookings',

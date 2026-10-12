@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 if (current_user() && auth_refresh()) redirect(home_for_role(current_user()['role']));
 
 $errors = [];
@@ -37,16 +37,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (!$errors) {
-        $pdo = db();
-        $pdo->beginTransaction();
+        db_begin();
 
         try {
-            q(
+            $ins = q(
                 'INSERT INTO users(name,email,password,role,status) VALUES(?,?,?,?,?)',
                 [$name, $email, password_hash($pass, PASSWORD_DEFAULT), $type, 'Active']
             );
 
-            $uid = (int)$pdo->lastInsertId();
+            $uid = (int)mysqli_stmt_insert_id($ins);
 
             if ($type === 'provider') {
                 q(
@@ -55,7 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 );
             }
 
-            $pdo->commit();
+            db_commit();
 
             flash(
                 'success',
@@ -65,8 +64,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             );
 
             redirect('login');
-        } catch (PDOException $e) {
-            $pdo->rollBack();
+        } catch (mysqli_sql_exception $e) {
+            db_rollback();
             error_log($e);
             $general_error = 'Registration failed. Please try again.';
         }

@@ -60,20 +60,20 @@ case 'delete_user':
     $t = row('SELECT id,role FROM users WHERE id=?', [$id]); if (!$t) fail('User not found.', 404);
     if ($t['role'] === 'admin' || $id === $admin['id']) fail('Administrator accounts cannot be deleted.');
     $docs = $t['role'] === 'provider' ? rows('SELECT d.document_path,p.photo FROM providers p LEFT JOIN provider_documents d ON d.provider_id=p.id WHERE p.user_id=?', [$id]) : [];
-    try { q('DELETE FROM users WHERE id=?', [$id]); } catch (PDOException $e) { fail(delete_error($e)); }
+    try { q('DELETE FROM users WHERE id=?', [$id]); } catch (mysqli_sql_exception $e) { fail(delete_error($e)); }
     foreach ($docs as $d) { delete_upload($d['document_path'] ?? null); delete_upload($d['photo'] ?? null); }
     json_out(['ok' => true, 'removed' => true, 'message' => 'Account deleted successfully.']);
 
 case 'delete_provider':
     $p = row('SELECT id,user_id,photo FROM providers WHERE id=?', [$id]); if (!$p) fail('Provider not found.', 404);
     $docs = rows('SELECT document_path FROM provider_documents WHERE provider_id=?', [$id]);
-    try { q('DELETE FROM users WHERE id=?', [$p['user_id']]); } catch (PDOException $e) { fail(delete_error($e)); }
+    try { q('DELETE FROM users WHERE id=?', [$p['user_id']]); } catch (mysqli_sql_exception $e) { fail(delete_error($e)); }
     foreach ($docs as $d) delete_upload($d['document_path']); delete_upload($p['photo']);
     json_out(['ok' => true, 'removed' => true, 'message' => 'Provider deleted successfully.']);
 
 case 'delete_service':
     $s = row('SELECT id,image FROM services WHERE id=?', [$id]); if (!$s) fail('Service not found.', 404);
-    try { q('DELETE FROM services WHERE id=?', [$id]); } catch (PDOException $e) { fail('This service is used by bookings and cannot be deleted. Set it to Inactive instead.'); }
+    try { q('DELETE FROM services WHERE id=?', [$id]); } catch (mysqli_sql_exception $e) { fail('This service is used by bookings and cannot be deleted. Set it to Inactive instead.'); }
     delete_upload($s['image']);
     json_out(['ok' => true, 'removed' => true, 'message' => 'Service deleted successfully.']);
 

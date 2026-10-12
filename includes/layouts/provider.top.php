@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 include __DIR__ . '/head.php';
 $cu = current_user(); $pv = current_provider(); $active = $active ?? '';
 $pendingReq = (int)val("SELECT COUNT(*) FROM bookings WHERE provider_id=? AND status='Pending'", [$pv['id']]);
