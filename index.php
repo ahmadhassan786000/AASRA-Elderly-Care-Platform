@@ -19,6 +19,9 @@ if ($path !== '' && str_ends_with(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PAT
     $qs = $_SERVER['QUERY_STRING'] ?? ''; redirect($path . ($qs ? '?' . $qs : ''), 301);
 }
 
+// Guides are now cards on the homepage; old /guides and /guides/<slug> links go to that section.
+if ($path === 'guides' || str_starts_with($path, 'guides/')) redirect('#guides', 301);
+
 foreach ($routes as $pattern => $target) {
     if (!preg_match('#^' . $pattern . '$#', $path, $m)) continue;
     $file = is_array($target) ? $target[0] : $target;

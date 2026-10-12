@@ -9,8 +9,6 @@ return [
     'privacy'       => 'public/privacy',
     'terms'         => 'public/terms',
     'disclaimer'    => 'public/disclaimer',
-    'guides'        => 'public/guides',
-    'guides/([a-z0-9-]+)' => ['public/guide', 'slug'],
     'providers/(\d+)'     => ['public/provider', 'id'],
     'api/providers' => 'api/providers',
     // auth

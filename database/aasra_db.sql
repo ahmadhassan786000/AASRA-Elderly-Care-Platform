@@ -1,4 +1,4 @@
--- AASRA database (v2) — fresh install.
+﻿-- AASRA database (v2) â€” fresh install.
 -- Import this file in phpMyAdmin. It drops and recreates all AASRA tables.
 -- Existing v1 databases: use database/migration_v2.sql instead (keeps your data).
 CREATE DATABASE IF NOT EXISTS aasra_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -30,9 +30,6 @@ CREATE TABLE providers(
   photo VARCHAR(255) NULL,
   bio TEXT NULL,
   skills TEXT NULL,
-  experience VARCHAR(120) NULL,
-  availability VARCHAR(255) NULL,
-  charges DECIMAL(10,2) NULL,
   verification_status ENUM('Not Submitted','Pending','Approved','Rejected') NOT NULL DEFAULT 'Not Submitted',
   verification_note VARCHAR(500) NULL,
   account_status ENUM('Active','Inactive') NOT NULL DEFAULT 'Active',

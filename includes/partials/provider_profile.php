@@ -20,9 +20,9 @@
       <h2 class="h5">Offerings</h2>
       <div class="list-group list-group-flush mb-2">
         <?php foreach ($offs as $o): ?><div class="list-group-item px-0">
-          <div class="d-flex justify-content-between gap-3 flex-wrap"><div><b><?= e($o['title']) ?></b> <span class="tag ms-1"><?= e($o['service_name']) ?></span></div><div class="fw-bold text-nowrap"><?= $o['price'] !== null ? e(money($o['price'])) : e(money($p['charges'])) ?><small class="text-secondary fw-normal"> / visit</small></div></div>
+          <div class="d-flex justify-content-between gap-3 flex-wrap"><div><b><?= e($o['title']) ?></b> <span class="tag ms-1"><?= e($o['service_name']) ?></span></div><?php if ($o['price'] !== null && (float)$o['price'] > 0): ?><div class="fw-bold text-nowrap"><?= e(money($o['price'])) ?><small class="text-secondary fw-normal"> / visit</small></div><?php endif; ?></div>
           <?php if ($o['description']): ?><p class="mb-1 text-secondary"><?= nl2br(e($o['description'])) ?></p><?php endif; ?>
-          <?php if ($o['experience'] || $o['availability']): ?><div class="small text-secondary"><?php if ($o['experience']): ?><span class="me-3"><i class="bi bi-briefcase me-1"></i><?= e($o['experience']) ?></span><?php endif; ?><?php if ($o['availability']): ?><span><i class="bi bi-clock me-1"></i><?= e($o['availability']) ?></span><?php endif; ?></div><?php endif; ?>
+          <?php if ($o['availability']): ?><div class="small text-secondary"><i class="bi bi-clock me-1"></i><?= e($o['availability']) ?></div><?php endif; ?>
         </div><?php endforeach; ?>
       </div>
       <?php endif; ?>
@@ -34,11 +34,6 @@
     </div>
   </div>
   <div class="col-lg-4"><div class="card-soft sticky-top" style="top:90px">
-    <div class="display-6 fw-bold"><?= e(money($p['charges'])) ?><small class="fs-6 text-secondary fw-normal"> / visit</small></div>
-    <ul class="list-unstyled my-3">
-      <li class="mb-2"><i class="bi bi-briefcase text-success me-2"></i><b>Experience:</b> <?= e($p['experience'] ?: '—') ?></li>
-      <li class="mb-2"><i class="bi bi-clock text-success me-2"></i><b>Availability:</b> <?= e($p['availability'] ?: '—') ?></li>
-    </ul>
     <?php if ($isUser): ?><a href="<?= e(url('user/book/' . $p['id'])) ?>" class="btn btn-success btn-lg w-100">Book now</a>
     <?php elseif (!current_user()): ?><a href="<?= e(url('login?next=' . rawurlencode('/user/book/' . $p['id']))) ?>" class="btn btn-success btn-lg w-100">Log in to book</a><p class="small text-secondary mt-2 mb-0">New here? <a href="<?= e(url('register')) ?>">Create a free account</a>.</p>
     <?php else: ?><p class="small text-secondary mb-0">Sign in with a user account to book this provider.</p><?php endif; ?>

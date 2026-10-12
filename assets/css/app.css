@@ -592,16 +592,8 @@ a {
   border: 1px solid var(--line);
   border-radius: 18px;
   padding: 1.3rem;
-  text-decoration: none;
   color: inherit;
-  transition:
-    border-color 0.18s,
-    transform 0.18s;
-}
-.guide-card:hover {
-  border-color: var(--brand);
-  transform: translateY(-3px);
-  color: inherit;
+  cursor: default; /* informational only, not a link */
 }
 .guide-ic {
   width: 48px;
@@ -1432,4 +1424,185 @@ body.user-area .site-header {
 
 body.user-area .site-header .navbar {
   margin: 0 auto !important;
+}
+
+/* =========================================================
+   Homepage motion + in-page navigation
+   (public homepage and logged-in user homepage)
+   Everything below is progressive enhancement: with JavaScript
+   off or prefers-reduced-motion on, content is simply visible.
+   ========================================================= */
+:root {
+  --header-h: 4.5rem; /* sticky public header height, used for anchor offsets */
+  --ease-out: cubic-bezier(0.22, 0.7, 0.2, 1);
+}
+
+/* anchor targets sit clear of the sticky header */
+.anchor-target {
+  scroll-margin-top: calc(var(--header-h) + 1.25rem);
+}
+#home.anchor-target,
+#services.anchor-target {
+  scroll-margin-top: var(--header-h);
+}
+body.user-area .anchor-target {
+  scroll-margin-top: 1.25rem; /* the user header is not sticky */
+}
+.hero {
+  position: relative;
+}
+.hero > .container {
+  position: relative;
+  z-index: 1;
+}
+.hero-decor {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.hero-orb {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 30% 30%,
+    color-mix(in srgb, var(--brand) 20%, transparent),
+    transparent 70%
+  );
+}
+.hero-orb.o1 {
+  width: 280px;
+  height: 280px;
+  left: -90px;
+  top: 18%;
+}
+.hero-orb.o2 {
+  width: 200px;
+  height: 200px;
+  right: 40%;
+  bottom: -70px;
+  background: radial-gradient(
+    circle at 30% 30%,
+    color-mix(in srgb, var(--amber) 22%, transparent),
+    transparent 70%
+  );
+}
+
+/* gentle hover lift on service and provider cards (pointer devices only) */
+.svc-card,
+.prov-card {
+  transition:
+    transform 0.22s var(--ease-out),
+    border-color 0.22s,
+    box-shadow 0.22s;
+}
+.svc-card img.svc-thumb {
+  transition: transform 0.5s var(--ease-out);
+}
+@media (hover: hover) {
+  .svc-card:hover,
+  .prov-card:hover {
+    box-shadow:
+      0 2px 4px rgba(16, 40, 26, 0.06),
+      0 16px 32px rgba(16, 40, 26, 0.12);
+  }
+  .svc-card:hover img.svc-thumb {
+    transform: scale(1.04);
+  }
+}
+
+@keyframes aasra-rise {
+  from {
+    opacity: 0;
+    transform: translateY(22px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes aasra-pop {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes aasra-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-9px);
+  }
+}
+@keyframes aasra-drift {
+  from {
+    transform: translate(0, 0);
+  }
+  to {
+    transform: translate(26px, -20px);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html:has(.hero-anim) {
+    scroll-behavior: smooth;
+  }
+
+  /* hero entrance: pure CSS, plays on load, no JavaScript needed */
+  .rise {
+    animation: aasra-rise 0.75s var(--ease-out) both;
+    animation-delay: calc(var(--i, 0) * 90ms + 60ms);
+  }
+  .hero-art .hero-blob {
+    animation: aasra-pop 0.9s var(--ease-out) 0.15s both;
+  }
+  .hero-art .hero-blob img {
+    animation: aasra-float 7s ease-in-out 1.2s infinite;
+  }
+  .float-card.a {
+    animation:
+      aasra-pop 0.8s var(--ease-out) 0.55s both,
+      aasra-float 6s ease-in-out 1.5s infinite;
+  }
+  .float-card.b {
+    animation:
+      aasra-pop 0.8s var(--ease-out) 0.75s both,
+      aasra-float 7s ease-in-out 1.9s infinite reverse;
+  }
+  .hero-orb.o1 {
+    animation: aasra-drift 14s ease-in-out infinite alternate;
+  }
+  .hero-orb.o2 {
+    animation: aasra-drift 18s ease-in-out -6s infinite alternate-reverse;
+  }
+
+  /* providers loaded by the service chips fade in one after another */
+  #svcProvidersGrid > * {
+    animation: aasra-rise 0.5s var(--ease-out) both;
+  }
+  #svcProvidersGrid > *:nth-child(2) { animation-delay: 0.06s; }
+  #svcProvidersGrid > *:nth-child(3) { animation-delay: 0.12s; }
+  #svcProvidersGrid > *:nth-child(4) { animation-delay: 0.18s; }
+  #svcProvidersGrid > *:nth-child(5) { animation-delay: 0.24s; }
+  #svcProvidersGrid > *:nth-child(6) { animation-delay: 0.3s; }
+
+  /* scroll reveal: the hidden state exists only once the page script has opted in (see head.php) */
+  .js-motion .reveal {
+    opacity: 0;
+    transform: translateY(26px);
+    transition:
+      opacity 0.7s var(--ease-out),
+      transform 0.7s var(--ease-out);
+    transition-delay: calc(var(--i, 0) * 70ms);
+  }
+  .js-motion .reveal.is-visible {
+    opacity: 1;
+    transform: none;
+  }
 }

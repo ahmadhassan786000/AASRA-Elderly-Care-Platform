@@ -86,16 +86,18 @@ function delete_upload(?string $rel): void {
 
 /* ---------- marketplace queries ---------- */
 function listed_providers(array $f = [], int $limit = 0): array {
-    $where = "p.verification_status='Approved' AND p.account_status='Active' AND u.status='Active' AND p.charges IS NOT NULL";
+    // Prices come from the provider's own offerings (under services the admin left Active); only a real price (> 0) counts.
+    $priced = "FROM provider_offerings o JOIN services os ON os.id=o.service_id AND os.status='Active' WHERE o.provider_id=p.id AND o.price>0";
+    $where = "p.verification_status='Approved' AND p.account_status='Active' AND u.status='Active' AND EXISTS(SELECT 1 $priced)";
     $a = [];
     if (!empty($f['q'])) { $where .= " AND (p.name LIKE ? OR p.location LIKE ? OR p.bio LIKE ? OR p.skills LIKE ? OR EXISTS(SELECT 1 FROM provider_services ps JOIN services s ON s.id=ps.service_id WHERE ps.provider_id=p.id AND s.service_name LIKE ?))"; $l = '%' . $f['q'] . '%'; array_push($a, $l, $l, $l, $l, $l); }
     if (!empty($f['service'])) { $where .= " AND EXISTS(SELECT 1 FROM provider_services ps JOIN services s ON s.id=ps.service_id WHERE ps.provider_id=p.id AND ps.service_id=? AND s.status='Active')"; $a[] = (int)$f['service']; }
     if (!empty($f['location'])) { $where .= ' AND p.location LIKE ?'; $a[] = '%' . $f['location'] . '%'; }
-    if (!empty($f['min'])) { $where .= ' AND p.charges>=?'; $a[] = (float)$f['min']; }
-    if (!empty($f['max'])) { $where .= ' AND p.charges<=?'; $a[] = (float)$f['max']; }
+    if (!empty($f['min'])) { $where .= " AND EXISTS(SELECT 1 $priced AND o.price>=?)"; $a[] = (float)$f['min']; }
+    if (!empty($f['max'])) { $where .= " AND EXISTS(SELECT 1 $priced AND o.price<=?)"; $a[] = (float)$f['max']; }
     if (!empty($f['ids'])) { $where .= ' AND p.id IN (' . implode(',', array_map('intval', $f['ids'])) . ')'; }
-    $order = ['price_asc' => 'p.charges ASC', 'price_desc' => 'p.charges DESC', 'rating' => 'rating DESC, reviews DESC'][$f['sort'] ?? 'rating'] ?? 'rating DESC, reviews DESC';
-    $sql = "SELECT p.*, COALESCE(r.avg_rating,0) rating, COALESCE(r.cnt,0) reviews,
+    $order = ['price_asc' => 'min_price ASC', 'price_desc' => 'min_price DESC', 'rating' => 'rating DESC, reviews DESC'][$f['sort'] ?? 'rating'] ?? 'rating DESC, reviews DESC';
+    $sql = "SELECT p.*, COALESCE(r.avg_rating,0) rating, COALESCE(r.cnt,0) reviews, (SELECT MIN(o.price) $priced) min_price,
         (SELECT GROUP_CONCAT(s.service_name ORDER BY s.service_name SEPARATOR ', ') FROM provider_services ps JOIN services s ON s.id=ps.service_id AND s.status='Active' WHERE ps.provider_id=p.id) services
         FROM providers p JOIN users u ON u.id=p.user_id
         LEFT JOIN (SELECT provider_id, AVG(rating) avg_rating, COUNT(*) cnt FROM ratings GROUP BY provider_id) r ON r.provider_id=p.id
@@ -117,7 +119,7 @@ function provider_card(array $p, string $area = 'public', bool $fav = false): vo
         </div>
       </div>
       <p class="text-secondary small mt-3 mb-2 clamp-2"><?= e($p['bio'] ?: 'Verified AASRA provider.') ?></p>
-      <div class="small text-secondary mb-3"><i class="bi bi-geo-alt"></i> <?= e($p['location'] ?: 'Lahore') ?> &nbsp;·&nbsp; <?= e(money($p['charges'])) ?>/visit</div>
+      <div class="small text-secondary mb-3"><i class="bi bi-geo-alt"></i> <?= e($p['location'] ?: 'Lahore') ?><?php if (!empty($p['min_price'])): ?> &nbsp;·&nbsp; From <?= e(money($p['min_price'])) ?>/visit<?php endif; ?></div>
       <div class="d-flex flex-wrap gap-1 mb-3">
         <?php foreach (array_slice(array_filter(explode(', ', (string)$p['services'])), 0, 2) as $sv): ?><span class="tag"><?= e($sv) ?></span><?php endforeach; ?>
       </div>

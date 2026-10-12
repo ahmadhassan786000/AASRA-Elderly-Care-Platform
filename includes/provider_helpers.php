@@ -1,38 +1,11 @@
 <?php
 function provider_completeness(array $p): array {
     $n = (int)val('SELECT COUNT(*) FROM provider_services WHERE provider_id=?', [$p['id']]);
-    $checks = ['Phone number' => !empty($p['phone']), 'Location' => !empty($p['location']), 'Services' => $n > 0, 'Experience' => !empty($p['experience']),
-               'Charges' => $p['charges'] !== null, 'Availability' => !empty($p['availability']), 'Bio' => !empty($p['bio']), 'Skills' => !empty($p['skills'])];
+    $checks = ['Phone number' => !empty($p['phone']), 'Location' => !empty($p['location']), 'Services' => $n > 0,
+               'Bio' => !empty($p['bio']), 'Skills' => !empty($p['skills'])];
     $done = count(array_filter($checks));
     return ['pct' => (int)round($done / count($checks) * 100), 'checks' => $checks];
 }
-// Syncs which admin-defined service types a provider is listed under (used by Account Settings and the admin
-// provider editor). It only adds and removes what changed, so existing offerings are never wiped by a save:
-//  - newly ticked types get a starting offering built from the provider's own details;
-//  - unticking an ACTIVE type removes the listing and, with it, the provider's offerings under that type;
-//  - listings under types the admin has since deactivated are kept untouched.
-function save_provider_services(int $pid, array $ids): void {
-    $want = array_values(array_unique(array_map('intval', $ids)));
-    $active = array_map('intval', array_column(rows("SELECT id FROM services WHERE status='Active'"), 'id'));
-    $want = array_values(array_intersect($want, $active));
-    $have = array_map('intval', array_column(rows('SELECT service_id FROM provider_services WHERE provider_id=?', [$pid]), 'service_id'));
-    $drop = array_values(array_diff(array_intersect($have, $active), $want));
-    $add = array_values(array_diff($want, $have));
-    if (!$drop && !$add) return;
-    $prov = $add ? row('SELECT charges,availability,experience FROM providers WHERE id=?', [$pid]) : false;
-    db_begin();
-    try {
-        foreach ($drop as $sid) q('DELETE FROM provider_services WHERE provider_id=? AND service_id=?', [$pid, $sid]); // offerings cascade
-        foreach ($add as $sid) {
-            q('INSERT INTO provider_services(provider_id,service_id) VALUES(?,?)', [$pid, $sid]);
-            $name = (string)val('SELECT service_name FROM services WHERE id=?', [$sid]);
-            q('INSERT IGNORE INTO provider_offerings(provider_id,service_id,title,price,availability,experience) VALUES(?,?,?,?,?,?)',
-              [$pid, $sid, $name, $prov['charges'] ?? null, $prov['availability'] ?? null, $prov['experience'] ?? null]);
-        }
-        db_commit();
-    } catch (Throwable $e) { db_rollback(); throw $e; }
-}
-
 /* ---------- provider service offerings ----------
    A provider may create many offerings, but each one must sit under a service type the administrator created and
    left Active. provider_services (the "listed under" table used by search and booking) is kept in step: it gains a

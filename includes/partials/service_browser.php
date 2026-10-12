@@ -5,8 +5,8 @@
     <?php foreach ($services as $s): ?><button type="button" class="chip" data-service="<?= (int)$s['id'] ?>"><?= e($s['service_name']) ?></button><?php endforeach; ?>
   </div>
   <div class="row g-4" id="svcGrid">
-    <?php foreach ($services as $s): ?>
-      <div class="col-sm-6 col-lg-4" data-svc="<?= (int)$s['id'] ?>">
+    <?php $__si = 0; foreach ($services as $s): ?>
+      <div class="col-sm-6 col-lg-4 reveal" style="--i:<?= $__si++ % 3 ?>" data-svc="<?= (int)$s['id'] ?>">
         <a class="svc-card" href="<?= e(url(($area === 'user' ? 'user/providers' : 'services') . '?service=' . $s['id'])) ?>">
           <?= service_thumb($s) ?>
           <div class="svc-body"><h3><?= e($s['service_name']) ?></h3><p class="text-secondary small mb-0 clamp-2"><?= e($s['description']) ?></p></div>
