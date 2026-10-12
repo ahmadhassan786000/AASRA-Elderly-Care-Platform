@@ -1,10 +1,12 @@
 <?php
 // A provider's offerings that users may see/book: only under service types the admin has left Active.
-function listed_offerings(int $pid): array {
+function listed_offerings(int $pid): array
+{
     return rows("SELECT o.*,s.service_name FROM provider_offerings o JOIN services s ON s.id=o.service_id AND s.status='Active' WHERE o.provider_id=? ORDER BY s.service_name,o.title", [$pid]);
 }
 // Loads a listed provider by id into [$p,$svcs,$reviews] or returns null.
-function load_listed_provider(int $id): ?array {
+function load_listed_provider(int $id): ?array
+{
     $list = listed_providers(['ids' => [$id]], 1);
     if (!$list) return null;
     $p = $list[0];

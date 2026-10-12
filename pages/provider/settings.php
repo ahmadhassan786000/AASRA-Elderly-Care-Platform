@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 $u = require_role('provider');
 require_once APP_ROOT . '/includes/provider_helpers.php';
 require_once APP_ROOT . '/includes/password_form.php';
@@ -122,8 +122,7 @@ layout('provider', [
     enctype="multipart/form-data"
     class="card-soft mb-4"
     id="providerSettingsForm"
-    novalidate
->
+    novalidate>
     <?= csrf_field() ?>
 
     <div class="d-flex align-items-center gap-3 mb-4 flex-wrap">
@@ -137,8 +136,7 @@ layout('provider', [
                 type="file"
                 name="photo"
                 class="form-control"
-                accept="image/jpeg,image/png,image/webp"
-            >
+                accept="image/jpeg,image/png,image/webp">
 
             <div class="form-text">
                 JPG, PNG or WebP, up to 2 MB.
@@ -157,8 +155,7 @@ layout('provider', [
                         type="checkbox"
                         name="remove_photo"
                         id="rp"
-                        value="1"
-                    >
+                        value="1">
                     <label class="form-check-label" for="rp">
                         Remove current photo
                     </label>
@@ -178,8 +175,7 @@ layout('provider', [
                 class="form-control <?= isset($errors['name']) ? 'is-invalid' : '' ?>"
                 value="<?= e($name) ?>"
                 maxlength="100"
-                required
-            >
+                required>
 
             <?php if (isset($errors['name'])): ?>
                 <div class="field-error text-danger small mt-1">
@@ -194,8 +190,7 @@ layout('provider', [
             <input
                 class="form-control"
                 value="<?= e($p['email']) ?>"
-                disabled
-            >
+                disabled>
         </div>
 
         <div class="col-md-6">
@@ -207,8 +202,7 @@ layout('provider', [
                 class="form-control <?= isset($errors['phone']) ? 'is-invalid' : '' ?>"
                 value="<?= e($phone) ?>"
                 maxlength="20"
-                placeholder="03xx xxxxxxx"
-            >
+                placeholder="03xx xxxxxxx">
 
             <?php if (isset($errors['phone'])): ?>
                 <div class="field-error text-danger small mt-1">
@@ -226,8 +220,7 @@ layout('provider', [
                 class="form-control <?= isset($errors['location']) ? 'is-invalid' : '' ?>"
                 value="<?= e($location) ?>"
                 maxlength="190"
-                placeholder="e.g. Gulberg, Lahore"
-            >
+                placeholder="e.g. Gulberg, Lahore">
 
             <?php if (isset($errors['location'])): ?>
                 <div class="field-error text-danger small mt-1">
@@ -245,8 +238,7 @@ layout('provider', [
                 class="form-control <?= isset($errors['skills']) ? 'is-invalid' : '' ?>"
                 value="<?= e($skills) ?>"
                 maxlength="500"
-                placeholder="e.g. Mobility support, medication reminders, cooking"
-            >
+                placeholder="e.g. Mobility support, medication reminders, cooking">
 
             <?php if (isset($errors['skills'])): ?>
                 <div class="field-error text-danger small mt-1">
@@ -263,8 +255,7 @@ layout('provider', [
                 name="bio"
                 class="form-control <?= isset($errors['bio']) ? 'is-invalid' : '' ?>"
                 rows="4"
-                maxlength="2000"
-            ><?= e($bio) ?></textarea>
+                maxlength="2000"><?= e($bio) ?></textarea>
 
             <?php if (isset($errors['bio'])): ?>
                 <div class="field-error text-danger small mt-1">
@@ -280,8 +271,7 @@ layout('provider', [
 
             <a
                 class="btn btn-outline-secondary"
-                href="<?= e(url('provider/verification')) ?>"
-            >
+                href="<?= e(url('provider/verification')) ?>">
                 Go to verification
             </a>
         </div>
@@ -294,201 +284,200 @@ layout('provider', [
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    const form = document.getElementById('providerSettingsForm');
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('providerSettingsForm');
 
-    if (!form) return;
+        if (!form) return;
 
-    const fields = {
-        name: document.getElementById('name'),
-        phone: document.getElementById('phone'),
-        location: document.getElementById('location'),
-        skills: document.getElementById('skills'),
-        bio: document.getElementById('bio')
-    };
+        const fields = {
+            name: document.getElementById('name'),
+            phone: document.getElementById('phone'),
+            location: document.getElementById('location'),
+            skills: document.getElementById('skills'),
+            bio: document.getElementById('bio')
+        };
 
-    function removeClientError(input) {
-        if (!input) return;
+        function removeClientError(input) {
+            if (!input) return;
 
-        input.classList.remove('is-invalid');
+            input.classList.remove('is-invalid');
 
-        const error = input.parentElement.querySelector(
-            '.client-field-error'
-        );
-
-        if (error) {
-            error.remove();
-        }
-    }
-
-    function showClientError(input, message) {
-        if (!input) return;
-
-        removeClientError(input);
-
-        input.classList.add('is-invalid');
-
-        const error = document.createElement('div');
-
-        error.className =
-            'client-field-error text-danger small mt-1';
-
-        error.textContent = message;
-
-        input.parentElement.appendChild(error);
-    }
-
-    function validateName() {
-        const value = fields.name.value.trim();
-
-        if (value.length < 2) {
-            showClientError(
-                fields.name,
-                'Please enter your full name.'
+            const error = input.parentElement.querySelector(
+                '.client-field-error'
             );
-            return false;
+
+            if (error) {
+                error.remove();
+            }
         }
 
-        if (value.length > 100) {
-            showClientError(
-                fields.name,
-                'Full name must not exceed 100 characters.'
-            );
-            return false;
+        function showClientError(input, message) {
+            if (!input) return;
+
+            removeClientError(input);
+
+            input.classList.add('is-invalid');
+
+            const error = document.createElement('div');
+
+            error.className =
+                'client-field-error text-danger small mt-1';
+
+            error.textContent = message;
+
+            input.parentElement.appendChild(error);
         }
 
-        removeClientError(fields.name);
-        return true;
-    }
+        function validateName() {
+            const value = fields.name.value.trim();
 
-    function validatePhone() {
-        const value = fields.phone.value.trim();
+            if (value.length < 2) {
+                showClientError(
+                    fields.name,
+                    'Please enter your full name.'
+                );
+                return false;
+            }
 
-        if (value === '') {
+            if (value.length > 100) {
+                showClientError(
+                    fields.name,
+                    'Full name must not exceed 100 characters.'
+                );
+                return false;
+            }
+
+            removeClientError(fields.name);
+            return true;
+        }
+
+        function validatePhone() {
+            const value = fields.phone.value.trim();
+
+            if (value === '') {
+                removeClientError(fields.phone);
+                return true;
+            }
+
+            const pattern = /^[0-9+\-\s]{7,20}$/;
+
+            if (!pattern.test(value)) {
+                showClientError(
+                    fields.phone,
+                    'Please enter a valid phone number.'
+                );
+                return false;
+            }
+
             removeClientError(fields.phone);
             return true;
         }
 
-        const pattern = /^[0-9+\-\s]{7,20}$/;
+        function validateLocation() {
+            const value = fields.location.value.trim();
 
-        if (!pattern.test(value)) {
-            showClientError(
-                fields.phone,
-                'Please enter a valid phone number.'
-            );
-            return false;
-        }
-
-        removeClientError(fields.phone);
-        return true;
-    }
-
-    function validateLocation() {
-        const value = fields.location.value.trim();
-
-        if (value.length > 190) {
-            showClientError(
-                fields.location,
-                'Location must not exceed 190 characters.'
-            );
-            return false;
-        }
-
-        removeClientError(fields.location);
-        return true;
-    }
-
-    function validateSkills() {
-        const value = fields.skills.value.trim();
-
-        if (value.length > 500) {
-            showClientError(
-                fields.skills,
-                'Skills must not exceed 500 characters.'
-            );
-            return false;
-        }
-
-        removeClientError(fields.skills);
-        return true;
-    }
-
-    function validateBio() {
-        const value = fields.bio.value.trim();
-
-        if (value.length > 2000) {
-            showClientError(
-                fields.bio,
-                'Bio must not exceed 2,000 characters.'
-            );
-            return false;
-        }
-
-        removeClientError(fields.bio);
-        return true;
-    }
-
-    fields.name.addEventListener('blur', validateName);
-    fields.phone.addEventListener('blur', validatePhone);
-    fields.location.addEventListener('blur', validateLocation);
-    fields.skills.addEventListener('blur', validateSkills);
-    fields.bio.addEventListener('blur', validateBio);
-
-    fields.name.addEventListener('input', function () {
-        if (fields.name.classList.contains('is-invalid')) {
-            validateName();
-        }
-    });
-
-    fields.phone.addEventListener('input', function () {
-        if (fields.phone.classList.contains('is-invalid')) {
-            validatePhone();
-        }
-    });
-
-    fields.location.addEventListener('input', function () {
-        if (fields.location.classList.contains('is-invalid')) {
-            validateLocation();
-        }
-    });
-
-    fields.skills.addEventListener('input', function () {
-        if (fields.skills.classList.contains('is-invalid')) {
-            validateSkills();
-        }
-    });
-
-    fields.bio.addEventListener('input', function () {
-        if (fields.bio.classList.contains('is-invalid')) {
-            validateBio();
-        }
-    });
-
-    form.addEventListener('submit', function (event) {
-        const validName = validateName();
-        const validPhone = validatePhone();
-        const validLocation = validateLocation();
-        const validSkills = validateSkills();
-        const validBio = validateBio();
-
-        if (
-            !validName ||
-            !validPhone ||
-            !validLocation ||
-            !validSkills ||
-            !validBio
-        ) {
-            event.preventDefault();
-
-            const firstInvalid = form.querySelector('.is-invalid');
-
-            if (firstInvalid) {
-                firstInvalid.focus();
+            if (value.length > 190) {
+                showClientError(
+                    fields.location,
+                    'Location must not exceed 190 characters.'
+                );
+                return false;
             }
+
+            removeClientError(fields.location);
+            return true;
         }
+
+        function validateSkills() {
+            const value = fields.skills.value.trim();
+
+            if (value.length > 500) {
+                showClientError(
+                    fields.skills,
+                    'Skills must not exceed 500 characters.'
+                );
+                return false;
+            }
+
+            removeClientError(fields.skills);
+            return true;
+        }
+
+        function validateBio() {
+            const value = fields.bio.value.trim();
+
+            if (value.length > 2000) {
+                showClientError(
+                    fields.bio,
+                    'Bio must not exceed 2,000 characters.'
+                );
+                return false;
+            }
+
+            removeClientError(fields.bio);
+            return true;
+        }
+
+        fields.name.addEventListener('blur', validateName);
+        fields.phone.addEventListener('blur', validatePhone);
+        fields.location.addEventListener('blur', validateLocation);
+        fields.skills.addEventListener('blur', validateSkills);
+        fields.bio.addEventListener('blur', validateBio);
+
+        fields.name.addEventListener('input', function() {
+            if (fields.name.classList.contains('is-invalid')) {
+                validateName();
+            }
+        });
+
+        fields.phone.addEventListener('input', function() {
+            if (fields.phone.classList.contains('is-invalid')) {
+                validatePhone();
+            }
+        });
+
+        fields.location.addEventListener('input', function() {
+            if (fields.location.classList.contains('is-invalid')) {
+                validateLocation();
+            }
+        });
+
+        fields.skills.addEventListener('input', function() {
+            if (fields.skills.classList.contains('is-invalid')) {
+                validateSkills();
+            }
+        });
+
+        fields.bio.addEventListener('input', function() {
+            if (fields.bio.classList.contains('is-invalid')) {
+                validateBio();
+            }
+        });
+
+        form.addEventListener('submit', function(event) {
+            const validName = validateName();
+            const validPhone = validatePhone();
+            const validLocation = validateLocation();
+            const validSkills = validateSkills();
+            const validBio = validateBio();
+
+            if (
+                !validName ||
+                !validPhone ||
+                !validLocation ||
+                !validSkills ||
+                !validBio
+            ) {
+                event.preventDefault();
+
+                const firstInvalid = form.querySelector('.is-invalid');
+
+                if (firstInvalid) {
+                    firstInvalid.focus();
+                }
+            }
+        });
     });
-});
 </script>
 
 <?php layout_end();
-

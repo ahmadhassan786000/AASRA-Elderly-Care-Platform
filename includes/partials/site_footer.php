@@ -15,11 +15,11 @@
       </div>
       <div class="col-6 col-lg-2">
         <?php if (($footer_area ?? 'public') === 'user'): ?>
-        <h6>My account</h6>
-        <a class="footer-link" href="<?= e(url('user')) ?>">Dashboard</a><a class="footer-link" href="<?= e(url('user/profile')) ?>">My profile</a><a class="footer-link" href="<?= e(url('user/bookings')) ?>">Bookings</a>
+          <h6>My account</h6>
+          <a class="footer-link" href="<?= e(url('user')) ?>">Dashboard</a><a class="footer-link" href="<?= e(url('user/profile')) ?>">My profile</a><a class="footer-link" href="<?= e(url('user/bookings')) ?>">Bookings</a>
         <?php else: ?>
-        <h6>Account</h6>
-        <a class="footer-link" href="<?= e(url('login')) ?>">Login</a><a class="footer-link" href="<?= e(url('register')) ?>">Register</a><a class="footer-link" href="<?= e(url('register')) ?>">Become a Provider</a>
+          <h6>Account</h6>
+          <a class="footer-link" href="<?= e(url('login')) ?>">Login</a><a class="footer-link" href="<?= e(url('register')) ?>">Register</a><a class="footer-link" href="<?= e(url('register')) ?>">Become a Provider</a>
         <?php endif; ?>
       </div>
 

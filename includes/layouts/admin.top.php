@@ -21,111 +21,111 @@ $pendingV = (int) val(
 ?>
 
 <body class="app-body admin-area">
-<div class="app-shell">
+    <div class="app-shell">
 
-    <button
-        type="button"
-        class="provider-mobile-menu"
-        id="adminMobileMenu"
-        aria-label="Open admin menu"
-        aria-controls="sidebar"
-        aria-expanded="false">
-        <i class="bi bi-list"></i>
-    </button>
+        <button
+            type="button"
+            class="provider-mobile-menu"
+            id="adminMobileMenu"
+            aria-label="Open admin menu"
+            aria-controls="sidebar"
+            aria-expanded="false">
+            <i class="bi bi-list"></i>
+        </button>
 
-    <div class="provider-sidebar-overlay" id="adminSidebarOverlay"></div>
+        <div class="provider-sidebar-overlay" id="adminSidebarOverlay"></div>
 
-    <aside class="sidebar sidebar-admin" id="sidebar" tabindex="-1">
+        <aside class="sidebar sidebar-admin" id="sidebar" tabindex="-1">
 
-        <div class="sidebar-head">
-            <div class="provider-sidebar-profile">
-                <?= avatar($cu, 'avatar-sm') ?>
+            <div class="sidebar-head">
+                <div class="provider-sidebar-profile">
+                    <?= avatar($cu, 'avatar-sm') ?>
 
-                <div>
-                    <span class="provider-sidebar-name">
-                        <?= e($cu['name'] ?? 'Administrator') ?>
-                    </span>
-                    <span class="role-pill">Administrator</span>
+                    <div>
+                        <span class="provider-sidebar-name">
+                            <?= e($cu['name'] ?? 'Administrator') ?>
+                        </span>
+                        <span class="role-pill">Administrator</span>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <nav class="sidebar-nav" aria-label="Admin navigation">
-            <?php foreach ($items as [$k, $path, $ic, $label]): ?>
-                <a
-                    href="<?= e(url($path)) ?>"
-                    class="side-link <?= $active === $k ? 'active' : '' ?>"
-                    <?= $active === $k ? 'aria-current="page"' : '' ?>>
+            <nav class="sidebar-nav" aria-label="Admin navigation">
+                <?php foreach ($items as [$k, $path, $ic, $label]): ?>
+                    <a
+                        href="<?= e(url($path)) ?>"
+                        class="side-link <?= $active === $k ? 'active' : '' ?>"
+                        <?= $active === $k ? 'aria-current="page"' : '' ?>>
 
-                    <i class="bi <?= e($ic) ?>"></i>
-                    <span><?= e($label) ?></span>
+                        <i class="bi <?= e($ic) ?>"></i>
+                        <span><?= e($label) ?></span>
 
-                    <?php if ($k === 'verification'): ?>
-                        <span class="side-count" id="pendingVerificationCount"<?= $pendingV < 1 ? ' hidden' : '' ?>><?= $pendingV ?></span>
-                    <?php endif; ?>
+                        <?php if ($k === 'verification'): ?>
+                            <span class="side-count" id="pendingVerificationCount" <?= $pendingV < 1 ? ' hidden' : '' ?>><?= $pendingV ?></span>
+                        <?php endif; ?>
+                    </a>
+                <?php endforeach; ?>
+
+                <div class="side-sep"></div>
+
+                <a href="<?= e(url('logout')) ?>" class="side-link">
+                    <i class="bi bi-box-arrow-right"></i>
+                    <span>Logout</span>
                 </a>
-            <?php endforeach; ?>
 
-            <div class="side-sep"></div>
+                <a
+                    href="<?= e(url('')) ?>"
+                    target="_blank"
+                    rel="noopener"
+                    class="side-link">
+                    <i class="bi bi-box-arrow-up-right"></i>
+                    <span>View Website</span>
+                </a>
+            </nav>
+        </aside>
 
-            <a href="<?= e(url('logout')) ?>" class="side-link">
-                <i class="bi bi-box-arrow-right"></i>
-                <span>Logout</span>
-            </a>
+        <main class="app-main">
+            <div class="app-content">
+                <?php render_flashes(); ?>
 
-            <a
-                href="<?= e(url('')) ?>"
-                target="_blank"
-                rel="noopener"
-                class="side-link">
-                <i class="bi bi-box-arrow-up-right"></i>
-                <span>View Website</span>
-            </a>
-        </nav>
-    </aside>
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        const sidebar = document.getElementById('sidebar');
+                        const menu = document.getElementById('adminMobileMenu');
+                        const overlay = document.getElementById('adminSidebarOverlay');
 
-    <main class="app-main">
-        <div class="app-content">
-            <?php render_flashes(); ?>
+                        if (!sidebar || !menu || !overlay) return;
 
-            <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                const sidebar = document.getElementById('sidebar');
-                const menu = document.getElementById('adminMobileMenu');
-                const overlay = document.getElementById('adminSidebarOverlay');
+                        function openSidebar() {
+                            sidebar.classList.add('mobile-open');
+                            overlay.classList.add('show');
+                            menu.setAttribute('aria-expanded', 'true');
+                        }
 
-                if (!sidebar || !menu || !overlay) return;
+                        function closeSidebar() {
+                            sidebar.classList.remove('mobile-open');
+                            overlay.classList.remove('show');
+                            menu.setAttribute('aria-expanded', 'false');
+                        }
 
-                function openSidebar() {
-                    sidebar.classList.add('mobile-open');
-                    overlay.classList.add('show');
-                    menu.setAttribute('aria-expanded', 'true');
-                }
+                        menu.addEventListener('click', function() {
+                            if (sidebar.classList.contains('mobile-open')) {
+                                closeSidebar();
+                            } else {
+                                openSidebar();
+                            }
+                        });
 
-                function closeSidebar() {
-                    sidebar.classList.remove('mobile-open');
-                    overlay.classList.remove('show');
-                    menu.setAttribute('aria-expanded', 'false');
-                }
+                        overlay.addEventListener('click', closeSidebar);
 
-                menu.addEventListener('click', function () {
-                    if (sidebar.classList.contains('mobile-open')) {
-                        closeSidebar();
-                    } else {
-                        openSidebar();
-                    }
-                });
+                        sidebar.querySelectorAll('.side-link').forEach(function(link) {
+                            link.addEventListener('click', function() {
+                                if (window.innerWidth <= 991) closeSidebar();
+                            });
+                        });
 
-                overlay.addEventListener('click', closeSidebar);
-
-                sidebar.querySelectorAll('.side-link').forEach(function (link) {
-                    link.addEventListener('click', function () {
-                        if (window.innerWidth <= 991) closeSidebar();
+                        window.addEventListener('resize', function() {
+                            if (window.innerWidth > 991) closeSidebar();
+                        });
                     });
-                });
-
-                window.addEventListener('resize', function () {
-                    if (window.innerWidth > 991) closeSidebar();
-                });
-            });
-            </script>
+                </script>

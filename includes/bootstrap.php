@@ -22,7 +22,11 @@ set_exception_handler(function (Throwable $e) {
     error_log('AASRA: ' . $e);
     while (ob_get_level()) ob_end_clean();
     if (!headers_sent()) http_response_code(500);
-    if (is_ajax()) { header('Content-Type: application/json'); echo json_encode(['ok' => false, 'message' => 'Something went wrong. Please try again.']); exit; }
+    if (is_ajax()) {
+        header('Content-Type: application/json');
+        echo json_encode(['ok' => false, 'message' => 'Something went wrong. Please try again.']);
+        exit;
+    }
     show_error_page(500);
     exit;
 });

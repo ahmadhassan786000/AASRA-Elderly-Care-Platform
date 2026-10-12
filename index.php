@@ -10,13 +10,16 @@ $routes = require APP_ROOT . '/includes/routes.php';
 if (preg_match('#\.php$#', $path)) {
     $clean = preg_replace('#(/?index)?\.php$#', '', $path);
     foreach ($routes as $pattern => $t) if (preg_match('#^' . $pattern . '$#', $clean)) {
-        $qs = $_SERVER['QUERY_STRING'] ?? ''; redirect($clean . ($qs ? '?' . $qs : ''), 301);
+        $qs = $_SERVER['QUERY_STRING'] ?? '';
+        redirect($clean . ($qs ? '?' . $qs : ''), 301);
     }
-    show_error_page(404); exit;
+    show_error_page(404);
+    exit;
 }
 // Canonicalise trailing slashes.
 if ($path !== '' && str_ends_with(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH), '/')) {
-    $qs = $_SERVER['QUERY_STRING'] ?? ''; redirect($path . ($qs ? '?' . $qs : ''), 301);
+    $qs = $_SERVER['QUERY_STRING'] ?? '';
+    redirect($path . ($qs ? '?' . $qs : ''), 301);
 }
 
 // Guides are now cards on the homepage; old /guides and /guides/<slug> links go to that section.
@@ -28,7 +31,9 @@ foreach ($routes as $pattern => $target) {
     if (is_array($target)) foreach (array_slice($target, 1) as $i => $name) $_GET[$name] = $m[$i + 1];
     $abs = APP_ROOT . '/pages/' . $file . '.php';
     if (!is_file($abs)) break;
-    (function () use ($abs) { include $abs; })();
+    (function () use ($abs) {
+        include $abs;
+    })();
     exit;
 }
 show_error_page(404);

@@ -1,64 +1,66 @@
 <?php
-$u = require_role('provider'); $p = current_provider(); $pid = (int)$p['id'];
+$u = require_role('provider');
+$p = current_provider();
+$pid = (int)$p['id'];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    check_csrf();
+  check_csrf();
 
-    if (post('action') === 'delete_document') {
-        $documentId = (int)post('document_id');
+  if (post('action') === 'delete_document') {
+    $documentId = (int)post('document_id');
 
-        $document = row(
-            'SELECT * FROM provider_documents WHERE id=? AND provider_id=?',
-            [$documentId, $pid]
-        );
+    $document = row(
+      'SELECT * FROM provider_documents WHERE id=? AND provider_id=?',
+      [$documentId, $pid]
+    );
 
-        if (!$document) {
-            flash('danger', 'Document not found.');
-        } else {
-            q(
-                'DELETE FROM provider_documents WHERE id=? AND provider_id=?',
-                [$documentId, $pid]
-            );
-
-            flash('success', 'Document deleted successfully.');
-        }
-
-        redirect('provider/verification');
-    }
-
-    $type = post('document_type');
-
-    if (!in_array($type, ['CNIC', 'Experience Certificate', 'Other'], true)) {
-        flash('danger', 'Please choose a document type.');
-    } elseif (empty($_FILES['document']['name'])) {
-        flash('danger', 'Please choose a file to upload.');
+    if (!$document) {
+      flash('danger', 'Document not found.');
     } else {
-        [$path, $err] = save_upload($_FILES['document'], 'documents', DOC_TYPES, 5 * 1048576, false);
+      q(
+        'DELETE FROM provider_documents WHERE id=? AND provider_id=?',
+        [$documentId, $pid]
+      );
 
-        if ($err) {
-            flash('danger', $err);
-        } else {
-            q(
-                "INSERT INTO provider_documents(provider_id,document_type,document_path,verification_status) VALUES(?,?,?,'Pending')",
-                [$pid, $type, $path]
-            );
-
-            q(
-                "UPDATE providers SET verification_status='Pending',verification_note=NULL WHERE id=? AND verification_status<>'Approved'",
-                [$pid]
-            );
-
-            flash('success', 'Document uploaded. An admin will review it soon.');
-        }
+      flash('success', 'Document deleted successfully.');
     }
 
     redirect('provider/verification');
+  }
+
+  $type = post('document_type');
+
+  if (!in_array($type, ['CNIC', 'Experience Certificate', 'Other'], true)) {
+    flash('danger', 'Please choose a document type.');
+  } elseif (empty($_FILES['document']['name'])) {
+    flash('danger', 'Please choose a file to upload.');
+  } else {
+    [$path, $err] = save_upload($_FILES['document'], 'documents', DOC_TYPES, 5 * 1048576, false);
+
+    if ($err) {
+      flash('danger', $err);
+    } else {
+      q(
+        "INSERT INTO provider_documents(provider_id,document_type,document_path,verification_status) VALUES(?,?,?,'Pending')",
+        [$pid, $type, $path]
+      );
+
+      q(
+        "UPDATE providers SET verification_status='Pending',verification_note=NULL WHERE id=? AND verification_status<>'Approved'",
+        [$pid]
+      );
+
+      flash('success', 'Document uploaded. An admin will review it soon.');
+    }
+  }
+
+  redirect('provider/verification');
 }
 
 $p = row('SELECT * FROM providers WHERE id=?', [$pid]);
 $docs = rows(
-    'SELECT * FROM provider_documents WHERE provider_id=? ORDER BY uploaded_at DESC',
-    [$pid]
+  'SELECT * FROM provider_documents WHERE provider_id=? ORDER BY uploaded_at DESC',
+  [$pid]
 );
 
 layout('provider', ['title' => 'Verification', 'active' => 'verification']);
@@ -112,8 +114,7 @@ layout('provider', ['title' => 'Verification', 'active' => 'verification']);
             name="document"
             class="form-control"
             accept=".pdf,.jpg,.jpeg,.png"
-            required
-          >
+            required>
           <div class="form-text">PDF, JPG or PNG, up to 5 MB.</div>
         </div>
 
@@ -143,8 +144,7 @@ layout('provider', ['title' => 'Verification', 'active' => 'verification']);
                 class="btn btn-sm btn-outline-secondary dropdown-toggle"
                 type="button"
                 data-bs-toggle="dropdown"
-                aria-expanded="false"
-              >
+                aria-expanded="false">
                 Actions
               </button>
 
@@ -154,14 +154,15 @@ layout('provider', ['title' => 'Verification', 'active' => 'verification']);
                     class="dropdown-item"
                     target="_blank"
                     rel="noopener"
-                    href="<?= e(url('provider/documents/' . $d['id'])) ?>"
-                  >
+                    href="<?= e(url('provider/documents/' . $d['id'])) ?>">
                     <i class="bi bi-box-arrow-up-right me-2"></i>
                     Open
                   </a>
                 </li>
 
-                <li><hr class="dropdown-divider"></li>
+                <li>
+                  <hr class="dropdown-divider">
+                </li>
 
                 <li>
                   <form method="post" onsubmit="return confirm('Are you sure you want to delete this document?');">
@@ -192,10 +193,3 @@ layout('provider', ['title' => 'Verification', 'active' => 'verification']);
 </div>
 
 <?php layout_end();
-
-
-
-
-
-
-
