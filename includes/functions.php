@@ -249,7 +249,7 @@ function show_error_page(int $code): void
     $inAdmin = $code !== 500 && str_starts_with(request_path(), 'admin') && (($_SESSION['uid_role'] ?? '') === 'admin');
     $o['inAdmin'] = $inAdmin;
     $o['active'] = '';
-    layout($inAdmin ? 'admin' : 'plain', $o);
+    layout('plain', $o);
     extract($o);
     include APP_ROOT . '/includes/partials/error.php';
     layout_end();
