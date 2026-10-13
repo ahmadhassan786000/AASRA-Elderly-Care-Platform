@@ -1,17 +1,17 @@
 <?php
 $u = require_role('user');
-$services = active_services();
+$categories = active_categories();
 $top = listed_providers([], 3);
 // Recommended: providers offering services the user booked before, or in the user's area.
 $mine = row('SELECT address FROM users WHERE id=?', [$u['id']]);
-$past = array_column(rows('SELECT DISTINCT service_id FROM bookings WHERE user_id=?', [$u['id']]), 'service_id');
+$past = array_column(rows('SELECT DISTINCT category_id FROM bookings WHERE user_id=?', [$u['id']]), 'category_id');
 $area = trim(explode(',', (string)($mine['address'] ?? ''))[0]);
 $shownIds = array_column($top, 'id');
 $rec = [];
 foreach (listed_providers([], 40) as $p) {
   $score = 0;
   if ($past) {
-    $ps = array_column(rows('SELECT service_id FROM provider_services WHERE provider_id=?', [$p['id']]), 'service_id');
+    $ps = array_column(rows('SELECT category_id FROM provider_categories WHERE provider_id=?', [$p['id']]), 'category_id');
     $score += 2 * count(array_intersect($past, $ps));
   }
   if ($area !== '' && stripos((string)$p['location'], $area) !== false) $score += 3;
@@ -40,12 +40,12 @@ layout('user', ['title' => 'Home', 'nav' => 'home', 'motion' => true, 'js' => ['
   <div class="container">
     <div class="section-head reveal">
       <div>
-        <h2>Services</h2>
-        <p class="text-secondary mb-0">Filter by service to see matching providers.</p>
+        <h2>Categories</h2>
+        <p class="text-secondary mb-0">Filter by category to see matching providers.</p>
       </div>
     </div>
     <?php $area = 'user';
-    include APP_ROOT . '/includes/partials/service_browser.php'; ?>
+    include APP_ROOT . '/includes/partials/category_browser.php'; ?>
   </div>
 </section>
 

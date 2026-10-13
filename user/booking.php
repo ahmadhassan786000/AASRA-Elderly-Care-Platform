@@ -12,20 +12,20 @@ include __DIR__ . '/../includes/header.php'; ?>
             echo '<div class="alert alert-danger">Provider unavailable.</div>';
             return;
         }
-        $sv = $pdo->prepare('SELECT s.* FROM services s JOIN provider_services ps ON ps.service_id=s.id WHERE ps.provider_id=?');
+        $sv = $pdo->prepare('SELECT s.* FROM categories s JOIN provider_categories ps ON ps.category_id=s.id WHERE ps.provider_id=?');
         $sv->execute([$pid]);
         $error = '';
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             check_csrf();
-            $service = (int)$_POST['service_id'];
+            $service = (int)$_POST['category_id'];
             $date = post('booking_date');
             $time = post('booking_time');
             $req = post('requirements');
-            $chk = $pdo->prepare('SELECT id FROM services WHERE id=? AND status="Active"');
+            $chk = $pdo->prepare('SELECT id FROM categories WHERE id=? AND status="Active"');
             $chk->execute([$service]);
             if (!$chk->fetch() || !valid_date($date) || $date < date('Y-m-d')) $error = 'Please choose a valid service and future date.';
             else {
-                $pdo->prepare('INSERT INTO bookings(user_id,provider_id,service_id,booking_date,booking_time,requirements,charges,status) VALUES(?,?,?,?,?,?,?,?)')->execute([$u['id'], $pid, $service, $date, $time, $req, $p['charges'], 'Pending']);
+                $pdo->prepare('INSERT INTO bookings(user_id,provider_id,category_id,booking_date,booking_time,requirements,charges,status) VALUES(?,?,?,?,?,?,?,?)')->execute([$u['id'], $pid, $service, $date, $time, $req, $p['charges'], 'Pending']);
                 $bid = $pdo->lastInsertId();
                 notify($pdo, 'New booking request', 'A new booking request has been submitted.', $p['user_id'], $pid, 'booking');
                 flash('success', 'Booking request sent successfully.');
@@ -35,7 +35,7 @@ include __DIR__ . '/../includes/header.php'; ?>
             <div class="col-lg-7">
                 <div class="service-card p-4">
                     <h3>Book <?= e($p['name']) ?></h3><?php if ($error): ?><div class="alert alert-danger"><?= e($error) ?></div><?php endif; ?><form method="post" data-validate class="needs-validation" novalidate><input type="hidden" name="csrf" value="<?= e(csrf_token()) ?>"><input type="hidden" name="provider_id" value="<?= $pid ?>">
-                        <div class="mb-3"><label class="form-label">Service</label><select name="service_id" class="form-select" required><?php foreach ($sv->fetchAll() as $x): ?><option value="<?= $x['id'] ?>"><?= e($x['service_name']) ?></option><?php endforeach; ?></select></div>
+                        <div class="mb-3"><label class="form-label">Service</label><select name="category_id" class="form-select" required><?php foreach ($sv->fetchAll() as $x): ?><option value="<?= $x['id'] ?>"><?= e($x['category_name']) ?></option><?php endforeach; ?></select></div>
                         <div class="row">
                             <div class="col-md-6 mb-3"><label class="form-label">Date</label><input name="booking_date" type="date" min="<?= date('Y-m-d', strtotime('+1 day')) ?>" class="form-control" required></div>
                             <div class="col-md-6 mb-3"><label class="form-label">Time</label><input name="booking_time" type="time" class="form-control" required></div>

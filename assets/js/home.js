@@ -1,4 +1,4 @@
-/* Service chips: filter service cards and load matching providers via AJAX. */
+/* Category chips: filter category cards and load matching providers via AJAX. */
 document.addEventListener("DOMContentLoaded", () => {
   const box = document.getElementById("svcBrowser");
   if (!box) return;
@@ -23,7 +23,7 @@ document.addEventListener("DOMContentLoaded", () => {
   chips.forEach((c) =>
     c.addEventListener("click", async () => {
       chips.forEach((x) => x.classList.toggle("active", x === c));
-      const id = c.dataset.service;
+      const id = c.dataset.category;
       cards.forEach((x) => (x.hidden = id !== "0" && x.dataset.svc !== id));
       if (id === "0") {
         wrap.hidden = true;
@@ -33,10 +33,14 @@ document.addEventListener("DOMContentLoaded", () => {
       grid.innerHTML =
         '<div class="col-12 text-secondary">Loading providers…</div>';
       title.textContent = "Providers for " + c.textContent;
-      all.href = box.dataset.listing + "?service=" + id;
+      // Public area: clean /categories/<id> URL; user area: provider search filtered by category.
+      all.href =
+        box.dataset.area === "user"
+          ? box.dataset.listing + "?category=" + id
+          : box.dataset.listing + "/" + id;
       try {
         const res = await fetch(
-          A.url("api/providers?service=" + encodeURIComponent(id) + "&limit=6"),
+          A.url("api/providers?category=" + encodeURIComponent(id) + "&limit=6"),
           { headers: { Accept: "application/json" } },
         );
         const list = (await res.json()).providers || [];
@@ -53,7 +57,7 @@ document.addEventListener("DOMContentLoaded", () => {
         </div></div>`,
               )
               .join("")
-          : '<div class="col-12"><div class="empty-state card-soft"><i class="bi bi-search"></i><p class="mb-0 mt-2">No verified providers offer this service yet.</p></div></div>';
+          : '<div class="col-12"><div class="empty-state card-soft"><i class="bi bi-search"></i><p class="mb-0 mt-2">No verified providers offer this category yet.</p></div></div>';
       } catch (e) {
         grid.innerHTML =
           '<div class="col-12 text-danger">Could not load providers. Please try again.</div>';

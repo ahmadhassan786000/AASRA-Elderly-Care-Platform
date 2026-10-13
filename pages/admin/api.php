@@ -54,11 +54,11 @@ switch ($action) {
         q('UPDATE provider_documents SET verification_status=? WHERE id=?', [$value, $id]);
         json_out(['ok' => true, 'message' => 'Document ' . strtolower($value) . '.', 'key' => "doc:$id", 'status' => $value, 'badge' => badge($value)]);
 
-    case 'service_status':
+    case 'category_status':
         if (!in_array($value, ['Active', 'Inactive'], true)) fail('Invalid status.');
-        if (!row('SELECT id FROM services WHERE id=?', [$id])) fail('Service not found.', 404);
-        q('UPDATE services SET status=? WHERE id=?', [$value, $id]);
-        json_out(['ok' => true, 'message' => 'Status updated successfully.', 'key' => "service_status:$id", 'status' => $value, 'badge' => badge($value)]);
+        if (!row('SELECT id FROM categories WHERE id=?', [$id])) fail('Category not found.', 404);
+        q('UPDATE categories SET status=? WHERE id=?', [$value, $id]);
+        json_out(['ok' => true, 'message' => 'Status updated successfully.', 'key' => "category_status:$id", 'status' => $value, 'badge' => badge($value)]);
 
     case 'complaint_status':
         if (!in_array($value, ['Pending', 'Under Review', 'Resolved'], true)) fail('Invalid status.');
@@ -97,22 +97,26 @@ switch ($action) {
         delete_upload($p['photo']);
         json_out(['ok' => true, 'removed' => true, 'message' => 'Provider deleted successfully.']);
 
-    case 'delete_service':
-        $s = row('SELECT id,image FROM services WHERE id=?', [$id]);
-        if (!$s) fail('Service not found.', 404);
+    case 'delete_category':
+        $s = row('SELECT id,image FROM categories WHERE id=?', [$id]);
+        if (!$s) fail('Category not found.', 404);
+        // Explicit check as well as the foreign key, so a category with bookings is never removed even if a constraint is missing.
+        if ((int)val('SELECT COUNT(*) FROM bookings WHERE category_id=?', [$id]) > 0) {
+            fail('This category is used by bookings and cannot be deleted. Set it to Inactive instead.');
+        }
         try {
-            q('DELETE FROM services WHERE id=?', [$id]);
+            q('DELETE FROM categories WHERE id=?', [$id]);
         } catch (mysqli_sql_exception $e) {
-            fail('This service is used by bookings and cannot be deleted. Set it to Inactive instead.');
+            fail('This category is used by bookings and cannot be deleted. Set it to Inactive instead.');
         }
         delete_upload($s['image']);
-        json_out(['ok' => true, 'removed' => true, 'message' => 'Service deleted successfully.']);
+        json_out(['ok' => true, 'removed' => true, 'message' => 'Category deleted successfully.']);
 
-    case 'delete_service_image':
-        $s = row('SELECT id,image FROM services WHERE id=?', [$id]);
-        if (!$s) fail('Service not found.', 404);
+    case 'delete_category_image':
+        $s = row('SELECT id,image FROM categories WHERE id=?', [$id]);
+        if (!$s) fail('Category not found.', 404);
         delete_upload($s['image']);
-        q('UPDATE services SET image=NULL WHERE id=?', [$id]);
-        json_out(['ok' => true, 'removed' => true, 'redirect' => "admin/services/$id/edit", 'message' => 'Image removed.']);
+        q('UPDATE categories SET image=NULL WHERE id=?', [$id]);
+        json_out(['ok' => true, 'removed' => true, 'redirect' => "admin/categories/$id/edit", 'message' => 'Image removed.']);
 }
 fail('Unknown action.', 400);

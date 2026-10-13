@@ -1,5 +1,5 @@
 <?php
-$services = active_services();
+$categories = active_categories();
 $top = listed_providers([], 6);
 $stats = [
   'providers' => (int)val("SELECT COUNT(*) FROM providers p JOIN users u ON u.id=p.user_id WHERE p.verification_status='Approved' AND p.account_status='Active' AND u.status='Active'"),
@@ -16,10 +16,10 @@ layout('public', ['title' => 'AASRA', 'nav' => 'home', 'motion' => true, 'js' =>
       <div class="col-lg-7">
         <h1 class="mb-3 rise" style="--i:0">Trusted Care, When You Need It</h1>
         <p class="lead fs-5 mb-4 rise" style="--i:1">Find reliable and verified service providers for elderly and differently-abled individuals.</p>
-        <form class="search-panel rise" style="--i:2" action="<?= e(url('services')) ?>" method="get" role="search">
-          <label class="sp-field"><i class="bi bi-search"></i><input class="form-control" name="q" placeholder="Service or provider" aria-label="Search a service or provider"></label>
-          <label class="sp-field"><i class="bi bi-grid"></i><select class="form-select" name="service" aria-label="Service">
-              <option value="0">Any service</option><?php foreach ($services as $s): ?><option value="<?= (int)$s['id'] ?>"><?= e($s['service_name']) ?></option><?php endforeach; ?>
+        <form class="search-panel rise" style="--i:2" action="<?= e(url('categories')) ?>" method="get" role="search">
+          <label class="sp-field"><i class="bi bi-search"></i><input class="form-control" name="q" placeholder="Category or provider" aria-label="Search a category or provider"></label>
+          <label class="sp-field"><i class="bi bi-grid"></i><select class="form-select" name="category" aria-label="Category">
+              <option value="0">Any category</option><?php foreach ($categories as $s): ?><option value="<?= (int)$s['id'] ?>"><?= e($s['category_name']) ?></option><?php endforeach; ?>
             </select></label>
           <button class="btn btn-success px-4">Search</button>
         </form>
@@ -47,16 +47,16 @@ layout('public', ['title' => 'AASRA', 'nav' => 'home', 'motion' => true, 'js' =>
   </div>
 </section>
 
-<section class="section anchor-target" id="services" data-spy-section="services">
+<section class="section anchor-target" id="categories" data-spy-section="categories">
   <div class="container">
     <div class="section-head reveal">
       <div>
-        <h2>Services</h2>
+        <h2>Categories</h2>
         <p class="text-secondary mb-0">Choose the kind of support you need.</p>
-      </div><a class="btn btn-outline-success" href="<?= e(url('services')) ?>">All services</a>
+      </div><a class="btn btn-outline-success" href="<?= e(url('categories')) ?>">All categories</a>
     </div>
     <?php $area = 'public';
-    include APP_ROOT . '/includes/partials/service_browser.php'; ?>
+    include APP_ROOT . '/includes/partials/category_browser.php'; ?>
   </div>
 </section>
 
@@ -87,7 +87,7 @@ layout('public', ['title' => 'AASRA', 'nav' => 'home', 'motion' => true, 'js' =>
       <div>
         <h2>Top Rated Providers</h2>
         <p class="text-secondary mb-0">Highly rated by the families who booked them.</p>
-      </div><a class="btn btn-outline-success" href="<?= e(url('services')) ?>">Browse providers</a>
+      </div><a class="btn btn-outline-success" href="<?= e(url('categories')) ?>">Browse providers</a>
     </div>
     <?php if ($top): ?><div class="row g-4"><?php $pi = 0;
                                             foreach ($top as $p): ?><div class="col-md-6 col-lg-4 reveal" style="--i:<?= $pi++ % 3 ?>"><?php provider_card($p, 'public'); ?></div><?php endforeach; ?></div>

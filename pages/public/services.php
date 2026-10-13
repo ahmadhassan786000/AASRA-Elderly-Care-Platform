@@ -7,16 +7,16 @@ foreach ($services as $s) if ($s['id'] == $sid) $current = $s;
 if ($sid && !$current) $sid = 0;
 $searching = $sid || $qs !== '';
 $list = $searching ? listed_providers(['q' => $qs, 'service' => $sid, 'sort' => get('sort', 'rating'), 'location' => get('location')]) : [];
-layout('public', ['title' => $current ? $current['service_name'] : 'Services', 'nav' => 'services', 'js' => ['home.js']]);
+layout('public', ['title' => $current ? $current['category_name'] : 'Services', 'nav' => 'services', 'js' => ['home.js']]);
 ?>
 <section class="section pb-0">
   <div class="container">
-    <h1 class="mb-1"><?= $current ? e($current['service_name']) : 'Services' ?></h1>
+    <h1 class="mb-1"><?= $current ? e($current['category_name']) : 'Services' ?></h1>
     <p class="text-secondary mb-4"><?= $current ? e($current['description']) : 'Browse the support AASRA providers offer, or search for a provider.' ?></p>
     <form class="search-panel mb-4" method="get" role="search">
       <label class="sp-field"><i class="bi bi-search"></i><input class="form-control" name="q" value="<?= e($qs) ?>" placeholder="Search by name, skill or area" aria-label="Search"></label>
       <label class="sp-field"><i class="bi bi-grid"></i><select class="form-select" name="service" aria-label="Service">
-          <option value="0">Any service</option><?php foreach ($services as $s): ?><option value="<?= (int)$s['id'] ?>" <?= $sid == $s['id'] ? 'selected' : '' ?>><?= e($s['service_name']) ?></option><?php endforeach; ?>
+          <option value="0">Any service</option><?php foreach ($services as $s): ?><option value="<?= (int)$s['id'] ?>" <?= $sid == $s['id'] ? 'selected' : '' ?>><?= e($s['category_name']) ?></option><?php endforeach; ?>
         </select></label>
       <button class="btn btn-success px-4">Search</button>
     </form>

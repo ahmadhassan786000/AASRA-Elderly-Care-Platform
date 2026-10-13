@@ -2,7 +2,7 @@
 include __DIR__ . '/head.php';
 $cu = current_user();
 $nav = $nav ?? '';
-$navServices = active_services();
+$navCategories = active_categories();
 $unread = (int)val('SELECT COUNT(*) FROM notifications WHERE user_id=? AND is_read=0', [$cu['id']]);
 ?>
 
@@ -16,13 +16,13 @@ $unread = (int)val('SELECT COUNT(*) FROM notifications WHERE user_id=? AND is_re
         <ul class="navbar-nav me-auto ms-lg-4 gap-lg-1">
           <li class="nav-item"><a class="nav-link <?= $nav === 'home' ? 'active' : '' ?>" href="<?= e(url('user')) ?>">Home</a></li>
           <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle <?= $nav === 'services' ? 'active' : '' ?>" href="#" data-bs-toggle="dropdown" aria-expanded="false">Services</a>
+            <a class="nav-link dropdown-toggle <?= $nav === 'categories' ? 'active' : '' ?>" href="#" data-bs-toggle="dropdown" aria-expanded="false">Categories</a>
             <ul class="dropdown-menu shadow-sm">
-              <li><a class="dropdown-item" href="<?= e(url('user/providers')) ?>">All services</a></li>
+              <li><a class="dropdown-item" href="<?= e(url('user/providers')) ?>">All categories</a></li>
               <li>
                 <hr class="dropdown-divider">
               </li>
-              <?php foreach ($navServices as $s): ?><li><a class="dropdown-item" href="<?= e(url('user/providers?service=' . $s['id'])) ?>"><i class="bi <?= e(service_icon($s['service_name'])) ?> me-2 text-success"></i><?= e($s['service_name']) ?></a></li><?php endforeach; ?>
+              <?php foreach ($navCategories as $s): ?><li><a class="dropdown-item" href="<?= e(url('user/providers?category=' . $s['id'])) ?>"><i class="bi <?= e(service_icon($s['category_name'])) ?> me-2 text-success"></i><?= e($s['category_name']) ?></a></li><?php endforeach; ?>
             </ul>
           </li>
           <li class="nav-item"><a class="nav-link <?= $nav === 'providers' ? 'active' : '' ?>" href="<?= e(url('user/providers')) ?>">Find Providers</a></li>

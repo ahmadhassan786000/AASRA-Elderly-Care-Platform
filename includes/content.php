@@ -20,7 +20,7 @@ function guides(): array
             'icon' => 'bi-calendar-check',
             'excerpt' => 'From search to a confirmed visit in five simple steps.',
             'body' => [
-                'Search for a service or browse verified providers, then open a profile to see skills, services, offering prices and reviews.',
+                'Search for a service or browse verified providers, then open a profile to see skills, categories, service prices and reviews.',
                 'When you find a good match, send a booking request with a date, time and a short note on what help you need. The provider receives it instantly and can accept or decline.',
                 'After the visit the provider marks it complete. You can then rate the experience, and a payment record is created. Payments are arranged directly between you and the provider; AASRA keeps the record.'
             ],
@@ -42,7 +42,7 @@ function guides(): array
             'icon' => 'bi-patch-check',
             'excerpt' => 'Why you can trust the Verified mark on AASRA.',
             'body' => [
-                'Every provider creates an account and completes their profile with skills and services, then adds offerings with prices. They then upload identity and experience documents for review.',
+                'Every provider creates an account and completes their profile with skills, then adds the services they offer, with prices. They then upload identity and experience documents for review.',
                 'An AASRA administrator reviews each document. Only providers whose documents are approved and whose accounts are active appear in search results and can receive bookings.',
                 'If something is unclear, the admin can reject the submission with a note, and the provider can upload corrected documents. Verification is one safeguard; we still recommend meeting the provider and sharing your needs clearly.'
             ],

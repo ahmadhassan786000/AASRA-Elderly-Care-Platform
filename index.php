@@ -22,6 +22,15 @@ if ($path !== '' && str_ends_with(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PAT
     redirect($path . ($qs ? '?' . $qs : ''), 301);
 }
 
+// Legacy category-browsing URL: /services and /services?service=<id> now live at /categories and /categories/<id>.
+// Other query parameters (q, location, sort...) are preserved. (/provider/services is a different feature and is untouched.)
+if ($path === 'services') {
+    $qp = $_GET;
+    $cid = isset($qp['service']) && !is_array($qp['service']) ? (int)$qp['service'] : 0;
+    unset($qp['service']);
+    redirect('categories' . ($cid > 0 ? '/' . $cid : '') . ($qp ? '?' . http_build_query($qp) : ''), 301);
+}
+
 // Guides are now cards on the homepage; old /guides and /guides/<slug> links go to that section.
 if ($path === 'guides' || str_starts_with($path, 'guides/')) redirect('#guides', 301);
 

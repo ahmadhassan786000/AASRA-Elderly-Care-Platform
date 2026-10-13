@@ -11,7 +11,7 @@ include __DIR__ . '/../includes/header.php'; ?>
             $s->execute([$uid, $st]);
             $counts[$st] = $s->fetchColumn();
         }
-        $recent = $pdo->prepare("SELECT b.*,p.name provider_name,s.service_name FROM bookings b JOIN providers p ON p.id=b.provider_id JOIN services s ON s.id=b.service_id WHERE b.user_id=? ORDER BY b.created_at DESC LIMIT 5");
+        $recent = $pdo->prepare("SELECT b.*,p.name provider_name,s.category_name FROM bookings b JOIN providers p ON p.id=b.provider_id JOIN categories s ON s.id=b.category_id WHERE b.user_id=? ORDER BY b.created_at DESC LIMIT 5");
         $recent->execute([$uid]); ?><h2>Welcome, <?= e($u['name']) ?></h2>
         <p class="text-secondary">Manage assistance, bookings and support from one place.</p>
         <div class="row g-3 mb-4"><?php foreach (['Pending', 'Accepted', 'Confirmed', 'Completed'] as $x): ?><div class="col-md-3">
@@ -38,7 +38,7 @@ include __DIR__ . '/../includes/header.php'; ?>
                     <tbody><?php foreach ($recent->fetchAll() as $b): ?><tr>
                                 <td>#<?= $b['id'] ?></td>
                                 <td><?= e($b['provider_name']) ?></td>
-                                <td><?= e($b['service_name']) ?></td>
+                                <td><?= e($b['category_name']) ?></td>
                                 <td><?= e($b['booking_date']) ?></td>
                                 <td><?= badge($b['status']) ?></td>
                             </tr><?php endforeach; ?></tbody>

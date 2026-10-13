@@ -11,7 +11,7 @@
       </div>
       <div class="col-6 col-lg-2">
         <h6>Explore</h6>
-        <a class="footer-link" href="<?= e(url('')) ?>">Home</a><a class="footer-link" href="<?= e(url('services')) ?>">Services</a><a class="footer-link" href="<?= e(url((($footer_area ?? 'public') === 'user' ? 'user' : '') . '#guides')) ?>">Helpful Guides</a>
+        <a class="footer-link" href="<?= e(url('')) ?>">Home</a><a class="footer-link" href="<?= e(url('categories')) ?>">Categories</a><a class="footer-link" href="<?= e(url((($footer_area ?? 'public') === 'user' ? 'user' : '') . '#guides')) ?>">Helpful Guides</a>
       </div>
       <div class="col-6 col-lg-2">
         <?php if (($footer_area ?? 'public') === 'user'): ?>
@@ -25,7 +25,7 @@
 
       <div class="col-6 col-lg-2">
         <h6>Contact</h6>
-        <p class="footer-muted mb-0">Lahore, Pakistan<br>support@aasra.local</p>
+        <p class="footer-muted mb-0">Sahiwal, Pakistan<br>support@aasra.local</p>
       </div>
     </div>
     <hr class="footer-hr">

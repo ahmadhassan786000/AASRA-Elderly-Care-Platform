@@ -1,7 +1,7 @@
 <?php
 $admin = require_role('admin');
 require_once APP_ROOT . '/includes/admin_helpers.php';
-$f = ['q' => get('q'), 'status' => get('status'), 'verification' => get('verification'), 'service' => (int)get('service'), 'location' => get('location')];
+$f = ['q' => get('q'), 'status' => get('status'), 'verification' => get('verification'), 'category' => (int)get('category', get('service')), 'location' => get('location')];
 $w = '1=1';
 $a = [];
 if ($f['q'] !== '') {
@@ -17,17 +17,17 @@ if (in_array($f['verification'], ['Not Submitted', 'Pending', 'Approved', 'Rejec
   $w .= ' AND p.verification_status=?';
   $a[] = $f['verification'];
 }
-if ($f['service']) {
-  $w .= ' AND EXISTS(SELECT 1 FROM provider_services ps WHERE ps.provider_id=p.id AND ps.service_id=?)';
-  $a[] = $f['service'];
+if ($f['category']) {
+  $w .= ' AND EXISTS(SELECT 1 FROM provider_categories ps WHERE ps.provider_id=p.id AND ps.category_id=?)';
+  $a[] = $f['category'];
 }
 if ($f['location'] !== '') {
   $w .= ' AND p.location LIKE ?';
   $a[] = '%' . $f['location'] . '%';
 }
-$list = rows("SELECT p.*,(SELECT GROUP_CONCAT(s.service_name SEPARATOR ', ') FROM provider_services ps JOIN services s ON s.id=ps.service_id WHERE ps.provider_id=p.id) services,
+$list = rows("SELECT p.*,(SELECT GROUP_CONCAT(s.category_name SEPARATOR ', ') FROM provider_categories ps JOIN categories s ON s.id=ps.category_id WHERE ps.provider_id=p.id) categories,
   (SELECT COALESCE(AVG(rating),0) FROM ratings WHERE provider_id=p.id) rating FROM providers p WHERE $w ORDER BY p.created_at DESC, p.id DESC", $a);
-$allSvc = rows('SELECT id,service_name FROM services ORDER BY service_name');
+$allSvc = rows('SELECT id,category_name FROM categories ORDER BY category_name');
 layout('admin', ['title' => 'Providers', 'active' => 'providers']);
 page_head('Providers', 'Manage provider accounts, activation and verification.');
 ?>
@@ -40,8 +40,8 @@ page_head('Providers', 'Manage provider accounts, activation and verification.')
     <div class="col-6 col-md-2"><label for="verification">Verification</label><select id="verification" name="verification" class="form-select">
         <option value="">All</option><?php foreach (['Not Submitted', 'Pending', 'Approved', 'Rejected'] as $x): ?><option <?= $f['verification'] === $x ? 'selected' : '' ?>><?= $x ?></option><?php endforeach; ?>
       </select></div>
-    <div class="col-6 col-md-2"><label for="service">Service</label><select id="service" name="service" class="form-select">
-        <option value="0">All</option><?php foreach ($allSvc as $s): ?><option value="<?= (int)$s['id'] ?>" <?= $f['service'] == $s['id'] ? 'selected' : '' ?>><?= e($s['service_name']) ?></option><?php endforeach; ?>
+    <div class="col-6 col-md-2"><label for="category">Category</label><select id="category" name="category" class="form-select">
+        <option value="0">All</option><?php foreach ($allSvc as $s): ?><option value="<?= (int)$s['id'] ?>" <?= $f['category'] == $s['id'] ? 'selected' : '' ?>><?= e($s['category_name']) ?></option><?php endforeach; ?>
       </select></div>
     <div class="col-6 col-md-1"><label for="location">Location</label><input id="location" name="location" class="form-control" value="<?= e($f['location']) ?>"></div>
     <div class="col-md-2 d-flex gap-2"><button class="btn btn-success flex-grow-1">Filter</button><?= filter_reset('admin/providers') ?></div>
@@ -55,7 +55,7 @@ page_head('Providers', 'Manage provider accounts, activation and verification.')
           <th class="ps-4">ID</th>
           <th>Provider</th>
           <th>Location</th>
-          <th>Services</th>
+          <th>Categories</th>
           <th>Rating</th>
           <th>Verification</th>
           <th>Status</th>
@@ -74,7 +74,7 @@ page_head('Providers', 'Manage provider accounts, activation and verification.')
             </td>
             <td><?= e($p['location'] ?: '—') ?></td>
             <td style="max-width:220px">
-              <div class="small clamp-2"><?= e($p['services'] ?: '—') ?></div>
+              <div class="small clamp-2"><?= e($p['categories'] ?: '—') ?></div>
             </td>
             <td><?= $p['rating'] > 0 ? '<span class="stars"><i class="bi bi-star-fill"></i></span> ' . number_format((float)$p['rating'], 1) : '—' ?></td>
             <td><?= live_badge($kv, $p['verification_status']) ?></td>

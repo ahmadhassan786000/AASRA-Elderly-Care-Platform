@@ -20,7 +20,7 @@ include __DIR__ . '/../includes/header.php'; ?>
             }
             redirect('bookings.php');
         }
-        $st = $pdo->prepare('SELECT b.*,p.name provider_name,s.service_name FROM bookings b JOIN providers p ON p.id=b.provider_id JOIN services s ON s.id=b.service_id WHERE b.user_id=? ORDER BY b.booking_date DESC,b.booking_time DESC');
+        $st = $pdo->prepare('SELECT b.*,p.name provider_name,s.category_name FROM bookings b JOIN providers p ON p.id=b.provider_id JOIN categories s ON s.id=b.category_id WHERE b.user_id=? ORDER BY b.booking_date DESC,b.booking_time DESC');
         $st->execute([$u['id']]); ?><h2>My Bookings</h2>
         <div class="service-card p-3">
             <div class="table-responsive">
@@ -39,7 +39,7 @@ include __DIR__ . '/../includes/header.php'; ?>
                     <tbody><?php foreach ($st->fetchAll() as $b): ?><tr>
                                 <td>#<?= $b['id'] ?></td>
                                 <td><?= e($b['provider_name']) ?></td>
-                                <td><?= e($b['service_name']) ?></td>
+                                <td><?= e($b['category_name']) ?></td>
                                 <td><?= e($b['booking_date']) ?> <?= e($b['booking_time']) ?></td>
                                 <td>PKR <?= number_format($b['charges'], 2) ?></td>
                                 <td><?= badge($b['status']) ?></td>

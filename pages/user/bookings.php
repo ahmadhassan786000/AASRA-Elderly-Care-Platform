@@ -12,7 +12,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   redirect('user/bookings');
 }
 $st = get('status');
-$sql = 'SELECT b.*,p.name provider_name,p.id pid,s.service_name FROM bookings b JOIN providers p ON p.id=b.provider_id JOIN services s ON s.id=b.service_id WHERE b.user_id=?';
+$sql = 'SELECT b.*,p.name provider_name,p.id pid,s.category_name FROM bookings b JOIN providers p ON p.id=b.provider_id JOIN categories s ON s.id=b.category_id WHERE b.user_id=?';
 $a = [$u['id']];
 if ($st !== '') {
   $sql .= ' AND b.status=?';
@@ -37,7 +37,7 @@ layout('user', ['title' => 'My Bookings', 'nav' => 'bookings']);
           <tr>
             <th class="ps-4">Booking</th>
             <th>Provider</th>
-            <th>Service</th>
+            <th>Category</th>
             <th>When</th>
             <th>Charge</th>
             <th>Status</th>
@@ -48,7 +48,7 @@ layout('user', ['title' => 'My Bookings', 'nav' => 'bookings']);
           <?php foreach ($list as $b): ?><tr>
               <td class="ps-4 id-cell">#<?= (int)$b['id'] ?></td>
               <td><a href="<?= e(url('user/providers/' . $b['pid'])) ?>"><?= e($b['provider_name']) ?></a></td>
-              <td><?= e($b['service_name']) ?></td>
+              <td><?= e($b['category_name']) ?></td>
               <td><?= e(fmt_date($b['booking_date'])) ?><br><small class="text-secondary"><?= e(date('g:i A', strtotime($b['booking_time']))) ?></small></td>
               <td><?= e(money($b['charges'])) ?></td>
               <td><?= badge($b['status']) ?></td>

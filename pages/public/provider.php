@@ -8,7 +8,7 @@ if (!$d) {
 [$p, $svcs, $reviews] = $d;
 $area = 'public';
 $isFav = false;
-layout('public', ['title' => $p['name'], 'nav' => 'services']);
+layout('public', ['title' => $p['name'], 'nav' => 'categories']);
 echo '<div class="container py-4">';
 include APP_ROOT . '/includes/partials/provider_profile.php';
 echo '</div>';

@@ -9,7 +9,7 @@ include __DIR__ . '/../includes/header.php'; ?>
         $st->execute([$pid]);
         $counts = [];
         foreach ($st->fetchAll() as $x) $counts[$x['status']] = $x['c'];
-        $recent = $pdo->prepare('SELECT b.*,u.name user_name,s.service_name FROM bookings b JOIN users u ON u.id=b.user_id JOIN services s ON s.id=b.service_id WHERE b.provider_id=? ORDER BY b.created_at DESC LIMIT 5');
+        $recent = $pdo->prepare('SELECT b.*,u.name user_name,s.category_name FROM bookings b JOIN users u ON u.id=b.user_id JOIN categories s ON s.id=b.category_id WHERE b.provider_id=? ORDER BY b.created_at DESC LIMIT 5');
         $recent->execute([$pid]); ?><h2>Provider Dashboard</h2>
         <p class="text-secondary">Welcome, <?= e($u['name']) ?>. Manage your services and bookings.</p>
         <div class="row g-3 mb-4"><?php foreach (['Pending', 'Accepted', 'Confirmed', 'Completed', 'Rejected'] as $x): ?><div class="col-md">
@@ -34,7 +34,7 @@ include __DIR__ . '/../includes/header.php'; ?>
                     <tbody><?php foreach ($recent->fetchAll() as $b): ?><tr>
                                 <td>#<?= $b['id'] ?></td>
                                 <td><?= e($b['user_name']) ?></td>
-                                <td><?= e($b['service_name']) ?></td>
+                                <td><?= e($b['category_name']) ?></td>
                                 <td><?= e($b['booking_date']) ?></td>
                                 <td><?= badge($b['status']) ?></td>
                             </tr><?php endforeach; ?></tbody>

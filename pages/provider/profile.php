@@ -3,7 +3,7 @@ $u = require_role('provider');
 require_once APP_ROOT . '/includes/provider_helpers.php';
 $p = current_provider();
 $pid = (int)$p['id'];
-$svcs = rows('SELECT s.* FROM services s JOIN provider_services ps ON ps.service_id=s.id WHERE ps.provider_id=? ORDER BY s.service_name', [$pid]);
+$svcs = rows('SELECT s.* FROM categories s JOIN provider_categories ps ON ps.category_id=s.id WHERE ps.provider_id=? ORDER BY s.category_name', [$pid]);
 $rt = row('SELECT COALESCE(AVG(rating),0) a,COUNT(*) c FROM ratings WHERE provider_id=?', [$pid]);
 $offs = provider_offerings($pid);
 layout('provider', ['title' => 'Profile', 'active' => 'profile']);
@@ -28,14 +28,14 @@ layout('provider', ['title' => 'Profile', 'active' => 'profile']);
       <p><?= $p['bio'] ? nl2br(e($p['bio'])) : '<span class="text-secondary">Add a short bio in Account Settings.</span>' ?></p>
       <h3 class="h6">Skills</h3>
       <p><?= e($p['skills'] ?: '—') ?></p>
-      <h3 class="h6">Services</h3>
-      <p><?php foreach ($svcs as $s): ?><span class="tag me-1"><?= e($s['service_name']) ?></span><?php endforeach; ?><?php if (!$svcs): ?><span class="text-secondary">No services selected.</span><?php endif; ?></p>
+      <h3 class="h6">Categories</h3>
+      <p><?php foreach ($svcs as $s): ?><span class="tag me-1"><?= e($s['category_name']) ?></span><?php endforeach; ?><?php if (!$svcs): ?><span class="text-secondary">No categories yet.</span><?php endif; ?></p>
     </div>
     <div class="col-md-5">
-      <h3 class="h6">Offerings</h3>
-      <?php foreach ($offs as $o): ?><div class="mb-2"><b><?= e($o['title']) ?></b> <span class="tag ms-1"><?= e($o['service_name']) ?></span><?php if ($o['price'] !== null && (float)$o['price'] > 0): ?><div class="small text-secondary"><?= e(money($o['price'])) ?> / visit</div><?php endif; ?></div><?php endforeach; ?>
-      <?php if (!$offs): ?><p class="text-secondary mb-2">No offerings yet.</p><?php endif; ?>
-      <a class="btn btn-outline-success btn-sm" href="<?= e(url('provider/services')) ?>">Manage services and offerings</a>
+      <h3 class="h6">Services</h3>
+      <?php foreach ($offs as $o): ?><div class="mb-2"><b><?= e($o['title']) ?></b> <span class="tag ms-1"><?= e($o['category_name']) ?></span><?php if ($o['price'] !== null && (float)$o['price'] > 0): ?><div class="small text-secondary"><?= e(money($o['price'])) ?> / visit</div><?php endif; ?></div><?php endforeach; ?>
+      <?php if (!$offs): ?><p class="text-secondary mb-2">No services yet.</p><?php endif; ?>
+      <a class="btn btn-outline-success btn-sm" href="<?= e(url('provider/services')) ?>">Manage services</a>
     </div>
   </div>
 </div>

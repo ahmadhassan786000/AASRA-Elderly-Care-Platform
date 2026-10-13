@@ -11,7 +11,7 @@
             </div>
             <div class="col-md-4">
                 <h6>Contact</h6>
-                <p class="text-white-50 mb-0">Lahore, Pakistan<br>support@aasra.local</p>
+                <p class="text-white-50 mb-0">Sahiwal, Pakistan<br>support@aasra.local</p>
             </div>
         </div>
         <hr><small class="text-white-50">Â© <?= date('Y') ?> AASRA. University project demonstration.</small>

@@ -15,7 +15,7 @@ include __DIR__ . '/../includes/header.php'; ?>
             $args = ["%$q%", "%$q%", "%$q%"];
         }
         if ($service) {
-            $where .= ' AND EXISTS(SELECT 1 FROM provider_services ps WHERE ps.provider_id=p.id AND ps.service_id=?)';
+            $where .= ' AND EXISTS(SELECT 1 FROM provider_categories ps WHERE ps.provider_id=p.id AND ps.category_id=?)';
             $args[] = $service;
         }
         if ($min) {
@@ -26,16 +26,16 @@ include __DIR__ . '/../includes/header.php'; ?>
             $where .= ' AND p.charges<=?';
             $args[] = $max;
         }
-        $sql = "SELECT p.*,COALESCE(AVG(r.rating),0) rating,COUNT(DISTINCT r.id) reviews,GROUP_CONCAT(DISTINCT s.service_name SEPARATOR ', ') services FROM providers p LEFT JOIN ratings r ON r.provider_id=p.id LEFT JOIN provider_services ps ON ps.provider_id=p.id LEFT JOIN services s ON s.id=ps.service_id WHERE $where GROUP BY p.id ORDER BY rating DESC";
+        $sql = "SELECT p.*,COALESCE(AVG(r.rating),0) rating,COUNT(DISTINCT r.id) reviews,GROUP_CONCAT(DISTINCT s.category_name SEPARATOR ', ') services FROM providers p LEFT JOIN ratings r ON r.provider_id=p.id LEFT JOIN provider_categories ps ON ps.provider_id=p.id LEFT JOIN categories s ON s.id=ps.category_id WHERE $where GROUP BY p.id ORDER BY rating DESC";
         $st = $pdo->prepare($sql);
         $st->execute($args);
         $rows = $st->fetchAll();
-        $services = $pdo->query("SELECT * FROM services WHERE status='Active' ORDER BY service_name")->fetchAll(); ?><h2>Find Providers</h2>
+        $services = $pdo->query("SELECT * FROM categories WHERE status='Active' ORDER BY category_name")->fetchAll(); ?><h2>Find Providers</h2>
         <div class="service-card p-3 mb-4">
             <form class="row g-2">
                 <div class="col-md-4"><input name="q" class="form-control" placeholder="Name, location..." value="<?= e($q) ?>"></div>
                 <div class="col-md-3"><select name="service" class="form-select">
-                        <option value="0">All services</option><?php foreach ($services as $s): ?><option value="<?= $s['id'] ?>" <?= $service == $s['id'] ? 'selected' : '' ?>><?= e($s['service_name']) ?></option><?php endforeach; ?>
+                        <option value="0">All services</option><?php foreach ($services as $s): ?><option value="<?= $s['id'] ?>" <?= $service == $s['id'] ? 'selected' : '' ?>><?= e($s['category_name']) ?></option><?php endforeach; ?>
                     </select></div>
                 <div class="col-md-2"><input name="min" type="number" class="form-control" placeholder="Min PKR" value="<?= e($_GET['min'] ?? '') ?>"></div>
                 <div class="col-md-2"><input name="max" type="number" class="form-control" placeholder="Max PKR" value="<?= e($_GET['max'] ?? '') ?>"></div>

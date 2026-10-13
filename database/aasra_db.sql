@@ -1,10 +1,10 @@
-﻿-- AASRA database (v2) â€” fresh install.
+-- AASRA database (v2) - fresh install.
 -- Import this file in phpMyAdmin. It drops and recreates all AASRA tables.
--- Existing v1 databases: use database/migration_v2.sql instead (keeps your data).
+-- EXISTING databases: never import this file. Use database/rename_services_to_categories.sql (keeps your data).
 CREATE DATABASE IF NOT EXISTS aasra_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE aasra_db;
 SET FOREIGN_KEY_CHECKS=0;
-DROP TABLE IF EXISTS favorites,notifications,complaints,ratings,payments,bookings,provider_documents,provider_offerings,provider_services,services,providers,users;
+DROP TABLE IF EXISTS favorites,notifications,complaints,ratings,payments,bookings,provider_documents,provider_offerings,provider_categories,categories,providers,users;
 SET FOREIGN_KEY_CHECKS=1;
 
 CREATE TABLE users(
@@ -38,28 +38,28 @@ CREATE TABLE providers(
   INDEX(verification_status,account_status)
 ) ENGINE=InnoDB;
 
-CREATE TABLE services(
+CREATE TABLE categories(
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  service_name VARCHAR(120) NOT NULL UNIQUE,
+  category_name VARCHAR(120) NOT NULL UNIQUE,
   description TEXT,
   image VARCHAR(255) NULL,
   status ENUM('Active','Inactive') NOT NULL DEFAULT 'Active',
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
-CREATE TABLE provider_services(
+CREATE TABLE provider_categories(
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   provider_id INT UNSIGNED NOT NULL,
-  service_id INT UNSIGNED NOT NULL,
-  UNIQUE KEY uq_ps(provider_id,service_id),
+  category_id INT UNSIGNED NOT NULL,
+  UNIQUE KEY uq_pc(provider_id,category_id),
   FOREIGN KEY(provider_id) REFERENCES providers(id) ON DELETE CASCADE,
-  FOREIGN KEY(service_id) REFERENCES services(id) ON DELETE CASCADE
+  FOREIGN KEY(category_id) REFERENCES categories(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
 CREATE TABLE provider_offerings(
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   provider_id INT UNSIGNED NOT NULL,
-  service_id INT UNSIGNED NOT NULL,
+  category_id INT UNSIGNED NOT NULL,
   title VARCHAR(150) NOT NULL,
   description TEXT NULL,
   price DECIMAL(10,2) NULL,
@@ -67,9 +67,9 @@ CREATE TABLE provider_offerings(
   experience VARCHAR(120) NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  UNIQUE KEY uq_offering_title(provider_id,service_id,title),
-  INDEX(service_id),
-  CONSTRAINT fk_offering_listing FOREIGN KEY(provider_id,service_id) REFERENCES provider_services(provider_id,service_id) ON DELETE CASCADE
+  UNIQUE KEY uq_offering_title(provider_id,category_id,title),
+  INDEX(category_id),
+  CONSTRAINT fk_offering_listing FOREIGN KEY(provider_id,category_id) REFERENCES provider_categories(provider_id,category_id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
 CREATE TABLE provider_documents(
@@ -86,7 +86,7 @@ CREATE TABLE bookings(
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   user_id INT UNSIGNED NOT NULL,
   provider_id INT UNSIGNED NOT NULL,
-  service_id INT UNSIGNED NOT NULL,
+  category_id INT UNSIGNED NOT NULL,
   booking_date DATE NOT NULL,
   booking_time TIME NOT NULL,
   requirements TEXT,
@@ -97,7 +97,7 @@ CREATE TABLE bookings(
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   FOREIGN KEY(user_id) REFERENCES users(id),
   FOREIGN KEY(provider_id) REFERENCES providers(id),
-  FOREIGN KEY(service_id) REFERENCES services(id),
+  FOREIGN KEY(category_id) REFERENCES categories(id),
   INDEX(provider_id,status),INDEX(user_id,status)
 ) ENGINE=InnoDB;
 

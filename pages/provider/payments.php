@@ -1,7 +1,7 @@
 <?php
 $u = require_role('provider');
 $p = current_provider();
-$list = rows('SELECT pay.*,u.name user_name,s.service_name FROM payments pay JOIN bookings b ON b.id=pay.booking_id JOIN users u ON u.id=b.user_id JOIN services s ON s.id=b.service_id WHERE b.provider_id=? ORDER BY pay.created_at DESC', [$p['id']]);
+$list = rows('SELECT pay.*,u.name user_name,s.category_name FROM payments pay JOIN bookings b ON b.id=pay.booking_id JOIN users u ON u.id=b.user_id JOIN categories s ON s.id=b.category_id WHERE b.provider_id=? ORDER BY pay.created_at DESC', [$p['id']]);
 layout('provider', ['title' => 'Payments', 'active' => 'payments']);
 ?>
 <div class="page-head">
@@ -17,7 +17,7 @@ layout('provider', ['title' => 'Payments', 'active' => 'payments']);
                 <tr>
                     <th class="ps-4">Booking</th>
                     <th>Client</th>
-                    <th>Service</th>
+                    <th>Category</th>
                     <th>Amount</th>
                     <th>Method</th>
                     <th class="pe-4">Status</th>
@@ -27,7 +27,7 @@ layout('provider', ['title' => 'Payments', 'active' => 'payments']);
                 <?php foreach ($list as $x): ?><tr>
                         <td class="ps-4 id-cell"><?= (int)$x['booking_id'] ?></td>
                         <td><?= e($x['user_name']) ?></td>
-                        <td><?= e($x['service_name']) ?></td>
+                        <td><?= e($x['category_name']) ?></td>
                         <td><?= e(money($x['amount'])) ?></td>
                         <td><?= e($x['payment_method']) ?></td>
                         <td class="pe-4"><?= badge($x['payment_status']) ?></td>

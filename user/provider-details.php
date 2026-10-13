@@ -13,7 +13,7 @@ include __DIR__ . '/../includes/header.php'; ?>
             echo '<div class="alert alert-danger">Provider not found.</div>';
             return;
         }
-        $sv = $pdo->prepare('SELECT s.* FROM services s JOIN provider_services ps ON ps.service_id=s.id WHERE ps.provider_id=?');
+        $sv = $pdo->prepare('SELECT s.* FROM categories s JOIN provider_categories ps ON ps.category_id=s.id WHERE ps.provider_id=?');
         $sv->execute([$id]);
         $rv = $pdo->prepare('SELECT r.*,u.name user_name FROM ratings r JOIN users u ON u.id=r.user_id WHERE r.provider_id=? ORDER BY r.created_at DESC');
         $rv->execute([$id]); ?><div class="service-card p-4">
@@ -30,7 +30,7 @@ include __DIR__ . '/../includes/header.php'; ?>
                     <h5>About</h5>
                     <p><?= e($p['bio']) ?></p>
                     <h5>Services</h5>
-                    <p><?php foreach ($sv->fetchAll() as $s): ?><span class="badge text-bg-light border me-1"><?= e($s['service_name']) ?></span><?php endforeach; ?></p>
+                    <p><?php foreach ($sv->fetchAll() as $s): ?><span class="badge text-bg-light border me-1"><?= e($s['category_name']) ?></span><?php endforeach; ?></p>
                 </div>
                 <div class="col-md-5">
                     <p><b>Experience:</b> <?= e($p['experience']) ?></p>

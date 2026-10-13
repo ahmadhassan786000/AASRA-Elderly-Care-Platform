@@ -10,7 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     redirect('provider/bookings');
 }
 $st = get('status');
-$sql = "SELECT b.*,u.name user_name,s.service_name FROM bookings b JOIN users u ON u.id=b.user_id JOIN services s ON s.id=b.service_id WHERE b.provider_id=? AND b.status<>'Pending'";
+$sql = "SELECT b.*,u.name user_name,s.category_name FROM bookings b JOIN users u ON u.id=b.user_id JOIN categories s ON s.id=b.category_id WHERE b.provider_id=? AND b.status<>'Pending'";
 $a = [$pid];
 if ($st !== '') {
     $sql .= ' AND b.status=?';

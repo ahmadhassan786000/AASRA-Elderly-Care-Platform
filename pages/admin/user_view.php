@@ -6,7 +6,7 @@ if (!$x) {
   show_error_page(404);
   exit;
 }
-$bk = rows('SELECT b.*,p.name provider_name,s.service_name FROM bookings b JOIN providers p ON p.id=b.provider_id JOIN services s ON s.id=b.service_id WHERE b.user_id=? ORDER BY b.booking_date DESC LIMIT 10', [$x['id']]);
+$bk = rows('SELECT b.*,p.name provider_name,s.category_name FROM bookings b JOIN providers p ON p.id=b.provider_id JOIN categories s ON s.id=b.category_id WHERE b.user_id=? ORDER BY b.booking_date DESC LIMIT 10', [$x['id']]);
 $pv = $x['role'] === 'provider' ? row('SELECT id FROM providers WHERE user_id=?', [$x['id']]) : null;
 layout('admin', ['title' => $x['name'], 'active' => 'users']);
 page_head($x['name'], 'Account details', '<div class="d-flex gap-2"><a class="btn btn-outline-secondary" href="' . e(url('admin/users')) . '">Back</a>' . ($x['role'] !== 'admin' ? '<a class="btn btn-success" href="' . e(url('admin/users/' . $x['id'] . '/edit')) . '">Edit</a>' : '') . '</div>');
@@ -44,7 +44,7 @@ page_head($x['name'], 'Account details', '<div class="d-flex gap-2"><a class="bt
             <tr>
               <th class="ps-4">ID</th>
               <th>Provider</th>
-              <th>Service</th>
+              <th>Category</th>
               <th>Date</th>
               <th class="pe-4">Status</th>
             </tr>
@@ -53,7 +53,7 @@ page_head($x['name'], 'Account details', '<div class="d-flex gap-2"><a class="bt
             <?php foreach ($bk as $b): ?><tr>
                 <td class="ps-4 id-cell"><?= (int)$b['id'] ?></td>
                 <td><?= e($b['provider_name']) ?></td>
-                <td><?= e($b['service_name']) ?></td>
+                <td><?= e($b['category_name']) ?></td>
                 <td><?= e(fmt_date($b['booking_date'])) ?></td>
                 <td class="pe-4"><?= badge($b['status']) ?></td>
               </tr><?php endforeach; ?></tbody>

@@ -9,7 +9,7 @@ $items = [
     ['users', 'admin/users', 'bi-people', 'Users'],
     ['providers', 'admin/providers', 'bi-person-badge', 'Providers'],
     ['verification', 'admin/verification', 'bi-patch-check', 'Verification'],
-    ['services', 'admin/services', 'bi-grid-3x3-gap', 'Services'],
+    ['categories', 'admin/categories', 'bi-grid-3x3-gap', 'Categories'],
     ['bookings', 'admin/bookings', 'bi-calendar-check', 'Bookings'],
     ['payments', 'admin/payments', 'bi-credit-card', 'Payments'],
     ['complaints', 'admin/complaints', 'bi-exclamation-triangle', 'Complaints'],

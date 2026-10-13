@@ -4,7 +4,7 @@ include __DIR__ . '/../includes/header.php'; ?>
 <div class="dashboard-shell">
     <?php include __DIR__ . '/../includes/sidebar.php'; ?>
     <section class="content-area">
-        <?php $st = $pdo->query('SELECT b.*,u.name user_name,p.name provider_name,s.service_name FROM bookings b JOIN users u ON u.id=b.user_id JOIN providers p ON p.id=b.provider_id JOIN services s ON s.id=b.service_id ORDER BY b.created_at DESC'); ?><h2>All Bookings</h2>
+        <?php $st = $pdo->query('SELECT b.*,u.name user_name,p.name provider_name,s.category_name FROM bookings b JOIN users u ON u.id=b.user_id JOIN providers p ON p.id=b.provider_id JOIN categories s ON s.id=b.category_id ORDER BY b.created_at DESC'); ?><h2>All Bookings</h2>
         <div class="service-card p-3">
             <div class="table-responsive">
                 <table class="table">
@@ -23,7 +23,7 @@ include __DIR__ . '/../includes/header.php'; ?>
                                 <td>#<?= $b['id'] ?></td>
                                 <td><?= e($b['user_name']) ?></td>
                                 <td><?= e($b['provider_name']) ?></td>
-                                <td><?= e($b['service_name']) ?></td>
+                                <td><?= e($b['category_name']) ?></td>
                                 <td><?= e($b['booking_date']) ?></td>
                                 <td>PKR <?= number_format($b['charges'], 2) ?></td>
                                 <td><?= badge($b['status']) ?></td>

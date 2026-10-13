@@ -1,8 +1,8 @@
 <?php /* expects $area ('public'|'user'), $services */ ?>
 <div id="svcBrowser" data-area="<?= e($area) ?>" data-profile="<?= e(url($area === 'user' ? 'user/providers/' : 'providers/')) ?>" data-listing="<?= e(url($area === 'user' ? 'user/providers' : 'services')) ?>">
-  <div class="chips mb-4" role="tablist" aria-label="Filter services">
+  <div class="chips mb-4" role="tablist" aria-label="Filter categories">
     <button type="button" class="chip active" data-service="0">All</button>
-    <?php foreach ($services as $s): ?><button type="button" class="chip" data-service="<?= (int)$s['id'] ?>"><?= e($s['service_name']) ?></button><?php endforeach; ?>
+    <?php foreach ($services as $s): ?><button type="button" class="chip" data-service="<?= (int)$s['id'] ?>"><?= e($s['category_name']) ?></button><?php endforeach; ?>
   </div>
   <div class="row g-4" id="svcGrid">
     <?php $__si = 0;
@@ -11,7 +11,7 @@
         <a class="svc-card" href="<?= e(url(($area === 'user' ? 'user/providers' : 'services') . '?service=' . $s['id'])) ?>">
           <?= service_thumb($s) ?>
           <div class="svc-body">
-            <h3><?= e($s['service_name']) ?></h3>
+            <h3><?= e($s['category_name']) ?></h3>
             <p class="text-secondary small mb-0 clamp-2"><?= e($s['description']) ?></p>
           </div>
         </a>

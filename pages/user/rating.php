@@ -1,7 +1,7 @@
 <?php
 $u = require_role('user');
 $bid = (int)get('booking', (string)($_POST['booking_id'] ?? 0));
-$b = row("SELECT b.*,p.name provider_name,s.service_name FROM bookings b JOIN providers p ON p.id=b.provider_id JOIN services s ON s.id=b.service_id WHERE b.id=? AND b.user_id=? AND b.status='Completed'", [$bid, $u['id']]);
+$b = row("SELECT b.*,p.name provider_name,s.category_name FROM bookings b JOIN providers p ON p.id=b.provider_id JOIN categories s ON s.id=b.category_id WHERE b.id=? AND b.user_id=? AND b.status='Completed'", [$bid, $u['id']]);
 if (!$b) {
   flash('danger', 'Only your completed bookings can be rated.');
   redirect('user/bookings');
@@ -29,7 +29,7 @@ layout('user', ['title' => 'Rate booking', 'nav' => 'bookings']);
     <div class="col-lg-6">
       <div class="card-soft">
         <h1 class="h3">Rate <?= e($b['provider_name']) ?></h1>
-        <p class="text-secondary"><?= e($b['service_name']) ?> · <?= e(fmt_date($b['booking_date'])) ?></p>
+        <p class="text-secondary"><?= e($b['category_name']) ?> · <?= e(fmt_date($b['booking_date'])) ?></p>
         <form method="post"><?= csrf_field() ?><input type="hidden" name="booking_id" value="<?= $bid ?>">
           <fieldset class="mb-3">
             <legend class="form-label fs-6">Your rating</legend>

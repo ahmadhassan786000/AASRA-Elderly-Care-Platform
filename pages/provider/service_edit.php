@@ -1,5 +1,5 @@
 <?php
-// Provider dashboard › edit one of the provider's own offerings.
+// Provider dashboard › edit one of the provider's own services.
 $u = require_role('provider');
 require_once APP_ROOT . '/includes/provider_helpers.php';
 $p = current_provider();
@@ -11,7 +11,7 @@ if (!$existing) {
     exit;
 }
 $c = [
-    'service_id' => (int)$existing['service_id'],
+    'category_id' => (int)$existing['category_id'],
     'title' => $existing['title'],
     'description' => (string)$existing['description'],
     'price' => $existing['price'] !== null ? (string)$existing['price'] : '',
@@ -26,22 +26,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!$err) {
         try {
             offering_update($pid, $id, $c);
-            flash('success', 'Offering updated.');
+            flash('success', 'Service updated.');
             redirect('provider/services');
         } catch (mysqli_sql_exception $e) {
             if (!db_is_integrity_error($e)) throw $e;
-            $err['title'] = 'You already have an offering with this title under this service.';
+            $err['title'] = 'You already have a service with this title under this category.';
         }
     }
 }
 $types = null;
 $submitLabel = 'Save changes';
-layout('provider', ['title' => 'Edit offering', 'active' => 'services']);
+layout('provider', ['title' => 'Edit service', 'active' => 'services']);
 ?>
 <div class="page-head">
     <div>
-        <h1>Edit offering</h1>
-        <p><?= e($existing['service_name']) ?></p>
+        <h1>Edit service</h1>
+        <p><?= e($existing['category_name']) ?></p>
     </div>
 </div>
 <div class="card-soft col-xl-7"><?php include APP_ROOT . '/includes/partials/offering_form.php'; ?></div>

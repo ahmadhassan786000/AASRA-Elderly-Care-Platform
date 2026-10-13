@@ -14,7 +14,7 @@ $homeUrl = $onHome ? '' : url(''); ?>
       <div class="collapse navbar-collapse" id="siteNav">
         <ul class="navbar-nav mx-md-auto gap-md-1">
           <li class="nav-item"><a class="nav-link <?= $nav === 'home' ? 'active' : '' ?>" href="<?= e($onHome ? '#home' : url('')) ?>" data-spy="home">Home</a></li>
-          <li class="nav-item"><a class="nav-link <?= $nav === 'services' ? 'active' : '' ?>" href="<?= e($homeUrl . '#services') ?>" data-spy="services">Services</a></li>
+          <li class="nav-item"><a class="nav-link <?= $nav === 'categories' ? 'active' : '' ?>" href="<?= e($homeUrl . '#categories') ?>" data-spy="categories">Categories</a></li>
           <li class="nav-item"><a class="nav-link" href="<?= e($homeUrl . '#guides') ?>" data-spy="guides">Guides</a></li>
         </ul>
         <div class="d-flex align-items-center gap-2 mt-3 mt-md-0">

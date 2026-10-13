@@ -1,6 +1,7 @@
 <?php
 $limit = max(1, min(24, (int)get('limit', '12')));
-$list = listed_providers(['q' => get('q'), 'service' => (int)get('service')], $limit);
+// `category` is the filter; the older `service` parameter is still accepted.
+$list = listed_providers(['q' => get('q'), 'category' => (int)get('category', get('service'))], $limit);
 json_out(['ok' => true, 'providers' => array_map(fn($p) => [
     'id' => (int)$p['id'],
     'name' => $p['name'],
@@ -11,5 +12,5 @@ json_out(['ok' => true, 'providers' => array_map(fn($p) => [
     'location' => $p['location'] ?: 'Lahore',
     'bio' => mb_strimwidth((string)$p['bio'], 0, 140, '…'),
     'price_from' => $p['min_price'] !== null ? (float)$p['min_price'] : null,
-    'services' => $p['services'],
+    'categories' => $p['categories'],
 ], $list)]);

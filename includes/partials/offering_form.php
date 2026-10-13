@@ -1,7 +1,7 @@
 <?php
-/* Shared add/edit form for a provider service offering.
-   Expects: $c (current values), $err (field errors), $types (admin-defined active service types; null when editing),
-   $existing (the offering being edited, or null), $submitLabel. */
+/* Shared add/edit form for a provider's service.
+   Expects: $c (current values), $err (field errors), $types (admin-defined active categories; null when editing),
+   $existing (the service being edited, or null), $submitLabel. */
 $f = fn(string $k) => isset($err[$k]) ? '<div class="field-error text-danger small mt-1">' . e($err[$k]) . '</div>' : '';
 $bad = fn(string $k) => isset($err[$k]) ? ' is-invalid' : '';
 ?>
@@ -9,27 +9,27 @@ $bad = fn(string $k) => isset($err[$k]) ? ' is-invalid' : '';
   <input type="hidden" name="action" value="<?= $existing ? 'update' : 'create' ?>">
   <?php if (!empty($err['general'])) echo alert_html('danger', $err['general']); ?>
   <div class="mb-3">
-    <label class="form-label" for="service_id">Service</label>
+    <label class="form-label" for="category_id">Category</label>
     <?php if ($existing): ?>
-      <input class="form-control" id="service_id" value="<?= e($existing['service_name']) ?>" disabled>
-      <div class="form-text">The service can't be changed. To use a different one, delete this offering and add a new one.</div>
+      <input class="form-control" id="category_id" value="<?= e($existing['category_name']) ?>" disabled>
+      <div class="form-text">The category can't be changed. To use a different one, delete this service and add a new one.</div>
     <?php else: ?>
-      <select id="service_id" name="service_id" class="form-select<?= $bad('service_id') ?>" required>
-        <option value="">Choose a service…</option>
-        <?php foreach ($types as $t): ?><option value="<?= (int)$t['id'] ?>" <?= (int)$c['service_id'] === (int)$t['id'] ? 'selected' : '' ?>><?= e($t['service_name']) ?></option><?php endforeach; ?>
+      <select id="category_id" name="category_id" class="form-select<?= $bad('category_id') ?>" required>
+        <option value="">Choose a category…</option>
+        <?php foreach ($types as $t): ?><option value="<?= (int)$t['id'] ?>" <?= (int)$c['category_id'] === (int)$t['id'] ? 'selected' : '' ?>><?= e($t['category_name']) ?></option><?php endforeach; ?>
       </select>
-      <div class="form-text">Only services created by AASRA are listed here.</div>
+      <div class="form-text">Only categories created by AASRA are listed here.</div>
     <?php endif; ?>
-    <?= $f('service_id') ?>
+    <?= $f('category_id') ?>
   </div>
   <div class="mb-3">
-    <label class="form-label" for="title">Offering title</label>
+    <label class="form-label" for="title">Service title</label>
     <input id="title" name="title" class="form-control<?= $bad('title') ?>" value="<?= e($c['title']) ?>" minlength="3" maxlength="150" placeholder="e.g. Overnight care for bedridden patients" required>
     <?= $f('title') ?>
   </div>
   <div class="mb-3">
     <label class="form-label" for="description">Description <span class="text-secondary fw-normal">(optional)</span></label>
-    <textarea id="description" name="description" class="form-control<?= $bad('description') ?>" rows="3" maxlength="1000" placeholder="What does this offering include?"><?= e($c['description']) ?></textarea>
+    <textarea id="description" name="description" class="form-control<?= $bad('description') ?>" rows="3" maxlength="1000" placeholder="What does this service include?"><?= e($c['description']) ?></textarea>
     <?= $f('description') ?>
   </div>
   <div class="row g-3 mb-3">

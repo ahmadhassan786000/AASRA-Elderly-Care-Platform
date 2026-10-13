@@ -1,6 +1,6 @@
 <?php
 $u = require_role('user');
-$list = rows('SELECT pay.*,p.name provider_name,s.service_name FROM payments pay JOIN bookings b ON b.id=pay.booking_id JOIN providers p ON p.id=b.provider_id JOIN services s ON s.id=b.service_id WHERE b.user_id=? ORDER BY pay.created_at DESC', [$u['id']]);
+$list = rows('SELECT pay.*,p.name provider_name,s.category_name FROM payments pay JOIN bookings b ON b.id=pay.booking_id JOIN providers p ON p.id=b.provider_id JOIN categories s ON s.id=b.category_id WHERE b.user_id=? ORDER BY pay.created_at DESC', [$u['id']]);
 layout('user', ['title' => 'Payments', 'nav' => '']);
 ?>
 <div class="container py-4">
@@ -12,7 +12,7 @@ layout('user', ['title' => 'Payments', 'nav' => '']);
                 <thead>
                     <tr>
                         <th class="ps-4">Booking</th>
-                        <th>Service</th>
+                        <th>Category</th>
                         <th>Provider</th>
                         <th>Amount</th>
                         <th>Method</th>
@@ -22,7 +22,7 @@ layout('user', ['title' => 'Payments', 'nav' => '']);
                 <tbody>
                     <?php foreach ($list as $x): ?><tr>
                             <td class="ps-4 id-cell">#<?= (int)$x['booking_id'] ?></td>
-                            <td><?= e($x['service_name']) ?></td>
+                            <td><?= e($x['category_name']) ?></td>
                             <td><?= e($x['provider_name']) ?></td>
                             <td><?= e(money($x['amount'])) ?></td>
                             <td><?= e($x['payment_method']) ?></td>

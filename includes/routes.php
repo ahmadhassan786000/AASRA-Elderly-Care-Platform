@@ -3,7 +3,8 @@
 return [
     // public
     ''              => 'public/home',
-    'services'      => 'public/services',
+    'categories'    => 'public/categories',
+    'categories/(\d+)' => ['public/categories', 'id'],
     'how-it-works'  => 'public/how_it_works',
     'about'         => 'public/about',
     'privacy'       => 'public/privacy',
@@ -53,9 +54,9 @@ return [
     'admin/verification'          => 'admin/verification',
     'admin/verification/(\d+)'    => ['admin/verification_review', 'id'],
     'admin/documents/(\d+)'       => ['admin/document', 'id'],
-    'admin/services'              => 'admin/services',
-    'admin/services/new'          => 'admin/service_edit',
-    'admin/services/(\d+)/edit'   => ['admin/service_edit', 'id'],
+    'admin/categories'            => 'admin/categories',
+    'admin/categories/new'        => 'admin/category_edit',
+    'admin/categories/(\d+)/edit' => ['admin/category_edit', 'id'],
     'admin/bookings'              => 'admin/bookings',
     'admin/payments'              => 'admin/payments',
     'admin/complaints'            => 'admin/complaints',

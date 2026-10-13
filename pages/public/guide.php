@@ -14,7 +14,7 @@ layout('public', ['title' => $g['title']]); ?>
                 <h2 class="h5">Quick tips</h2>
                 <ul class="mb-0"><?php foreach ($g['tips'] as $t): ?><li><?= e($t) ?></li><?php endforeach; ?></ul>
             </div>
-            <a class="btn btn-success mt-4" href="<?= e(url('services')) ?>">Find a provider</a>
+            <a class="btn btn-success mt-4" href="<?= e(url('categories')) ?>">Find a provider</a>
         </article>
     </div>
 </section>

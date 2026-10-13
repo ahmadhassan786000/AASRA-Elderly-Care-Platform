@@ -4,7 +4,7 @@ include __DIR__ . '/../includes/header.php'; ?>
 <div class="dashboard-shell">
     <?php include __DIR__ . '/../includes/sidebar.php'; ?>
     <section class="content-area">
-        <?php $st = $pdo->prepare('SELECT pay.*,b.id booking_id,p.name provider_name,s.service_name FROM payments pay JOIN bookings b ON b.id=pay.booking_id JOIN providers p ON p.id=b.provider_id JOIN services s ON s.id=b.service_id WHERE b.user_id=? ORDER BY pay.created_at DESC');
+        <?php $st = $pdo->prepare('SELECT pay.*,b.id booking_id,p.name provider_name,s.category_name FROM payments pay JOIN bookings b ON b.id=pay.booking_id JOIN providers p ON p.id=b.provider_id JOIN categories s ON s.id=b.category_id WHERE b.user_id=? ORDER BY pay.created_at DESC');
         $st->execute([$u['id']]); ?><h2>Payment Records</h2>
         <div class="service-card p-3">
             <div class="table-responsive">
@@ -21,7 +21,7 @@ include __DIR__ . '/../includes/header.php'; ?>
                     </thead>
                     <tbody><?php foreach ($st->fetchAll() as $x): ?><tr>
                                 <td>#<?= $x['booking_id'] ?></td>
-                                <td><?= e($x['service_name']) ?></td>
+                                <td><?= e($x['category_name']) ?></td>
                                 <td><?= e($x['provider_name']) ?></td>
                                 <td>PKR <?= number_format($x['amount'], 2) ?></td>
                                 <td><?= e($x['payment_method']) ?></td>

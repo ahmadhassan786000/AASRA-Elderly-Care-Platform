@@ -120,8 +120,8 @@ function service_icon(string $name): string
 }
 function service_thumb(array $s, string $cls = 'svc-thumb'): string
 {
-    if (!empty($s['image'])) return '<img class="' . e($cls) . '" src="' . e(upload_url($s['image'])) . '" alt="' . e($s['service_name']) . '" loading="lazy">';
-    return '<div class="' . e($cls) . ' svc-thumb-ph"><i class="bi ' . service_icon($s['service_name']) . '"></i></div>';
+    if (!empty($s['image'])) return '<img class="' . e($cls) . '" src="' . e(upload_url($s['image'])) . '" alt="' . e($s['category_name']) . '" loading="lazy">';
+    return '<div class="' . e($cls) . ' svc-thumb-ph"><i class="bi ' . service_icon($s['category_name']) . '"></i></div>';
 }
 
 function notify(?int $userId, ?int $providerId, string $title, string $message, string $type = 'system'): void
@@ -162,18 +162,18 @@ function delete_upload(?string $rel): void
 /* ---------- marketplace queries ---------- */
 function listed_providers(array $f = [], int $limit = 0): array
 {
-    // Prices come from the provider's own offerings (under services the admin left Active); only a real price (> 0) counts.
-    $priced = "FROM provider_offerings o JOIN services os ON os.id=o.service_id AND os.status='Active' WHERE o.provider_id=p.id AND o.price>0";
+    // Prices come from the provider's own services (under categories the admin left Active); only a real price (> 0) counts.
+    $priced = "FROM provider_offerings o JOIN categories os ON os.id=o.category_id AND os.status='Active' WHERE o.provider_id=p.id AND o.price>0";
     $where = "p.verification_status='Approved' AND p.account_status='Active' AND u.status='Active' AND EXISTS(SELECT 1 $priced)";
     $a = [];
     if (!empty($f['q'])) {
-        $where .= " AND (p.name LIKE ? OR p.location LIKE ? OR p.bio LIKE ? OR p.skills LIKE ? OR EXISTS(SELECT 1 FROM provider_services ps JOIN services s ON s.id=ps.service_id WHERE ps.provider_id=p.id AND s.service_name LIKE ?))";
+        $where .= " AND (p.name LIKE ? OR p.location LIKE ? OR p.bio LIKE ? OR p.skills LIKE ? OR EXISTS(SELECT 1 FROM provider_categories ps JOIN categories s ON s.id=ps.category_id WHERE ps.provider_id=p.id AND s.category_name LIKE ?))";
         $l = '%' . $f['q'] . '%';
         array_push($a, $l, $l, $l, $l, $l);
     }
-    if (!empty($f['service'])) {
-        $where .= " AND EXISTS(SELECT 1 FROM provider_services ps JOIN services s ON s.id=ps.service_id WHERE ps.provider_id=p.id AND ps.service_id=? AND s.status='Active')";
-        $a[] = (int)$f['service'];
+    if (!empty($f['category'])) {
+        $where .= " AND EXISTS(SELECT 1 FROM provider_categories ps JOIN categories s ON s.id=ps.category_id WHERE ps.provider_id=p.id AND ps.category_id=? AND s.status='Active')";
+        $a[] = (int)$f['category'];
     }
     if (!empty($f['location'])) {
         $where .= ' AND p.location LIKE ?';
@@ -192,15 +192,15 @@ function listed_providers(array $f = [], int $limit = 0): array
     }
     $order = ['price_asc' => 'min_price ASC', 'price_desc' => 'min_price DESC', 'rating' => 'rating DESC, reviews DESC'][$f['sort'] ?? 'rating'] ?? 'rating DESC, reviews DESC';
     $sql = "SELECT p.*, COALESCE(r.avg_rating,0) rating, COALESCE(r.cnt,0) reviews, (SELECT MIN(o.price) $priced) min_price,
-        (SELECT GROUP_CONCAT(s.service_name ORDER BY s.service_name SEPARATOR ', ') FROM provider_services ps JOIN services s ON s.id=ps.service_id AND s.status='Active' WHERE ps.provider_id=p.id) services
+        (SELECT GROUP_CONCAT(s.category_name ORDER BY s.category_name SEPARATOR ', ') FROM provider_categories ps JOIN categories s ON s.id=ps.category_id AND s.status='Active' WHERE ps.provider_id=p.id) categories
         FROM providers p JOIN users u ON u.id=p.user_id
         LEFT JOIN (SELECT provider_id, AVG(rating) avg_rating, COUNT(*) cnt FROM ratings GROUP BY provider_id) r ON r.provider_id=p.id
         WHERE $where ORDER BY $order, p.id" . ($limit ? ' LIMIT ' . (int)$limit : '');
     return rows($sql, $a);
 }
-function active_services(): array
+function active_categories(): array
 {
-    return rows("SELECT * FROM services WHERE status='Active' ORDER BY service_name");
+    return rows("SELECT * FROM categories WHERE status='Active' ORDER BY category_name");
 }
 
 // $area: 'public' | 'user'
@@ -219,7 +219,7 @@ function provider_card(array $p, string $area = 'public', bool $fav = false): vo
         <p class="text-secondary small mt-3 mb-2 clamp-2"><?= e($p['bio'] ?: 'Verified AASRA provider.') ?></p>
         <div class="small text-secondary mb-3"><i class="bi bi-geo-alt"></i> <?= e($p['location'] ?: 'Lahore') ?><?php if (!empty($p['min_price'])): ?> &nbsp;·&nbsp; From <?= e(money($p['min_price'])) ?>/visit<?php endif; ?></div>
         <div class="d-flex flex-wrap gap-1 mb-3">
-            <?php foreach (array_slice(array_filter(explode(', ', (string)$p['services'])), 0, 2) as $sv): ?><span class="tag"><?= e($sv) ?></span><?php endforeach; ?>
+            <?php foreach (array_slice(array_filter(explode(', ', (string)$p['categories'])), 0, 2) as $sv): ?><span class="tag"><?= e($sv) ?></span><?php endforeach; ?>
         </div>
         <span class="btn btn-outline-success btn-sm">View profile</span>
     </div>

@@ -8,7 +8,7 @@ if (!$p) {
   show_error_page(404);
   exit;
 }
-$svcs = rows('SELECT s.service_name FROM services s JOIN provider_services ps ON ps.service_id=s.id WHERE ps.provider_id=?', [$id]);
+$svcs = rows('SELECT s.category_name FROM categories s JOIN provider_categories ps ON ps.category_id=s.id WHERE ps.provider_id=?', [$id]);
 $st = row("SELECT COUNT(*) total, SUM(status='Completed') done FROM bookings WHERE provider_id=?", [$id]);
 $rt = row('SELECT COALESCE(AVG(rating),0) a,COUNT(*) c FROM ratings WHERE provider_id=?', [$id]);
 $c = provider_completeness($p);
@@ -46,7 +46,7 @@ page_head($p['name'], 'Provider details', '<div class="d-flex gap-2 flex-wrap"><
           <div class="small text-secondary">Bio</div><?= e($p['bio'] ?: '—') ?>
         </div>
         <div class="col-12">
-          <div class="small text-secondary mb-1">Services</div><?php foreach ($svcs as $s): ?><span class="tag me-1"><?= e($s['service_name']) ?></span><?php endforeach; ?><?php if (!$svcs) echo '—'; ?>
+          <div class="small text-secondary mb-1">Categories</div><?php foreach ($svcs as $s): ?><span class="tag me-1"><?= e($s['category_name']) ?></span><?php endforeach; ?><?php if (!$svcs) echo '—'; ?>
         </div>
         <div class="col-md-6">
           <div class="small text-secondary">Bookings</div><?= (int)$st['total'] ?> total, <?= (int)$st['done'] ?> completed

@@ -90,7 +90,7 @@
       target.focus({ preventScroll: true });
     });
 
-    // ---------- scroll-spy for the public header (Home / Services / Guides) ----------
+    // ---------- scroll-spy for the public header (Home / Categories / Guides) ----------
     const links = Array.prototype.slice.call(
       document.querySelectorAll(".site-header a[data-spy]"),
     );

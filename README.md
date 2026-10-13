@@ -91,9 +91,9 @@ Change the default password to a strong, unique password before using the applic
 ## 6. Main Features
 
 ### Public Website
-- Homepage and public service listings.
-- Service categories and informational Helpful Guides cards on the homepage (no separate guide pages).
-- Homepage header links (Home, Services, Guides) scroll smoothly to their sections; from other public pages they return to the matching homepage section.
+- Homepage and public category listings (`/categories`, `/categories/<id>`).
+- Categories and informational Helpful Guides cards on the homepage (no separate guide pages).
+- Homepage header links (Home, Categories, Guides) scroll smoothly to their sections; from other public pages they return to the matching homepage section.
 - Lightweight homepage animations (CSS + `assets/js/motion.js`) that respect `prefers-reduced-motion`.
 - Provider discovery based on eligibility and service information.
 - Contact and other public information pages.
@@ -152,7 +152,8 @@ The application uses `.htaccess` and `index.php` for clean URL routing.
 Examples:
 
 - `http://localhost/aasra/`
-- `http://localhost/aasra/services`
+- `http://localhost/aasra/categories`
+- `http://localhost/aasra/categories/1` (one category and its providers)
 - `http://localhost/aasra/#guides` (the old `/guides` URLs redirect here)
 - `http://localhost/aasra/login`
 - `http://localhost/aasra/admin`
@@ -184,7 +185,9 @@ The `database/` directory contains the current fresh-install SQL file:
 
 The previous migration SQL files have been removed from the project. Therefore, this README does not provide a migration procedure for older database versions.
 
-**Provider pricing fields migration.** Provider-level Experience, Availability and Charges (`providers.experience`, `providers.availability`, `providers.charges`) have been removed; prices, schedules and experience now live only on each offering (`provider_offerings`). `aasra_db.sql` already reflects this. To update an existing database without losing data, back it up and run `database/migration_remove_provider_pricing_fields.sql` once (it is safe to re-run).
+**Provider pricing fields migration.** Provider-level Experience, Availability and Charges (`providers.experience`, `providers.availability`, `providers.charges`) have been removed; prices, schedules and experience now live only on each offering (`provider_offerings`). `aasra_db.sql` already reflects this. The one-off migration file for that change is no longer part of this project.
+
+**Services renamed to Categories.** The database now uses `categories` (`category_name`), `provider_categories` and `category_id` (in `provider_categories`, `provider_offerings` and `bookings`); the admin area manages them at `/admin/categories`. Public category browsing now lives at `/categories` and `/categories/<id>`; the old `/services` and `/services?service=<id>` URLs redirect (301) to them, keeping other query parameters. The provider `/provider/services` page is unchanged because it manages the provider's own services (stored in `provider_offerings`). Terminology: **Categories** group and browse providers, **Services** are what a provider offers. `aasra_db.sql` is the fresh-install schema. For an existing database, use only `database/migrations/rename_services_to_categories.sql`: take a `mysqldump` backup first, run its read-only inspection queries, then run the migration (it checks the current state, stops on orphaned rows, never drops tables or deletes rows, and can be re-run). Never import `aasra_db.sql` into an existing database.
 
 For an existing installation, preserve the current database and back it up before changing its schema. Do not import the fresh-install SQL file simply to update the application.
 

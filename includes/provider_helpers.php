@@ -1,7 +1,7 @@
 <?php
 function provider_completeness(array $p): array
 {
-    $n = (int)val('SELECT COUNT(*) FROM provider_services WHERE provider_id=?', [$p['id']]);
+    $n = (int)val('SELECT COUNT(*) FROM provider_categories WHERE provider_id=?', [$p['id']]);
     $checks = [
         'Phone number' => !empty($p['phone']),
         'Location' => !empty($p['location']),
@@ -12,28 +12,28 @@ function provider_completeness(array $p): array
     $done = count(array_filter($checks));
     return ['pct' => (int)round($done / count($checks) * 100), 'checks' => $checks];
 }
-/* ---------- provider service offerings ----------
+/* ---------- provider services ----------
    A provider may create many offerings, but each one must sit under a service type the administrator created and
-   left Active. provider_services (the "listed under" table used by search and booking) is kept in step: it gains a
+   left Active. provider_categories (the "listed under" table used by search and booking) is kept in step: it gains a
    row with a provider's first offering of a type and loses it when the last one of that type is deleted. */
 const OFFERING_MAX_PER_PROVIDER = 50;
 
 function provider_offerings(int $pid): array
 {
-    return rows('SELECT o.*,s.service_name,s.status service_status FROM provider_offerings o JOIN services s ON s.id=o.service_id WHERE o.provider_id=? ORDER BY s.service_name,o.title', [$pid]);
+    return rows('SELECT o.*,s.category_name,s.status category_status FROM provider_offerings o JOIN categories s ON s.id=o.category_id WHERE o.provider_id=? ORDER BY s.category_name,o.title', [$pid]);
 }
 // One offering, only if it belongs to provider $pid (the id always comes from the logged-in session, never the browser).
 function provider_offering(int $pid, int $id)
 {
-    return row('SELECT o.*,s.service_name,s.status service_status FROM provider_offerings o JOIN services s ON s.id=o.service_id WHERE o.id=? AND o.provider_id=?', [$id, $pid]);
+    return row('SELECT o.*,s.category_name,s.status category_status FROM provider_offerings o JOIN categories s ON s.id=o.category_id WHERE o.id=? AND o.provider_id=?', [$id, $pid]);
 }
 // Validates the offering form. Returns [cleanValues, errors]. $pid/$ignoreId are used for the duplicate-title rule;
 // $existing is the offering being edited (its service type is fixed), or null when creating.
 function offering_validate(int $pid, ?array $existing): array
 {
-    $sid = $existing ? (int)$existing['service_id'] : (is_array($_POST['service_id'] ?? null) ? 0 : (int)($_POST['service_id'] ?? 0));
+    $sid = $existing ? (int)$existing['category_id'] : (is_array($_POST['category_id'] ?? null) ? 0 : (int)($_POST['category_id'] ?? 0));
     $c = [
-        'service_id' => $sid,
+        'category_id' => $sid,
         'title' => post('title'),
         'description' => post('description'),
         'price' => post('price'),
@@ -41,31 +41,31 @@ function offering_validate(int $pid, ?array $existing): array
         'experience' => post('experience')
     ];
     $err = [];
-    if (!$existing && !row("SELECT id FROM services WHERE id=? AND status='Active'", [$sid])) $err['service_id'] = 'Please choose one of the available services.';
+    if (!$existing && !row("SELECT id FROM categories WHERE id=? AND status='Active'", [$sid])) $err['category_id'] = 'Please choose one of the available categories.';
     if (mb_strlen($c['title']) < 3 || mb_strlen($c['title']) > 150) $err['title'] = 'Please enter a title (3–150 characters).';
     if (mb_strlen($c['description']) > 1000) $err['description'] = 'Description must not exceed 1,000 characters.';
     if (!preg_match('/^\d{1,7}(\.\d{1,2})?$/', $c['price']) || (float)$c['price'] > 1000000) $err['price'] = 'Price must be a number between 0 and 1,000,000 PKR.';
     if (mb_strlen($c['availability']) > 255) $err['availability'] = 'Availability must not exceed 255 characters.';
     if (mb_strlen($c['experience']) > 120) $err['experience'] = 'Experience must not exceed 120 characters.';
     if (
-        !isset($err['title']) && !isset($err['service_id']) &&
-        val('SELECT COUNT(*) FROM provider_offerings WHERE provider_id=? AND service_id=? AND title=? AND id<>?', [$pid, $sid, $c['title'], $existing ? (int)$existing['id'] : 0])
+        !isset($err['title']) && !isset($err['category_id']) &&
+        val('SELECT COUNT(*) FROM provider_offerings WHERE provider_id=? AND category_id=? AND title=? AND id<>?', [$pid, $sid, $c['title'], $existing ? (int)$existing['id'] : 0])
     )
-        $err['title'] = 'You already have an offering with this title under this service.';
+        $err['title'] = 'You already have a service with this title under this category.';
     if (!$existing && !$err && (int)val('SELECT COUNT(*) FROM provider_offerings WHERE provider_id=?', [$pid]) >= OFFERING_MAX_PER_PROVIDER)
-        $err['general'] = 'You have reached the limit of ' . OFFERING_MAX_PER_PROVIDER . ' offerings. Delete one before adding another.';
+        $err['general'] = 'You have reached the limit of ' . OFFERING_MAX_PER_PROVIDER . ' services. Delete one before adding another.';
     return [$c, $err];
 }
 function offering_create(int $pid, array $c): int
 {
     db_begin();
     try {
-        q('INSERT IGNORE INTO provider_services(provider_id,service_id) VALUES(?,?)', [$pid, $c['service_id']]);
+        q('INSERT IGNORE INTO provider_categories(provider_id,category_id) VALUES(?,?)', [$pid, $c['category_id']]);
         $st = q(
-            'INSERT INTO provider_offerings(provider_id,service_id,title,description,price,availability,experience) VALUES(?,?,?,?,?,?,?)',
+            'INSERT INTO provider_offerings(provider_id,category_id,title,description,price,availability,experience) VALUES(?,?,?,?,?,?,?)',
             [
                 $pid,
-                $c['service_id'],
+                $c['category_id'],
                 $c['title'],
                 $c['description'] === '' ? null : $c['description'],
                 $c['price'],
@@ -103,8 +103,8 @@ function offering_delete(int $pid, int $id): bool
     db_begin();
     try {
         q('DELETE FROM provider_offerings WHERE id=? AND provider_id=?', [$id, $pid]);
-        if (!val('SELECT COUNT(*) FROM provider_offerings WHERE provider_id=? AND service_id=?', [$pid, $o['service_id']]))
-            q('DELETE FROM provider_services WHERE provider_id=? AND service_id=?', [$pid, $o['service_id']]);
+        if (!val('SELECT COUNT(*) FROM provider_offerings WHERE provider_id=? AND category_id=?', [$pid, $o['category_id']]))
+            q('DELETE FROM provider_categories WHERE provider_id=? AND category_id=?', [$pid, $o['category_id']]);
         db_commit();
     } catch (Throwable $e) {
         db_rollback();
@@ -145,7 +145,7 @@ function booking_table(array $list, bool $actions, string $redirect): void
                     <?php foreach ($list as $b): ?><tr>
                             <td class="ps-4 id-cell"><?= (int)$b['id'] ?></td>
                             <td><?= e($b['user_name']) ?><?php if ($b['requirements']): ?><div class="small text-secondary clamp-2" style="max-width:280px"><?= e($b['requirements']) ?></div><?php endif; ?></td>
-                            <td><?= e($b['service_name']) ?></td>
+                            <td><?= e($b['category_name']) ?></td>
                             <td><?= e(fmt_date($b['booking_date'])) ?><br><small class="text-secondary"><?= e(date('g:i A', strtotime($b['booking_time']))) ?></small></td>
                             <td><?= e(money($b['charges'])) ?></td>
                             <td><?= badge($b['status']) ?></td>

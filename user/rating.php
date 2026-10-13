@@ -5,7 +5,7 @@ include __DIR__ . '/../includes/header.php'; ?>
     <?php include __DIR__ . '/../includes/sidebar.php'; ?>
     <section class="content-area">
         <?php $bid = (int)($_GET['booking'] ?? $_POST['booking_id'] ?? 0);
-        $st = $pdo->prepare("SELECT b.*,p.name provider_name,s.service_name FROM bookings b JOIN providers p ON p.id=b.provider_id JOIN services s ON s.id=b.service_id WHERE b.id=? AND b.user_id=? AND b.status='Completed'");
+        $st = $pdo->prepare("SELECT b.*,p.name provider_name,s.category_name FROM bookings b JOIN providers p ON p.id=b.provider_id JOIN categories s ON s.id=b.category_id WHERE b.id=? AND b.user_id=? AND b.status='Completed'");
         $st->execute([$bid, $u['id']]);
         $b = $st->fetch();
         if (!$b) {
@@ -28,7 +28,7 @@ include __DIR__ . '/../includes/header.php'; ?>
             }
         } ?><div class="service-card p-4 col-lg-7">
             <h3>Rate <?= e($b['provider_name']) ?></h3>
-            <p class="text-secondary"><?= e($b['service_name']) ?> · Booking #<?= $bid ?></p>
+            <p class="text-secondary"><?= e($b['category_name']) ?> · Booking #<?= $bid ?></p>
             <form method="post"><input type="hidden" name="csrf" value="<?= e(csrf_token()) ?>"><label class="form-label">Rating</label><select name="rating" class="form-select mb-3" required>
                     <option value="5">5 — Excellent</option>
                     <option value="4">4 — Good</option>
