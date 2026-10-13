@@ -1,4 +1,4 @@
--- AASRA database (v2) - fresh install.
+﻿-- AASRA database (v2) - fresh install.
 -- Import this file in phpMyAdmin. It drops and recreates all AASRA tables.
 -- EXISTING databases: never import this file. Use database/rename_services_to_categories.sql (keeps your data).
 CREATE DATABASE IF NOT EXISTS aasra_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
