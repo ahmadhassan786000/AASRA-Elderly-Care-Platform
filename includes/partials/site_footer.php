@@ -11,7 +11,7 @@
       </div>
       <div class="col-6 col-lg-2">
         <h6>Explore</h6>
-        <a class="footer-link" href="<?= e(url('')) ?>">Home</a><a class="footer-link" href="<?= e(url('categories')) ?>">Categories</a><a class="footer-link" href="<?= e(url((($footer_area ?? 'public') === 'user' ? 'user' : '') . '#guides')) ?>">Helpful Guides</a>
+        <a class="footer-link" href="<?= e(url('user#home')) ?>">Home</a><a class="footer-link" href="<?= e(url('user#categories')) ?>">Categories</a><a class="footer-link" href="<?= e(url((($footer_area ?? 'public') === 'user' ? 'user' : '') . '#guides')) ?>">Helpful Guides</a>
       </div>
       <div class="col-6 col-lg-2">
         <?php if (($footer_area ?? 'public') === 'user'): ?>

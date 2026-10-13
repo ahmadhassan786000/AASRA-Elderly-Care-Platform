@@ -24,7 +24,7 @@ if (!$rec) $rec = array_slice(listed_providers([], 6), 3, 3);
 $favIds = array_column(rows('SELECT provider_id FROM favorites WHERE user_id=?', [$u['id']]), 'provider_id');
 layout('user', ['title' => 'Home', 'nav' => 'home', 'motion' => true, 'js' => ['home.js', 'motion.js']]);
 ?>
-<section class="hero hero-anim">
+<section class="hero hero-anim" id="home">
   <div class="container">
     <p class="mb-2 fw-semibold text-success rise" style="--i:0">Hello, <?= e(explode(' ', $u['name'])[0]) ?></p>
     <h1 class="mb-4 rise" style="max-width:20ch;--i:1">What kind of support do you need?</h1>
@@ -36,7 +36,7 @@ layout('user', ['title' => 'Home', 'nav' => 'home', 'motion' => true, 'js' => ['
   </div>
 </section>
 
-<section class="section">
+<section class="section" id="categories">
   <div class="container">
     <div class="section-head reveal">
       <div>
