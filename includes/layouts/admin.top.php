@@ -15,9 +15,14 @@ $items = [
     ['complaints', 'admin/complaints', 'bi-exclamation-triangle', 'Complaints'],
 ];
 
-$pendingV = (int) val(
-    "SELECT COUNT(*) FROM providers p WHERE p.verification_status='Pending' AND EXISTS (SELECT 1 FROM provider_documents d WHERE d.provider_id=p.id)"
-);
+require_once dirname(__DIR__) . '/admin_helpers.php';
+$pending = admin_pending_counts();
+// sidebar item => [badge element id, count]; badges are hidden at zero (live-updated by assets/js/admin.js)
+$badges = [
+    'verification' => ['pendingVerificationCount', $pending['verification']],
+    'payments'     => ['pendingPaymentsCount', $pending['payments']],
+    'complaints'   => ['pendingComplaintsCount', $pending['complaints']],
+];
 ?>
 
 <body class="app-body admin-area">
@@ -60,8 +65,8 @@ $pendingV = (int) val(
                         <i class="bi <?= e($ic) ?>"></i>
                         <span><?= e($label) ?></span>
 
-                        <?php if ($k === 'verification'): ?>
-                            <span class="side-count" id="pendingVerificationCount" <?= $pendingV < 1 ? ' hidden' : '' ?>><?= $pendingV ?></span>
+                        <?php if (isset($badges[$k])): ?>
+                            <span class="side-count" id="<?= e($badges[$k][0]) ?>" <?= $badges[$k][1] < 1 ? ' hidden' : '' ?>><?= (int)$badges[$k][1] ?></span>
                         <?php endif; ?>
                     </a>
                 <?php endforeach; ?>

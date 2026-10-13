@@ -1,5 +1,6 @@
 <?php
 $u = require_role('user');
+require_once APP_ROOT . '/includes/payment_helpers.php';
 require_once APP_ROOT . '/includes/provider_load.php';
 $pid = (int)get('id');
 $list = listed_providers(['ids' => [$pid]], 1);
@@ -26,7 +27,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   elseif (!valid_date($date) || $date <= date('Y-m-d')) $error = 'Please choose a future date.';
   elseif (!preg_match('/^([01]\d|2[0-3]):[0-5]\d$/', $time)) $error = 'Please choose a valid time.';
   else {
-    q("INSERT INTO bookings(user_id,provider_id,category_id,booking_date,booking_time,requirements,charges,status) VALUES(?,?,?,?,?,?,?,'Pending')", [$u['id'], $pid, $sid, $date, $time . ':00', $req, $charge]);
+    db_begin();
+    try {
+      q("INSERT INTO bookings(user_id,provider_id,category_id,booking_date,booking_time,requirements,charges,status) VALUES(?,?,?,?,?,?,?,'Pending')", [$u['id'], $pid, $sid, $date, $time . ':00', $req, $charge]);
+      payment_ensure_record((int)db()->insert_id); // Pending cash payment record, amount read from the booking
+      db_commit();
+    } catch (Throwable $e) {
+      db_rollback();
+      throw $e;
+    }
     notify(null, $pid, 'New booking request', $u['name'] . ' sent you a booking request for ' . fmt_date($date) . '.', 'booking');
     flash('success', 'Booking request sent. You will be notified when the provider responds.');
     redirect('user/bookings');

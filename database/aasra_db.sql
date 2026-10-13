@@ -4,7 +4,7 @@
 CREATE DATABASE IF NOT EXISTS aasra_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE aasra_db;
 SET FOREIGN_KEY_CHECKS=0;
-DROP TABLE IF EXISTS favorites,notifications,complaints,ratings,payments,bookings,provider_documents,provider_offerings,provider_categories,categories,providers,users;
+DROP TABLE IF EXISTS favorites,notifications,complaints,ratings,payment_history,payments,bookings,provider_documents,provider_offerings,provider_categories,categories,providers,users;
 SET FOREIGN_KEY_CHECKS=1;
 
 CREATE TABLE users(
@@ -105,12 +105,34 @@ CREATE TABLE payments(
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   booking_id INT UNSIGNED NOT NULL UNIQUE,
   amount DECIMAL(10,2) NOT NULL,
-  payment_method ENUM('Cash','Bank Transfer','Card') NOT NULL DEFAULT 'Cash',
-  payment_status ENUM('Pending','Paid','Failed') NOT NULL DEFAULT 'Pending',
+  payment_method ENUM('Cash') NOT NULL DEFAULT 'Cash',
+  payment_status ENUM('Pending','Verification Requested','Paid','Rejected','Failed') NOT NULL DEFAULT 'Pending',
   transaction_reference VARCHAR(120),
   paid_at DATETIME NULL,
+  provider_confirmed_at DATETIME NULL,
+  verified_by INT UNSIGNED NULL,
+  verified_at DATETIME NULL,
+  admin_note VARCHAR(500) NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY(booking_id) REFERENCES bookings(id) ON DELETE CASCADE
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY(booking_id) REFERENCES bookings(id) ON DELETE CASCADE,
+  CONSTRAINT fk_payments_verified_by FOREIGN KEY(verified_by) REFERENCES users(id) ON DELETE SET NULL,
+  INDEX idx_payments_status(payment_status)
+) ENGINE=InnoDB;
+
+CREATE TABLE payment_history(
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  payment_id INT UNSIGNED NOT NULL,
+  event ENUM('created','provider_confirmed','provider_resubmitted','admin_verified','admin_rejected') NOT NULL,
+  from_status VARCHAR(30) NULL,
+  to_status VARCHAR(30) NOT NULL,
+  actor_role ENUM('system','user','provider','admin') NOT NULL DEFAULT 'system',
+  actor_user_id INT UNSIGNED NULL,
+  note VARCHAR(500) NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_payment_history_payment(payment_id,created_at),
+  CONSTRAINT fk_payment_history_payment FOREIGN KEY(payment_id) REFERENCES payments(id) ON DELETE CASCADE,
+  CONSTRAINT fk_payment_history_actor FOREIGN KEY(actor_user_id) REFERENCES users(id) ON DELETE SET NULL
 ) ENGINE=InnoDB;
 
 CREATE TABLE ratings(

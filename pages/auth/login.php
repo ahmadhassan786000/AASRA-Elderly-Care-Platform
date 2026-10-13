@@ -1,6 +1,8 @@
 <?php
 if (current_user() && auth_refresh()) redirect(home_for_role(current_user()['role']));
 
+$adminLogin = request_path() === 'admin/login'; // the Admin sign-in URL only accepts administrator accounts
+
 $errors = [];
 $email = '';
 $next = (string)($_GET['next'] ?? $_POST['next'] ?? '');
@@ -55,6 +57,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if (!$u || !$ok) {
             $errors['email'] = 'Invalid email or password.';
+        } elseif ($adminLogin && $u['role'] !== 'admin') {
+            $errors['email'] = 'Invalid email or password.'; // same message: do not reveal that the account exists
         } elseif ($u['status'] !== 'Active') {
             $errors['email'] = 'This account is inactive. Please contact AASRA support.';
         } else {
@@ -74,8 +78,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 layout('auth', ['title' => 'Login', 'width' => 440]);
 ?>
 
-<h1 class="text-center mb-1">Welcome back</h1>
-<p class="text-secondary text-center mb-4">Log in to your AASRA account.</p>
+<h1 class="text-center mb-1"><?= $adminLogin ? 'Administrator sign in' : 'Welcome back' ?></h1>
+<p class="text-secondary text-center mb-4"><?= $adminLogin ? 'Sign in with your AASRA administrator account.' : 'Log in to your AASRA account.' ?></p>
 
 <form method="post" id="loginForm" novalidate>
     <?= csrf_field() ?>
@@ -133,9 +137,9 @@ layout('auth', ['title' => 'Login', 'width' => 440]);
     </button>
 </form>
 
-<p class="mt-4 mb-0 text-center">
+<?php if (!$adminLogin): ?><p class="mt-4 mb-0 text-center">
     New to AASRA? <a href="<?= e(url('register')) ?>">Create an account</a>
-</p>
+</p><?php endif; ?>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {

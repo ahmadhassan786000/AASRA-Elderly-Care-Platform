@@ -66,7 +66,7 @@ switch ($action) {
         if (!$c) fail('Complaint not found.', 404);
         q('UPDATE complaints SET status=?,resolved_at=IF(?="Resolved",NOW(),NULL) WHERE id=?', [$value, $value, $id]);
         notify((int)$c['user_id'], null, 'Complaint update', 'Your complaint #' . $id . ' is now ' . $value . '.', 'complaint');
-        json_out(['ok' => true, 'message' => 'Status updated successfully.', 'key' => "complaint_status:$id", 'status' => $value, 'badge' => badge($value)]);
+        json_out(['ok' => true, 'message' => 'Status updated successfully.', 'key' => "complaint_status:$id", 'status' => $value, 'badge' => badge($value), 'pendingComplaintCount' => (int) val("SELECT COUNT(*) FROM complaints WHERE status IN ('Pending','Under Review')")]);
 
     case 'delete_user':
         $t = row('SELECT id,role FROM users WHERE id=?', [$id]);

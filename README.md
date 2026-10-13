@@ -189,6 +189,8 @@ The previous migration SQL files have been removed from the project. Therefore, 
 
 **Services renamed to Categories.** The database now uses `categories` (`category_name`), `provider_categories` and `category_id` (in `provider_categories`, `provider_offerings` and `bookings`); the admin area manages them at `/admin/categories`. Public category browsing now lives at `/categories` and `/categories/<id>`; the old `/services` and `/services?service=<id>` URLs redirect (301) to them, keeping other query parameters. The provider `/provider/services` page is unchanged because it manages the provider's own services (stored in `provider_offerings`). Terminology: **Categories** group and browse providers, **Services** are what a provider offers. `aasra_db.sql` is the fresh-install schema. For an existing database, use only `database/migrations/rename_services_to_categories.sql`: take a `mysqldump` backup first, run its read-only inspection queries, then run the migration (it checks the current state, stops on orphaned rows, never drops tables or deletes rows, and can be re-run). Never import `aasra_db.sql` into an existing database.
 
+**Cash payments.** Payments are cash only with 0% commission: the provider confirms the cash received and an Admin verifies it (Pending → Verification Requested → Paid, or Rejected and resubmitted). For an existing database run `database/migrations/add_cash_payment_workflow.sql` once (it only adds; see `PAYMENT_SETUP.md`).
+
 For an existing installation, preserve the current database and back it up before changing its schema. Do not import the fresh-install SQL file simply to update the application.
 
 ## 11. Development Environment

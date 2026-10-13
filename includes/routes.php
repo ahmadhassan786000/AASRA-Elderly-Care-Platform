@@ -44,6 +44,7 @@ return [
     'provider/notifications' => 'provider/notifications',
     'provider/documents/(\d+)' => ['provider/document', 'id'],
     // admin
+    'admin/login'                 => 'auth/login',   // Admin sign-in (same login page and checks as /login)
     'admin'                       => 'admin/dashboard',
     'admin/users'                 => 'admin/users',
     'admin/users/(\d+)'           => ['admin/user_view', 'id'],

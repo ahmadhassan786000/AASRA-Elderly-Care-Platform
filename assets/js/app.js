@@ -82,15 +82,22 @@ window.AASRA = window.AASRA || {};
       b.addEventListener("click", async (e) => {
         e.preventDefault();
         e.stopPropagation();
+        if (b.disabled) return;
+        b.disabled = true; // one request per click; no double toggling
         const r = await A.post("user/api", {
-          action: "favorite",
+          action: b.dataset.remove ? "unfavorite" : "favorite",
           provider_id: b.dataset.fav,
         });
+        b.disabled = false;
         if (r.ok) {
           b.classList.toggle("on", r.on);
           b.querySelector("i").className =
             "bi " + (r.on ? "bi-heart-fill text-danger" : "bi-heart");
-          if (b.dataset.remove && !r.on) b.closest("[data-fav-card]")?.remove();
+          if (b.dataset.remove && !r.on) {
+            b.closest("[data-fav-card]")?.remove();
+            // last favourite removed: reload so the normal empty state is shown
+            if (!document.querySelector("[data-fav-card]")) location.reload();
+          }
         }
         A.notify(r.ok ? "success" : "danger", r.message);
       }),

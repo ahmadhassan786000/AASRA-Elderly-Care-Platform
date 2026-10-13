@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/payment_helpers.php';
 function provider_completeness(array $p): array
 {
     $n = (int)val('SELECT COUNT(*) FROM provider_categories WHERE provider_id=?', [$p['id']]);
@@ -123,7 +124,7 @@ function provider_booking_action(int $pid, string $name): array
     $new = $map[$action][0];
     q('UPDATE bookings SET status=? WHERE id=?', [$new, $id]);
     notify((int)$b['user_id'], null, 'Booking ' . strtolower($new), $name . ' marked your booking on ' . fmt_date($b['booking_date']) . ' as ' . $new . '.', 'booking');
-    if ($new === 'Completed') q("INSERT IGNORE INTO payments(booking_id,amount,payment_method,payment_status) VALUES(?,?,'Cash','Pending')", [$id, $b['charges']]);
+    if ($new === 'Completed') payment_ensure_record($id); // normally created at booking time; this covers older bookings. Completion is NOT payment.
     return ['success', 'Booking ' . strtolower($new) . '.'];
 }
 function booking_table(array $list, bool $actions, string $redirect): void

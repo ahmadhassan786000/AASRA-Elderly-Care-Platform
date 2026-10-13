@@ -59,6 +59,13 @@ document.addEventListener("DOMContentLoaded", () => {
         .querySelectorAll('[data-live-key="' + x.key + '"]')
         .forEach((n) => (n.innerHTML = x.badge)),
     );
+    if (Number.isInteger(r.pendingComplaintCount)) {
+      const cc = document.getElementById("pendingComplaintsCount");
+      if (cc) {
+        cc.textContent = r.pendingComplaintCount;
+        cc.hidden = r.pendingComplaintCount < 1;
+      }
+    }
     if (
       payload.action === "verification" &&
       Number.isInteger(r.pendingVerificationCount)

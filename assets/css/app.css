@@ -2037,3 +2037,25 @@ body {
   }
 }
 
+
+/* Favorites page: the remove button lives inside its provider card (top-right corner) */
+.prov-card--fav .fav-remove {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  z-index: 3; /* above the card's stretched link */
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+.prov-card--fav > .d-flex:first-of-type {
+  padding-right: 6.5rem; /* keeps name and rating clear of the button */
+}
+@media (max-width: 400px) {
+  .prov-card--fav .fav-remove__text {
+    display: none; /* icon-only on very narrow screens */
+  }
+  .prov-card--fav > .d-flex:first-of-type {
+    padding-right: 2.75rem;
+  }
+}

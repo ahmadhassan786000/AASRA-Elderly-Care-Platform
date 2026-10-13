@@ -13,4 +13,10 @@ if (post('action') === 'favorite') {
     q('INSERT INTO favorites(user_id,provider_id) VALUES(?,?)', [$u['id'], $pid]);
     json_out(['ok' => true, 'on' => true, 'message' => 'Added to favorites.']);
 }
+if (post('action') === 'unfavorite') {
+    // Removes only this user's favorite for this one provider; safe to repeat.
+    $pid = (int)post('provider_id');
+    q('DELETE FROM favorites WHERE user_id=? AND provider_id=?', [$u['id'], $pid]);
+    json_out(['ok' => true, 'on' => false, 'message' => 'Removed from favorites.']);
+}
 json_out(['ok' => false, 'message' => 'Unknown action.'], 400);

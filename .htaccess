@@ -15,6 +15,10 @@ DirectorySlash Off
   # Never serve source/config/data folders; the router answers with the 404 page.
   RewriteRule ^(config|includes|pages|database)(/|$) index.php [L]
 
+  # Old standalone files in /admin, /provider and /user (e.g. /admin/users.php) are not entry points any more:
+  # send them to the router, which redirects to the protected clean URL or answers 404.
+  RewriteRule ^(admin|provider|user)/.+\.php$ index.php [L]
+
   # The application uses /admin as a clean route even though
   # a legacy physical admin directory exists.
   RewriteRule ^admin/?$ index.php [L]

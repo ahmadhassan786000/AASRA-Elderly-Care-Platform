@@ -208,7 +208,8 @@ function provider_card(array $p, string $area = 'public', bool $fav = false): vo
 {
     $href = url(($area === 'user' ? 'user/providers/' : 'providers/') . $p['id']);
 ?>
-    <div class="prov-card h-100">
+    <div class="prov-card h-100<?= $fav ? ' prov-card--fav' : '' ?>">
+        <?php if ($fav): ?><button type="button" class="btn btn-sm btn-outline-danger fav-btn on fav-remove" data-fav="<?= (int)$p['id'] ?>" data-remove="1" aria-label="Remove <?= e($p['name']) ?> from favorites" title="Remove from favorites"><i class="bi bi-heart-fill text-danger" aria-hidden="true"></i><span class="fav-remove__text"> Remove</span></button><?php endif; ?>
         <div class="d-flex gap-3 align-items-center">
             <?= avatar($p, 'avatar-lg') ?>
             <div class="min-w-0">

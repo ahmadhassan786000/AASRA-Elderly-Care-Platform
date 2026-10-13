@@ -45,12 +45,18 @@ function require_role(string $role): array
     $u = auth_refresh();
     if (!$u) {
         if (is_ajax()) json_out(['ok' => false, 'message' => 'Please sign in again.'], 401);
-        redirect('login?next=' . rawurlencode('/' . request_path()));
+        // Admin pages send visitors to the Admin sign-in URL, everything else to the normal one.
+        redirect(($role === 'admin' ? 'admin/login' : 'login') . '?next=' . rawurlencode('/' . request_path()));
     }
     if ($u['role'] !== $role) {
         if (is_ajax()) json_out(['ok' => false, 'message' => 'Access denied.'], 403);
         show_error_page(403);
         exit;
+    }
+    // Signed-in pages must not be kept in the browser cache, so Back after logout cannot show them again.
+    if (!headers_sent()) {
+        header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+        header('Pragma: no-cache');
     }
     return $u;
 }

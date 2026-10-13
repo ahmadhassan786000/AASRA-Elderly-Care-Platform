@@ -11,9 +11,7 @@ layout('user', ['title' => 'Favorites', 'nav' => 'favorites']);
       <p>Providers you saved for later.</p>
     </div>
   </div>
-  <div class="row g-4"><?php foreach ($list as $p): ?><div class="col-md-6 col-xl-4" data-fav-card><?php provider_card($p, 'user'); ?>
-        <button class="btn btn-sm btn-outline-danger mt-2 fav-btn on" data-fav="<?= (int)$p['id'] ?>" data-remove="1"><i class="bi bi-heart-fill text-danger"></i> Remove</button>
-      </div><?php endforeach; ?></div>
+  <div class="row g-4"><?php foreach ($list as $p): ?><div class="col-md-6 col-xl-4" data-fav-card><?php provider_card($p, 'user', true); ?></div><?php endforeach; ?></div>
   <?php if (!$list): ?><div class="card-soft empty-state"><i class="bi bi-heart"></i>
       <p class="mt-2">You have no favorites yet. Open a provider profile and tap Favourite.</p><a class="btn btn-success" href="<?= e(url('user/providers')) ?>">Find providers</a>
     </div><?php endif; ?>
