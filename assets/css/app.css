@@ -1415,10 +1415,11 @@ html:has(body.user-area) body {
 }
 
 body.user-area .site-header {
-  position: relative !important;
-  top: auto !important;
+  position: sticky !important;
+  top: 0 !important;
   margin: 0 !important;
   padding: 0 !important;
+  z-index: 1030;
 }
 
 body.user-area .site-header .navbar {
@@ -2035,3 +2036,4 @@ body {
     text-align: left;
   }
 }
+
