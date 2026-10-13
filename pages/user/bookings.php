@@ -46,7 +46,7 @@ layout('user', ['title' => 'My Bookings', 'nav' => 'bookings']);
         </thead>
         <tbody>
           <?php foreach ($list as $b): ?><tr>
-              <td class="ps-4 id-cell">#<?= (int)$b['id'] ?></td>
+              <td class="ps-4 id-cell"><?= (int)$b['id'] ?></td>
               <td><a href="<?= e(url('user/providers/' . $b['pid'])) ?>"><?= e($b['provider_name']) ?></a></td>
               <td><?= e($b['category_name']) ?></td>
               <td><?= e(fmt_date($b['booking_date'])) ?><br><small class="text-secondary"><?= e(date('g:i A', strtotime($b['booking_time']))) ?></small></td>

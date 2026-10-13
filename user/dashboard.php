@@ -36,7 +36,7 @@ include __DIR__ . '/../includes/header.php'; ?>
                         </tr>
                     </thead>
                     <tbody><?php foreach ($recent->fetchAll() as $b): ?><tr>
-                                <td>#<?= $b['id'] ?></td>
+                                <td><?= $b['id'] ?></td>
                                 <td><?= e($b['provider_name']) ?></td>
                                 <td><?= e($b['category_name']) ?></td>
                                 <td><?= e($b['booking_date']) ?></td>

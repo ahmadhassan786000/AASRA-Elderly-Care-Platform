@@ -21,7 +21,7 @@ layout('user', ['title' => 'Payments', 'nav' => '']);
                 </thead>
                 <tbody>
                     <?php foreach ($list as $x): ?><tr>
-                            <td class="ps-4 id-cell">#<?= (int)$x['booking_id'] ?></td>
+                            <td class="ps-4 id-cell"><?= (int)$x['booking_id'] ?></td>
                             <td><?= e($x['category_name']) ?></td>
                             <td><?= e($x['provider_name']) ?></td>
                             <td><?= e(money($x['amount'])) ?></td>

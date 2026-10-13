@@ -28,7 +28,7 @@ include __DIR__ . '/../includes/header.php'; ?>
             }
         } ?><div class="service-card p-4 col-lg-7">
             <h3>Rate <?= e($b['provider_name']) ?></h3>
-            <p class="text-secondary"><?= e($b['category_name']) ?> · Booking #<?= $bid ?></p>
+            <p class="text-secondary"><?= e($b['category_name']) ?> · Booking <?= $bid ?></p>
             <form method="post"><input type="hidden" name="csrf" value="<?= e(csrf_token()) ?>"><label class="form-label">Rating</label><select name="rating" class="form-select mb-3" required>
                     <option value="5">5 — Excellent</option>
                     <option value="4">4 — Good</option>

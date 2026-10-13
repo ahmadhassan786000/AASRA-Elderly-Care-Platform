@@ -20,7 +20,7 @@ include __DIR__ . '/../includes/header.php'; ?>
                         </tr>
                     </thead>
                     <tbody><?php foreach ($st->fetchAll() as $x): ?><tr>
-                                <td>#<?= $x['booking_id'] ?></td>
+                                <td><?= $x['booking_id'] ?></td>
                                 <td><?= e($x['category_name']) ?></td>
                                 <td><?= e($x['provider_name']) ?></td>
                                 <td>PKR <?= number_format($x['amount'], 2) ?></td>

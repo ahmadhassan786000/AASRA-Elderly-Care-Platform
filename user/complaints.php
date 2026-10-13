@@ -19,7 +19,7 @@ include __DIR__ . '/../includes/header.php'; ?>
                     <h4>Submit Complaint</h4>
                     <form method="post"><input type="hidden" name="csrf" value="<?= e(csrf_token()) ?>">
                         <div class="mb-3"><label class="form-label">Booking</label><select name="booking_id" class="form-select">
-                                <option value="0">General</option><?php foreach ($bs->fetchAll() as $b): ?><option value="<?= $b['id'] ?>">#<?= $b['id'] ?> — <?= e($b['name']) ?></option><?php endforeach; ?>
+                                <option value="0">General</option><?php foreach ($bs->fetchAll() as $b): ?><option value="<?= $b['id'] ?>"><?= $b['id'] ?> — <?= e($b['name']) ?></option><?php endforeach; ?>
                             </select></div><input type="hidden" name="provider_id" value="0">
                         <div class="mb-3"><label class="form-label">Subject</label><input name="subject" class="form-control" required></div>
                         <div class="mb-3"><label class="form-label">Description</label><textarea name="description" class="form-control" rows="5" required></textarea></div><button class="btn btn-success">Submit</button>

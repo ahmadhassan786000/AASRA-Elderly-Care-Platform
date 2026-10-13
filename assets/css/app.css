@@ -898,7 +898,6 @@ html:has(.auth-body) {
   bottom: 20%;
   width: 4px;
   border-radius: 0 4px 4px 0;
-  background: #ffd166;
 }
 .side-link.active i {
   opacity: 1;
