@@ -2059,3 +2059,324 @@ body {
     padding-right: 2.75rem;
   }
 }
+
+/* =========================================================
+   Homepage look (public homepage + logged-in user homepage)
+   Bold palette: deep forest, emerald, vibrant green, teal, mint, warm cream.
+   Scoped to .hero-anim and .home-band, which only these two pages use.
+   Decoration is pure CSS / inline SVG (no external images) and sits behind the content.
+   ========================================================= */
+:root {
+  --hp-forest: #123d32;
+  --hp-forest-2: #0b5a46;
+  --hp-emerald: #087f5b;
+  --hp-vibrant: #16a765;
+  --hp-teal: #087e8b;
+  --hp-mint: #ddf5e7;
+  --hp-mint-2: #c9eedb;
+  --hp-cream: #f5f7f2;
+  --hp-ink: #172b25;
+  --hp-amber: #ffc83d;
+}
+
+/* the footer follows the last band directly */
+body:has(.hero-anim) .site-footer {
+  margin-top: 0;
+}
+
+/* ---------- hero: deep forest to emerald, with teal and green glows ---------- */
+.hero.hero-anim {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  padding: 4.5rem 0 7rem;
+  color: #fff;
+  background:
+    radial-gradient(720px 440px at 92% -5%, rgba(8, 126, 139, 0.7), transparent 70%),
+    radial-gradient(620px 420px at -4% 105%, rgba(22, 167, 101, 0.5), transparent 70%),
+    linear-gradient(135deg, var(--hp-forest) 0%, #0a5c47 55%, var(--hp-emerald) 100%);
+}
+.hero.hero-anim::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.16) 1.3px, transparent 1.5px);
+  background-size: 26px 26px;
+  -webkit-mask-image: radial-gradient(ellipse at 85% 20%, #000 0, transparent 68%);
+  mask-image: radial-gradient(ellipse at 85% 20%, #000 0, transparent 68%);
+  pointer-events: none;
+}
+.hero.hero-anim::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 56px;
+  z-index: 0;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 80' preserveAspectRatio='none'%3E%3Cpath fill='%23DDF5E7' d='M0 40c240 48 480 48 720 16S1200-8 1440 24v56H0z'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
+  pointer-events: none;
+}
+.hero-anim h1 {
+  color: #fff;
+}
+.hero-anim .hero-accent {
+  color: var(--hp-amber);
+}
+.hero-anim .lead {
+  color: rgba(255, 255, 255, 0.9);
+}
+.hero-anim .hero-orb {
+  background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.16), transparent 70%);
+}
+.hero-anim .hero-orb.o2 {
+  background: radial-gradient(circle at 30% 30%, rgba(255, 200, 61, 0.22), transparent 70%);
+}
+.hero-anim .search-panel {
+  border: 0;
+  box-shadow:
+    0 22px 44px -16px rgba(0, 0, 0, 0.5),
+    0 2px 6px rgba(0, 0, 0, 0.12);
+}
+.hero-anim .search-panel .btn-success {
+  background: var(--hp-emerald);
+  border-color: var(--hp-emerald);
+}
+.hero-anim .hero-stats {
+  gap: 0.75rem;
+}
+.hero-anim .hero-stats > div {
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 14px;
+  padding: 0.6rem 1.1rem;
+  color: #fff;
+}
+.hero-anim .hero-stats span {
+  color: rgba(255, 255, 255, 0.88);
+}
+.hero-anim .hero-blob {
+  background:
+    radial-gradient(circle at 28% 22%, rgba(255, 255, 255, 0.28) 0, transparent 55%),
+    linear-gradient(145deg, var(--hp-vibrant), var(--hp-teal));
+  box-shadow:
+    0 0 0 10px rgba(255, 255, 255, 0.08),
+    0 36px 70px -24px rgba(0, 0, 0, 0.6);
+}
+.hero-anim .hero-art::before {
+  content: "";
+  position: absolute;
+  inset: 0 2% 0 6%;
+  border: 2px dashed rgba(255, 255, 255, 0.28);
+  border-radius: 50%;
+}
+.hero-anim .float-card {
+  color: var(--hp-ink); /* cards are white: do not inherit the hero's white text */
+  border: 0;
+  box-shadow: 0 18px 36px -14px rgba(0, 0, 0, 0.5);
+}
+.hero-anim .float-card .ic {
+  background: var(--hp-mint);
+  color: var(--hp-forest-2);
+}
+
+/* user homepage: same banner, slightly more compact */
+body.user-area .hero.hero-anim {
+  padding: 3rem 0 6rem;
+}
+body.user-area .hero-anim .container > p.text-success {
+  display: inline-flex;
+  align-items: center;
+  background: var(--hp-mint);
+  color: var(--hp-forest) !important;
+  border: 0;
+  border-radius: 999px;
+  padding: 0.28rem 1rem;
+}
+
+/* ---------- section bands: every section has its own rich background ---------- */
+.home-band {
+  position: relative;
+  padding: 0;
+}
+.home-band > .container {
+  position: relative;
+  z-index: 1;
+  padding-top: 3.6rem;
+  padding-bottom: 3.6rem;
+}
+.home-band.anchor-target {
+  scroll-margin-top: calc(var(--header-h) - 1rem);
+}
+
+/* mint: fresh and light, with a soft dot pattern (first band under the hero, so no top wave) */
+.home-band--mint {
+  color: var(--hp-ink);
+  background:
+    radial-gradient(rgba(8, 127, 91, 0.13) 1.3px, transparent 1.5px) 0 0 / 26px 26px,
+    linear-gradient(180deg, var(--hp-mint) 0%, var(--hp-mint-2) 100%);
+}
+
+/* forest: dark, with teal and green glows */
+.home-band--forest {
+  color: #fff;
+  background:
+    radial-gradient(560px 320px at 96% 6%, rgba(8, 126, 139, 0.55), transparent 70%),
+    radial-gradient(520px 320px at 0 38%, rgba(22, 167, 101, 0.3), transparent 70%),
+    linear-gradient(180deg, var(--hp-forest), var(--hp-forest-2)); /* bottom edge = #0b5a46, matches the wave of the next band */
+}
+
+/* cream: warm neutral with a faint diagonal texture */
+.home-band--cream {
+  color: var(--hp-ink);
+  background:
+    repeating-linear-gradient(135deg, rgba(18, 61, 50, 0.035) 0 14px, transparent 14px 28px),
+    var(--hp-cream);
+}
+
+/* teal / deep: closing bands */
+.home-band--teal,
+.home-band--deep {
+  color: #fff;
+  background:
+    radial-gradient(520px 300px at 8% 0, rgba(22, 167, 101, 0.45), transparent 70%),
+    linear-gradient(135deg, var(--hp-teal), var(--hp-emerald));
+}
+
+/* headings, intro text and outline buttons per background */
+.home-band .section-head h2 {
+  position: relative;
+  padding-bottom: 0.6rem;
+  color: var(--hp-ink);
+}
+.home-band .section-head h2::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 56px;
+  height: 4px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, var(--hp-vibrant), var(--hp-amber));
+}
+.home-band--mint .text-secondary,
+.home-band--cream .text-secondary {
+  color: #34483f !important;
+}
+.home-band--mint .section-head .btn-outline-success,
+.home-band--cream .section-head .btn-outline-success {
+  color: var(--hp-forest-2);
+  border-color: var(--hp-forest-2);
+  background: rgba(255, 255, 255, 0.6);
+}
+.home-band--mint .section-head .btn-outline-success:hover,
+.home-band--cream .section-head .btn-outline-success:hover {
+  background: var(--hp-forest-2);
+  color: #fff;
+}
+.home-band--forest .section-head h2,
+.home-band--teal .section-head h2 {
+  color: #fff;
+}
+.home-band--forest .section-head .text-secondary,
+.home-band--teal .section-head .text-secondary {
+  color: rgba(255, 255, 255, 0.88) !important;
+}
+.home-band--forest .section-head .btn-outline-success,
+.home-band--teal .section-head .btn-outline-success {
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.75);
+}
+.home-band--forest .section-head .btn-outline-success:hover,
+.home-band--teal .section-head .btn-outline-success:hover {
+  background: #fff;
+  color: var(--hp-forest);
+}
+
+/* cards: white and clear on every colour, each with a coloured top edge */
+.home-band .svc-card,
+.home-band .prov-card,
+.home-band .guide-card {
+  background: #fff;
+  color: var(--hp-ink); /* cards stay dark-on-white inside the dark bands */
+  border: 1px solid rgba(18, 61, 50, 0.12);
+  border-top: 4px solid var(--hp-vibrant);
+  box-shadow: 0 14px 30px -16px rgba(18, 61, 50, 0.45);
+}
+.home-band .prov-card {
+  border-top-color: var(--hp-teal);
+}
+.home-band .guide-card {
+  border-top-color: var(--hp-amber);
+}
+.home-band .guide-ic {
+  background: linear-gradient(135deg, var(--hp-emerald), var(--hp-teal));
+  color: #fff;
+}
+@media (hover: hover) {
+  .home-band .svc-card:hover,
+  .home-band .prov-card:hover {
+    border-color: var(--hp-vibrant);
+    box-shadow: 0 24px 40px -16px rgba(18, 61, 50, 0.55);
+  }
+}
+
+/* provider call-to-action */
+.home-band--cta .cta-band {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, var(--hp-forest), var(--hp-forest-2));
+  box-shadow: 0 28px 50px -24px rgba(0, 0, 0, 0.6);
+}
+.home-band--cta .cta-band > * {
+  position: relative;
+  z-index: 1;
+}
+.home-band--cta .cta-band::before,
+.home-band--cta .cta-band::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  pointer-events: none;
+}
+.home-band--cta .cta-band::before {
+  width: 260px;
+  height: 260px;
+  right: -60px;
+  top: -110px;
+}
+.home-band--cta .cta-band::after {
+  width: 180px;
+  height: 180px;
+  left: 28%;
+  bottom: -110px;
+}
+.home-band--cta .cta-band .btn-light {
+  background: var(--hp-amber);
+  border-color: var(--hp-amber);
+  color: var(--hp-forest);
+  font-weight: 700;
+}
+.home-band--cta .cta-band .btn-light:hover {
+  background: #ffd766;
+  border-color: #ffd766;
+}
+
+@media (max-width: 767.98px) {
+  .hero.hero-anim,
+  body.user-area .hero.hero-anim {
+    padding: 2.75rem 0 5rem;
+  }
+  .hero.hero-anim::after {
+    height: 36px;
+  }
+  .home-band > .container {
+    padding-top: 2.6rem;
+    padding-bottom: 2.6rem;
+  }
+  .hero-anim .hero-stats > div {
+    flex: 1 1 8rem;
+  }
+}

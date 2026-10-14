@@ -6,16 +6,6 @@ ob_start();
 $path = request_path();
 $routes = require APP_ROOT . '/includes/routes.php';
 
-// Old-style URLs (/login.php, /admin/users.php): redirect to the clean URL if it exists, otherwise 404.
-if (preg_match('#\.php$#', $path)) {
-    $clean = preg_replace('#(/?index)?\.php$#', '', $path);
-    foreach ($routes as $pattern => $t) if (preg_match('#^' . $pattern . '$#', $clean)) {
-        $qs = $_SERVER['QUERY_STRING'] ?? '';
-        redirect($clean . ($qs ? '?' . $qs : ''), 301);
-    }
-    show_error_page(404);
-    exit;
-}
 // Canonicalise trailing slashes.
 if ($path !== '' && str_ends_with(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH), '/')) {
     $qs = $_SERVER['QUERY_STRING'] ?? '';

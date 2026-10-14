@@ -14,7 +14,7 @@ layout('public', ['title' => 'AASRA', 'nav' => 'home', 'motion' => true, 'js' =>
   <div class="container">
     <div class="row align-items-center gy-5 gx-lg-5">
       <div class="col-lg-7">
-        <h1 class="mb-3 rise" style="--i:0">Trusted Care, When You Need It</h1>
+        <h1 class="mb-3 rise" style="--i:0">Trusted Care, <span class="hero-accent">When You Need It</span></h1>
         <p class="lead fs-5 mb-4 rise" style="--i:1">Find reliable and verified service providers for elderly and differently-abled individuals.</p>
         <form class="search-panel rise" style="--i:2" action="<?= e(url('categories')) ?>" method="get" role="search">
           <label class="sp-field"><i class="bi bi-search"></i><input class="form-control" name="q" placeholder="Category or provider" aria-label="Search a category or provider"></label>
@@ -47,7 +47,7 @@ layout('public', ['title' => 'AASRA', 'nav' => 'home', 'motion' => true, 'js' =>
   </div>
 </section>
 
-<section class="section anchor-target" id="categories" data-spy-section="categories">
+<section class="section home-band home-band--mint anchor-target" id="categories" data-spy-section="categories">
   <div class="container">
     <div class="section-head reveal">
       <div>
@@ -60,7 +60,7 @@ layout('public', ['title' => 'AASRA', 'nav' => 'home', 'motion' => true, 'js' =>
   </div>
 </section>
 
-<section class="section pt-0 anchor-target" id="guides" data-spy-section="guides">
+<section class="section pt-0 home-band home-band--forest anchor-target" id="guides" data-spy-section="guides">
   <div class="container">
     <div class="section-head reveal">
       <div>
@@ -81,7 +81,7 @@ layout('public', ['title' => 'AASRA', 'nav' => 'home', 'motion' => true, 'js' =>
   </div>
 </section>
 
-<section class="section pt-0 anchor-target" id="top-rated" data-spy-section="top-rated">
+<section class="section pt-0 home-band home-band--mint anchor-target" id="top-rated" data-spy-section="top-rated">
   <div class="container">
     <div class="section-head reveal">
       <div>
@@ -97,7 +97,7 @@ layout('public', ['title' => 'AASRA', 'nav' => 'home', 'motion' => true, 'js' =>
   </div>
 </section>
 
-<section class="section pt-0">
+<section class="section pt-0 home-band home-band--deep home-band--cta">
   <div class="container">
     <div class="cta-band reveal d-flex flex-wrap align-items-center justify-content-between gap-3">
       <div>

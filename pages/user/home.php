@@ -36,7 +36,7 @@ layout('user', ['title' => 'Home', 'nav' => 'home', 'motion' => true, 'js' => ['
   </div>
 </section>
 
-<section class="section" id="categories">
+<section class="section home-band home-band--mint" id="categories">
   <div class="container">
     <div class="section-head reveal">
       <div>
@@ -49,7 +49,7 @@ layout('user', ['title' => 'Home', 'nav' => 'home', 'motion' => true, 'js' => ['
   </div>
 </section>
 
-<section class="section pt-0 anchor-target" id="guides">
+<section class="section pt-0 home-band home-band--forest anchor-target" id="guides">
   <div class="container">
     <div class="section-head reveal">
       <div>
@@ -66,7 +66,7 @@ layout('user', ['title' => 'Home', 'nav' => 'home', 'motion' => true, 'js' => ['
   </div>
 </section>
 
-<section class="section pt-0">
+<section class="section pt-0 home-band home-band--mint">
   <div class="container">
     <div class="section-head reveal">
       <div>
@@ -81,7 +81,7 @@ layout('user', ['title' => 'Home', 'nav' => 'home', 'motion' => true, 'js' => ['
   </div>
 </section>
 
-<?php if ($rec): ?><section class="section pt-0">
+<?php if ($rec): ?><section class="section pt-0 home-band home-band--teal">
     <div class="container">
       <div class="section-head reveal">
         <div>
