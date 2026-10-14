@@ -41,7 +41,7 @@ layout('provider', ['title' => 'Payments', 'active' => 'payments']);
             <tbody>
                 <?php foreach ($list as $x):
                     $can = $x['bstatus'] === 'Completed' && in_array($x['payment_status'], ['Pending', 'Rejected'], true); ?><tr>
-                        <td class="ps-4 id-cell">#<?= (int)$x['booking_id'] ?></td>
+                        <td class="ps-4 id-cell"><?= (int)$x['booking_id'] ?></td>
                         <td><?= e($x['user_name']) ?></td>
                         <td><?= e($x['category_name']) ?></td>
                         <td><?= badge($x['bstatus']) ?></td>

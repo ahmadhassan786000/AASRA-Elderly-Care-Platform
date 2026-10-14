@@ -93,7 +93,7 @@ $tiles = [
                 <?php foreach ($list as $x):
                     $ready = $x['payment_status'] === 'Verification Requested' && $x['bstatus'] === 'Completed'; ?><tr>
                         <td class="ps-4 id-cell">#<?= (int)$x['id'] ?></td>
-                        <td>#<?= (int)$x['booking_id'] ?><br><?= badge($x['bstatus']) ?></td>
+                        <td><?= (int)$x['booking_id'] ?><br><?= badge($x['bstatus']) ?></td>
                         <td><?= e($x['user_name']) ?></td>
                         <td><?= e($x['provider_name']) ?></td>
                         <td><?= e($x['category_name']) ?></td>
