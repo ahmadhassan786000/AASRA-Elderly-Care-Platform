@@ -82,7 +82,7 @@ layout('provider', ['title' => 'Verification', 'active' => 'verification']);
       </div>
 
       <?php if ($p['verification_status'] === 'Rejected' && $p['verification_note']): ?>
-        <div class="alert alert-danger small">
+        <div class="alert alert-danger small" data-no-autodismiss>
           <b>Admin note:</b> <?= e($p['verification_note']) ?>
         </div>
       <?php endif; ?>

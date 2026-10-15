@@ -18,7 +18,7 @@ if ($st !== '') {
   $sql .= ' AND b.status=?';
   $a[] = $st;
 }
-$list = rows($sql . ' ORDER BY b.booking_date DESC,b.booking_time DESC', $a);
+$list = rows($sql . ' ORDER BY b.created_at DESC, b.id DESC', $a);
 $rated = array_column(rows('SELECT booking_id FROM ratings WHERE user_id=?', [$u['id']]), 'booking_id');
 layout('user', ['title' => 'My Bookings', 'nav' => 'bookings']);
 ?>

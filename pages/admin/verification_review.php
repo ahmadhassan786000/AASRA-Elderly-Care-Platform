@@ -24,7 +24,7 @@ page_head('Review: ' . $p['name'], 'Check the submitted information and document
       </div>
       <div class="d-flex justify-content-between mb-2"><span class="text-secondary">Verification</span><?= live_badge($kv, $p['verification_status']) ?></div>
       <div class="d-flex justify-content-between mb-3"><span class="text-secondary">Account</span><?= live_badge($ks, $p['account_status']) ?></div>
-      <?php if ($p['verification_note']): ?><div class="alert alert-secondary small">Last note: <?= e($p['verification_note']) ?></div><?php endif; ?>
+      <?php if ($p['verification_note']): ?><div class="alert alert-secondary small" data-no-autodismiss>Last note: <?= e($p['verification_note']) ?></div><?php endif; ?>
       <div class="d-grid gap-2"><a href="#" class="btn btn-success" data-ajax-action="verification" data-id="<?= $id ?>" data-value="Approved"><i class="bi bi-check-circle"></i> Approve / Activate</a>
         <a href="#" class="btn btn-outline-danger" data-ajax-action="verification" data-id="<?= $id ?>" data-value="Rejected"><i class="bi bi-x-circle"></i> Inactive / Reject</a>
         <a href="#" class="btn btn-outline-secondary" data-ajax-action="verification" data-id="<?= $id ?>" data-value="Pending"><i class="bi bi-hourglass-split"></i> Set to pending</a>

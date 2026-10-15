@@ -5,6 +5,7 @@ $errors = [];
 $general_error = '';
 $name = '';
 $email = '';
+$accessibility = '';
 $type = get('type') === 'provider' ? 'provider' : 'user';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -15,9 +16,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $email = post('email');
   $pass = (string)($_POST['password'] ?? '');
   $confirm = (string)($_POST['confirm_password'] ?? '');
+  // Only regular users have this field. A provider request carrying it (manipulated form) is ignored, never saved.
+  $accessibility = $type === 'user' ? post('accessibility_category') : '';
 
   if (mb_strlen($name) < 2 || mb_strlen($name) > 100) {
-    $errors['name'] = 'Please enter your full name (2–100 characters).';
+    $errors['name'] = 'Please enter your full name (2â€“100 characters).';
   }
 
   if (!filter_var($email, FILTER_VALIDATE_EMAIL) || strlen($email) > 190) {
@@ -32,6 +35,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $errors['confirm_password'] = 'Passwords do not match.';
   }
 
+  if (!accessibility_valid($accessibility)) {
+    $errors['accessibility_category'] = 'Please choose one of the listed options.';
+  }
+
   if (!$errors && row('SELECT id FROM users WHERE email=?', [$email])) {
     $errors['email'] = 'This email is already registered. Try logging in instead.';
   }
@@ -41,8 +48,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     try {
       $ins = q(
-        'INSERT INTO users(name,email,password,role,status) VALUES(?,?,?,?,?)',
-        [$name, $email, password_hash($pass, PASSWORD_DEFAULT), $type, 'Active']
+        'INSERT INTO users(name,email,password,role,status,accessibility_category) VALUES(?,?,?,?,?,?)',
+        [$name, $email, password_hash($pass, PASSWORD_DEFAULT), $type, 'Active', $accessibility !== '' ? $accessibility : null]
       );
 
       $uid = (int)mysqli_stmt_insert_id($ins);
@@ -105,7 +112,7 @@ layout('auth', ['title' => 'Create account', 'width' => 500]);
       maxlength="100"
       autocomplete="name"
       required>
-    <div class="invalid-feedback" data-default="Please enter your full name (2–100 characters)."><?= e($errors['name'] ?? 'Please enter your full name (2–100 characters).') ?></div>
+    <div class="invalid-feedback" data-default="Please enter your full name (2â€“100 characters)."><?= e($errors['name'] ?? 'Please enter your full name (2â€“100 characters).') ?></div>
   </div>
 
   <div class="mb-3">
@@ -120,6 +127,14 @@ layout('auth', ['title' => 'Create account', 'width' => 500]);
       autocomplete="email"
       required>
     <div class="invalid-feedback" data-default="Please enter a valid email address."><?= e($errors['email'] ?? 'Please enter a valid email address.') ?></div>
+  </div>
+
+  <div class="mb-3<?= $type === 'provider' ? ' d-none' : '' ?>" id="accessibilityField">
+    <label class="form-label" for="accessibility_category">Accessibility</label>
+    <select id="accessibility_category" name="accessibility_category" class="form-select<?= !empty($errors['accessibility_category']) ? ' is-invalid' : '' ?>"<?= $type === 'provider' ? ' disabled' : '' ?><?= $type === 'user' ? ' required' : '' ?>>
+      <?= accessibility_select_options($accessibility) ?>
+    </select>
+    <div class="invalid-feedback"><?= e($errors['accessibility_category'] ?? 'Please choose one of the listed options.') ?></div>
   </div>
 
   <div class="mb-3">
@@ -139,7 +154,6 @@ layout('auth', ['title' => 'Create account', 'width' => 500]);
       </button>
     </div>
     <div class="invalid-feedback" data-default="Password must be 8 to 72 characters."><?= e($errors['password'] ?? 'Password must be 8 to 72 characters.') ?></div>
-    <div class="form-text">At least 8 characters.</div>
   </div>
 
   <div class="mb-4">
@@ -166,6 +180,25 @@ layout('auth', ['title' => 'Create account', 'width' => 500]);
     Create account
   </button>
 </form>
+
+<script>
+  // The Accessibility field is for regular users only: hide and disable it for provider sign-up.
+  (function() {
+    var t = document.getElementById('account_type'),
+      box = document.getElementById('accessibilityField'),
+      sel = document.getElementById('accessibility_category');
+    if (!t || !box || !sel) return;
+
+    function sync() {
+      var isProvider = t.value === 'provider';
+      box.classList.toggle('d-none', isProvider);
+      sel.disabled = isProvider;
+      if (isProvider) sel.value = '';
+    }
+    t.addEventListener('change', sync);
+    sync();
+  })();
+</script>
 
 <p class="mt-4 mb-0 text-center">
   Already have an account? <a href="<?= e(url('login')) ?>">Log in</a>

@@ -14,13 +14,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $list = rows('SELECT pay.*,b.status bstatus,u.name user_name,s.category_name FROM payments pay JOIN bookings b ON b.id=pay.booking_id JOIN users u ON u.id=b.user_id JOIN categories s ON s.id=b.category_id WHERE b.provider_id=? ORDER BY (pay.payment_status IN (\'Pending\',\'Rejected\') AND b.status=\'Completed\') DESC, pay.created_at DESC, pay.id DESC', [$p['id']]);
-$hist = payment_histories(array_column($list, 'id'));
 layout('provider', ['title' => 'Payments', 'active' => 'payments']);
 ?>
 <div class="page-head">
     <div>
         <h1>Payments</h1>
-        <p>Cash only. After a completed service, confirm the cash you received; an Admin then verifies it. AASRA charges 0% commission, so you receive the full amount.</p>
+        <p>Cash only. After a completed service, confirm the cash you received and the payment is recorded as Paid. AASRA charges 0% commission, so you receive the full amount.</p>
     </div>
 </div>
 <div class="card-soft flush">
@@ -50,7 +49,6 @@ layout('provider', ['title' => 'Payments', 'active' => 'payments']);
                         <td style="min-width:16rem">
                             <?= payment_badge($x['payment_status']) ?>
                             <div class="small text-secondary mt-1"><?= e(payment_status_text($x, 'provider')) ?></div>
-                            <?= payment_history_html($hist[(int)$x['id']] ?? [], false) ?>
                         </td>
                         <td class="pe-4 text-end">
                             <?php if ($can): ?><form method="post" class="d-inline"><?= csrf_field() ?>

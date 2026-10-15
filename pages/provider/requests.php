@@ -9,7 +9,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     flash($t, $m);
     redirect('provider/requests');
 }
-$list = rows("SELECT b.*,u.name user_name,s.category_name FROM bookings b JOIN users u ON u.id=b.user_id JOIN categories s ON s.id=b.category_id WHERE b.provider_id=? AND b.status='Pending' ORDER BY b.booking_date,b.booking_time", [$pid]);
+$list = rows("SELECT b.*,u.name user_name,s.category_name FROM bookings b JOIN users u ON u.id=b.user_id JOIN categories s ON s.id=b.category_id WHERE b.provider_id=? AND b.status='Pending' ORDER BY b.created_at DESC, b.id DESC", [$pid]);
 layout('provider', ['title' => 'Booking Requests', 'active' => 'requests']);
 ?>
 <div class="page-head">

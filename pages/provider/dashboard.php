@@ -6,7 +6,7 @@ $pid = (int)$p['id'];
 $c = provider_completeness($p);
 $counts = array_column(rows('SELECT status,COUNT(*) c FROM bookings WHERE provider_id=? GROUP BY status', [$pid]), 'c', 'status');
 $rt = row('SELECT COALESCE(AVG(rating),0) a,COUNT(*) c FROM ratings WHERE provider_id=?', [$pid]);
-$recent = rows('SELECT b.*,u.name user_name,s.category_name FROM bookings b JOIN users u ON u.id=b.user_id JOIN categories s ON s.id=b.category_id WHERE b.provider_id=? ORDER BY b.created_at DESC LIMIT 6', [$pid]);
+$recent = rows('SELECT b.*,u.name user_name,s.category_name FROM bookings b JOIN users u ON u.id=b.user_id JOIN categories s ON s.id=b.category_id WHERE b.provider_id=? ORDER BY b.created_at DESC, b.id DESC LIMIT 6', [$pid]);
 $tiles = [['Pending requests', $counts['Pending'] ?? 0, 'bi-inbox'], ['Upcoming', ($counts['Accepted'] ?? 0) + ($counts['Confirmed'] ?? 0), 'bi-calendar-event'], ['Completed', $counts['Completed'] ?? 0, 'bi-check2-circle'], ['Rating', $rt['c'] ? number_format((float)$rt['a'], 1) . ' ★' : '—', 'bi-star']];
 layout('provider', ['title' => 'Dashboard', 'active' => 'dashboard']);
 ?>
@@ -16,8 +16,8 @@ layout('provider', ['title' => 'Dashboard', 'active' => 'dashboard']);
     <p>Manage your profile, requests and reviews.</p>
   </div>
 </div>
-<?php if ($p['verification_status'] === 'Rejected'): ?><div class="alert alert-danger"><b>Verification rejected.</b> <?= e($p['verification_note'] ?: 'Please upload corrected documents.') ?> <a href="<?= e(url('provider/verification')) ?>" class="alert-link">Update documents</a></div>
-<?php elseif ($p['verification_status'] !== 'Approved'): ?><div class="alert alert-warning"><b>You are not visible to users yet.</b> <?= $p['verification_status'] === 'Pending' ? 'Your documents are being reviewed by an admin.' : 'Complete your profile and upload your documents to get verified.' ?> <a href="<?= e(url('provider/verification')) ?>" class="alert-link">Verification</a></div><?php endif; ?>
+<?php if ($p['verification_status'] === 'Rejected'): ?><div class="alert alert-danger" data-no-autodismiss><b>Verification rejected.</b> <?= e($p['verification_note'] ?: 'Please upload corrected documents.') ?> <a href="<?= e(url('provider/verification')) ?>" class="alert-link">Update documents</a></div>
+<?php elseif ($p['verification_status'] !== 'Approved'): ?><div class="alert alert-warning" data-no-autodismiss><b>You are not visible to users yet.</b> <?= $p['verification_status'] === 'Pending' ? 'Your documents are being reviewed by an admin.' : 'Complete your profile and upload your documents to get verified.' ?> <a href="<?= e(url('provider/verification')) ?>" class="alert-link">Verification</a></div><?php endif; ?>
 <div class="row g-3 mb-4"><?php foreach ($tiles as [$l, $v, $ic]): ?><div class="col-sm-6 col-xl-3">
       <div class="stat-tile"><span class="stat-ic"><i class="bi <?= $ic ?>"></i></span>
         <div><b><?= e($v) ?></b><span><?= e($l) ?></span></div>

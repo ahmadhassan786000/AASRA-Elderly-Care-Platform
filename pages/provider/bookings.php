@@ -16,7 +16,7 @@ if ($st !== '') {
     $sql .= ' AND b.status=?';
     $a[] = $st;
 }
-$list = rows($sql . ' ORDER BY b.booking_date DESC,b.booking_time DESC', $a);
+$list = rows($sql . ' ORDER BY b.created_at DESC, b.id DESC', $a);
 layout('provider', ['title' => 'Bookings', 'active' => 'bookings']);
 ?>
 <div class="page-head">

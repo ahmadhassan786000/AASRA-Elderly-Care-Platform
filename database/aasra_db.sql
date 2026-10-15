@@ -1,6 +1,6 @@
-﻿-- AASRA database (v2) - fresh install.
+-- AASRA database - fresh install.
 -- Import this file in phpMyAdmin. It drops and recreates all AASRA tables.
--- EXISTING databases: never import this file. Use database/rename_services_to_categories.sql (keeps your data).
+-- EXISTING databases: never import this fresh-install file. Apply only the required safe migrations.
 CREATE DATABASE IF NOT EXISTS aasra_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE aasra_db;
 SET FOREIGN_KEY_CHECKS=0;
@@ -14,6 +14,7 @@ CREATE TABLE users(
   password VARCHAR(255) NOT NULL,
   phone VARCHAR(30) NULL,
   address VARCHAR(255) NULL,
+  accessibility_category ENUM('disability','age_50_plus','none') NULL DEFAULT NULL,
   role ENUM('user','provider','admin') NOT NULL DEFAULT 'user',
   status ENUM('Active','Inactive') NOT NULL DEFAULT 'Active',
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -87,6 +88,7 @@ CREATE TABLE bookings(
   user_id INT UNSIGNED NOT NULL,
   provider_id INT UNSIGNED NOT NULL,
   category_id INT UNSIGNED NOT NULL,
+  offering_id INT UNSIGNED NULL,
   booking_date DATE NOT NULL,
   booking_time TIME NOT NULL,
   requirements TEXT,
@@ -98,7 +100,8 @@ CREATE TABLE bookings(
   FOREIGN KEY(user_id) REFERENCES users(id),
   FOREIGN KEY(provider_id) REFERENCES providers(id),
   FOREIGN KEY(category_id) REFERENCES categories(id),
-  INDEX(provider_id,status),INDEX(user_id,status)
+  INDEX(provider_id,status),INDEX(user_id,status),
+  INDEX idx_bookings_duplicate_check(user_id,provider_id,offering_id,booking_date,booking_time)
 ) ENGINE=InnoDB;
 
 CREATE TABLE payments(

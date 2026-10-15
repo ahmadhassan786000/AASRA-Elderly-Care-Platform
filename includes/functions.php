@@ -262,3 +262,27 @@ function request_path(): string
     if (BASE_URL !== '' && str_starts_with($p, BASE_URL)) $p = substr($p, strlen(BASE_URL));
     return trim($p, '/');
 }
+
+/* ---------- Accessibility / Age Category (users.accessibility_category) ----------
+   Self-declared by the person; never derived from age or other data. NULL = not selected (all existing accounts). */
+function accessibility_options(): array
+{
+    return ['disability' => 'Person with Disability', 'age_50_plus' => 'Age 50+'];
+}
+function accessibility_label(?string $v): string
+{
+    return accessibility_options()[(string)$v] ?? 'Not specified'; // also covers NULL and any older stored value
+}
+// Server-side check of a submitted value: '' (not selected) is allowed and stored as NULL; anything else must be one of
+// the two permitted keys. Only regular users may have a category; providers/admins never store one.
+function accessibility_valid(string $v): bool
+{
+    return $v === '' || array_key_exists($v, accessibility_options());
+}
+// <option> list for the dropdown. $selected is the current key ('' = none selected).
+function accessibility_select_options(string $selected): string
+{
+    $h = '<option value=""' . ($selected === '' ? ' selected' : '') . '>Select an option</option>';
+    foreach (accessibility_options() as $k => $label) $h .= '<option value="' . e($k) . '"' . ($selected === $k ? ' selected' : '') . '>' . e($label) . '</option>';
+    return $h;
+}

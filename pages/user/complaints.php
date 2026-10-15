@@ -47,7 +47,7 @@ layout('user', ['title' => 'Complaints', 'nav' => '']);
         <?php foreach ($cs as $c): ?><div class="border-bottom py-3">
             <div class="d-flex justify-content-between gap-2"><b><?= e($c['subject']) ?></b><?= badge($c['status']) ?></div>
             <div class="small text-secondary"><?= e(fmt_date($c['created_at'])) ?><?= $c['provider_name'] ? ' · ' . e($c['provider_name']) : '' ?></div>
-            <p class="small mb-1 mt-2"><?= e($c['description']) ?></p><?php if ($c['admin_response']): ?><div class="alert alert-success py-2 mb-0 small"><b>AASRA:</b> <?= e($c['admin_response']) ?></div><?php endif; ?>
+            <p class="small mb-1 mt-2"><?= e($c['description']) ?></p><?php if ($c['admin_response']): ?><div class="alert alert-success py-2 mb-0 small" data-no-autodismiss><b>AASRA:</b> <?= e($c['admin_response']) ?></div><?php endif; ?>
           </div><?php endforeach; ?>
         <?php if (!$cs): ?><div class="empty-state"><i class="bi bi-flag"></i>
             <p class="mb-0 mt-2">You have not submitted any complaints.</p>

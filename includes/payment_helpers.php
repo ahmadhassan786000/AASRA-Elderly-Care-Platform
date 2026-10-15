@@ -2,16 +2,18 @@
 /* Cash payments for completed bookings.
    - Cash only: there is no gateway, card, JazzCash or Easypaisa, and nothing is ever marked paid automatically.
    - AASRA takes 0% commission: the provider receives the full booking amount.
-   - Workflow:  Pending -> Verification Requested -> Paid   |   Verification Requested -> Rejected -> Verification Requested
-   - Service completion (bookings.status) and payment verification (payments.payment_status) are separate states.
+   - Workflow:  Pending -> Paid  (the provider's cash-received confirmation is the final step; the Admin only VIEWS the record)
+   - Legacy rows: 'Verification Requested' and 'Rejected' come from the earlier Admin verify/reject workflow. They are still
+     displayed, and a legacy 'Rejected' payment can still be confirmed by the provider.
+   - Service completion (bookings.status) and payment status (payments.payment_status) are separate states.
    Every state change below runs in a transaction, re-checks ownership and status on the server, and uses a
-   conditional UPDATE so a double click or a second admin cannot apply the same transition twice. */
+   conditional UPDATE so a double click cannot apply the same transition twice. */
 
 const PAYMENT_COMMISSION_PERCENT = 0;
 
 function payment_dt($v): string
 {
-    return $v ? fmt_date($v, 'd M Y, g:i A') : '—';
+    return $v ? fmt_date($v, 'd M Y, g:i A') : 'â€”';
 }
 
 function payment_badge(?string $status): string
@@ -77,21 +79,44 @@ function payment_history_html(array $events, bool $showAdminName): string
     return $h . '</ul></details>';
 }
 
+// Status shown in the admin Status column. A cancelled or rejected BOOKING is shown as such (the payment can no longer
+// be collected); otherwise the payment's own status is shown. Nothing is written: payments.payment_status is never changed.
+function payment_display_status(array $pay): string
+{
+    $b = (string)($pay['bstatus'] ?? '');
+    return in_array($b, ['Cancelled', 'Rejected'], true) ? $b : (string)$pay['payment_status'];
+}
+
+// Admin History column: read-only, always visible (no dropdown). Shows ONLY the provider's cash-received confirmation and
+// its time of day. The time comes from payments.provider_confirmed_at, or, if that is empty, from a real provider_confirmed /
+// provider_resubmitted row in payment_history. 'Payment record created' and every other event are never shown here.
+// Without a confirmation the cell shows a dash; nothing is invented.
+function payment_admin_history_html(array $pay, array $events): string
+{
+    $at = !empty($pay['provider_confirmed_at']) ? (string)$pay['provider_confirmed_at'] : '';
+    if ($at === '') foreach ($events as $ev) if (in_array($ev['event'], ['provider_confirmed', 'provider_resubmitted'], true)) $at = (string)$ev['created_at'];
+    if ($at === '') return '<span class="text-secondary">—</span>';
+    return '<div class="small"><b class="d-block">Provider confirmed cash received</b><span class="text-secondary text-nowrap d-block mt-1">' . e(fmt_date($at, 'd M Y, g:i A')) . '</span></div>';}
+
 // One plain-language sentence explaining where a payment stands. $role: 'user' | 'provider' | 'admin'.
 function payment_status_text(array $r, string $role): string
 {
     $b = (string)($r['bstatus'] ?? '');
     switch ($r['payment_status']) {
         case 'Paid':
-            return 'Verified by AASRA on ' . payment_dt($r['verified_at'] ?? null) . '. The full amount belongs to the provider; no commission is charged.';
-        case 'Verification Requested':
+            if (!empty($r['verified_at'])) // legacy: verified by an Admin under the earlier workflow
+                return 'Verified by AASRA on ' . payment_dt($r['verified_at']) . '. The full amount belongs to the provider; no commission is charged.';
             return $role === 'provider'
-                ? 'You confirmed the cash on ' . payment_dt($r['provider_confirmed_at']) . '. Waiting for Admin verification.'
-                : 'The provider confirmed receiving your cash payment on ' . payment_dt($r['provider_confirmed_at']) . '. Waiting for Admin verification.';
-        case 'Rejected':
+                ? 'You confirmed the cash on ' . payment_dt($r['provider_confirmed_at'] ?? null) . '. The full amount is yours; no commission is charged.'
+                : 'The provider confirmed receiving the cash on ' . payment_dt($r['provider_confirmed_at'] ?? null) . '. The full amount belongs to the provider; no commission is charged.';
+        case 'Verification Requested': // legacy status from the earlier workflow
+            return $role === 'provider'
+                ? 'You confirmed the cash on ' . payment_dt($r['provider_confirmed_at']) . '.'
+                : 'The provider confirmed receiving the cash payment on ' . payment_dt($r['provider_confirmed_at']) . '.';
+        case 'Rejected': // legacy status from the earlier workflow
             $why = trim((string)$r['admin_note']);
-            $base = 'The Admin did not verify the confirmation' . ($why !== '' ? ': ' . $why : '.');
-            return $role === 'provider' ? $base . ' You can fix the problem and resubmit.' : $base . ' The provider can resubmit.';
+            $base = 'The earlier confirmation was not accepted' . ($why !== '' ? ': ' . $why : '.');
+            return $role === 'provider' ? $base . ' You can fix the problem and confirm again.' : $base . ' The provider can confirm again.';
         case 'Failed':
             return 'This legacy payment record was marked failed.';
     }
@@ -105,7 +130,8 @@ function payment_status_text(array $r, string $role): string
     return 'Waiting for the service to be completed.';
 }
 
-// Provider confirms the cash was received. Returns [flashType, message].
+// Provider confirms the cash was received. The confirmation is recorded in payments + payment_history and the payment
+// becomes Paid; no Admin action is needed. Returns [flashType, message].
 function payment_provider_confirm(int $providerId, int $paymentId, int $actorUserId): array
 {
     db_begin();
@@ -113,66 +139,17 @@ function payment_provider_confirm(int $providerId, int $paymentId, int $actorUse
         $r = row('SELECT pay.id,pay.payment_status,b.status bstatus,b.charges,b.user_id,b.booking_date FROM payments pay JOIN bookings b ON b.id=pay.booking_id WHERE pay.id=? AND b.provider_id=? FOR UPDATE', [$paymentId, $providerId]);
         if (!$r) { db_rollback(); return ['danger', 'That payment was not found.']; }
         if ($r['bstatus'] !== 'Completed') { db_rollback(); return ['danger', 'Cash can only be confirmed after the service is marked completed.']; }
-        if (!in_array($r['payment_status'], ['Pending', 'Rejected'], true)) { db_rollback(); return ['danger', 'This payment is already waiting for verification or has been paid.']; }
+        if (!in_array($r['payment_status'], ['Pending', 'Rejected'], true)) { db_rollback(); return ['danger', 'The cash for this payment has already been confirmed.']; }
         $from = $r['payment_status'];
-        $st = q("UPDATE payments SET payment_status='Verification Requested',payment_method='Cash',amount=?,provider_confirmed_at=NOW(),admin_note=NULL WHERE id=? AND payment_status IN ('Pending','Rejected')", [$r['charges'], $paymentId]);
+        $st = q("UPDATE payments SET payment_status='Paid',payment_method='Cash',amount=?,provider_confirmed_at=NOW(),paid_at=NOW(),admin_note=NULL WHERE id=? AND payment_status IN ('Pending','Rejected')", [$r['charges'], $paymentId]);
         if ($st->affected_rows !== 1) { db_rollback(); return ['danger', 'This payment was just updated. Please refresh the page.']; }
-        payment_history_add($paymentId, $from === 'Rejected' ? 'provider_resubmitted' : 'provider_confirmed', $from, 'Verification Requested', 'provider', $actorUserId, null);
-        notify((int)$r['user_id'], null, 'Cash payment confirmed', 'The provider confirmed your cash payment for the booking on ' . fmt_date($r['booking_date']) . '. It is now waiting for Admin verification.', 'payment');
+        payment_history_add($paymentId, $from === 'Rejected' ? 'provider_resubmitted' : 'provider_confirmed', $from, 'Paid', 'provider', $actorUserId, null);
+        notify((int)$r['user_id'], null, 'Cash payment confirmed', 'The provider confirmed receiving your cash payment for the booking on ' . fmt_date($r['booking_date']) . '. The payment is now marked Paid.', 'payment');
         db_commit();
-        return ['success', 'Cash receipt confirmed. It is now waiting for Admin verification.'];
+        return ['success', 'Cash receipt confirmed. The payment is now marked Paid.'];
     } catch (Throwable $e) {
         db_rollback();
         error_log('payment_provider_confirm: ' . $e->getMessage());
-        return ['danger', 'Something went wrong. Please try again.'];
-    }
-}
-
-// Admin verifies a requested payment -> Paid.
-function payment_admin_verify(int $adminId, int $paymentId): array
-{
-    db_begin();
-    try {
-        $r = row('SELECT pay.id,pay.payment_status,b.status bstatus,b.charges,b.user_id,b.provider_id,b.booking_date FROM payments pay JOIN bookings b ON b.id=pay.booking_id WHERE pay.id=? FOR UPDATE', [$paymentId]);
-        if (!$r) { db_rollback(); return ['danger', 'Payment not found.']; }
-        if ($r['payment_status'] === 'Paid') { db_rollback(); return ['warning', 'This payment was already verified.']; }
-        if ($r['payment_status'] !== 'Verification Requested') { db_rollback(); return ['danger', 'Only payments with a provider confirmation can be verified.']; }
-        if ($r['bstatus'] !== 'Completed') { db_rollback(); return ['danger', 'The service for this booking is not completed, so it cannot be verified.']; }
-        $st = q("UPDATE payments SET payment_status='Paid',amount=?,verified_by=?,verified_at=NOW(),paid_at=NOW(),admin_note=NULL WHERE id=? AND payment_status='Verification Requested'", [$r['charges'], $adminId, $paymentId]);
-        if ($st->affected_rows !== 1) { db_rollback(); return ['warning', 'This payment was just updated by someone else. Please refresh.']; }
-        payment_history_add($paymentId, 'admin_verified', 'Verification Requested', 'Paid', 'admin', $adminId, null);
-        notify((int)$r['user_id'], null, 'Payment verified', 'Your cash payment for the booking on ' . fmt_date($r['booking_date']) . ' was verified.', 'payment');
-        notify(null, (int)$r['provider_id'], 'Payment verified', 'The cash payment for the booking on ' . fmt_date($r['booking_date']) . ' was verified. The full amount is yours; AASRA charges no commission.', 'payment');
-        db_commit();
-        return ['success', 'Payment verified and marked Paid.'];
-    } catch (Throwable $e) {
-        db_rollback();
-        error_log('payment_admin_verify: ' . $e->getMessage());
-        return ['danger', 'Something went wrong. Please try again.'];
-    }
-}
-
-// Admin rejects a requested payment with a mandatory reason -> Rejected (the provider may resubmit).
-function payment_admin_reject(int $adminId, int $paymentId, string $reason): array
-{
-    $reason = trim($reason);
-    if ($reason === '') return ['danger', 'Please enter a reason for the rejection.'];
-    if (mb_strlen($reason) > 500) return ['danger', 'The reason is too long (max 500 characters).'];
-    db_begin();
-    try {
-        $r = row('SELECT pay.id,pay.payment_status,b.status bstatus,b.provider_id,b.user_id,b.booking_date FROM payments pay JOIN bookings b ON b.id=pay.booking_id WHERE pay.id=? FOR UPDATE', [$paymentId]);
-        if (!$r) { db_rollback(); return ['danger', 'Payment not found.']; }
-        if ($r['payment_status'] !== 'Verification Requested') { db_rollback(); return ['danger', 'Only payments waiting for verification can be rejected.']; }
-        $st = q("UPDATE payments SET payment_status='Rejected',admin_note=? WHERE id=? AND payment_status='Verification Requested'", [$reason, $paymentId]);
-        if ($st->affected_rows !== 1) { db_rollback(); return ['warning', 'This payment was just updated by someone else. Please refresh.']; }
-        payment_history_add($paymentId, 'admin_rejected', 'Verification Requested', 'Rejected', 'admin', $adminId, $reason);
-        notify(null, (int)$r['provider_id'], 'Payment confirmation rejected', 'The cash confirmation for the booking on ' . fmt_date($r['booking_date']) . ' was rejected: ' . $reason, 'payment');
-        notify((int)$r['user_id'], null, 'Payment confirmation rejected', 'The provider\'s cash confirmation for the booking on ' . fmt_date($r['booking_date']) . ' was not verified: ' . $reason, 'payment');
-        db_commit();
-        return ['success', 'Confirmation rejected. The provider can resubmit.'];
-    } catch (Throwable $e) {
-        db_rollback();
-        error_log('payment_admin_reject: ' . $e->getMessage());
         return ['danger', 'Something went wrong. Please try again.'];
     }
 }

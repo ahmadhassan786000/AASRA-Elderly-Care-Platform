@@ -1,6 +1,6 @@
 <?php
 // Read-only for users: a user can never change a payment amount or status. Cash is paid to the provider directly;
-// the provider confirms it and an Admin verifies it.
+// the provider confirms it and it is recorded as Paid.
 $u = require_role('user');
 require_once APP_ROOT . '/includes/payment_helpers.php';
 $list = rows('SELECT pay.*,b.status bstatus,p.name provider_name,s.category_name FROM payments pay JOIN bookings b ON b.id=pay.booking_id JOIN providers p ON p.id=b.provider_id JOIN categories s ON s.id=b.category_id WHERE b.user_id=? ORDER BY pay.created_at DESC, pay.id DESC', [$u['id']]);
@@ -9,7 +9,7 @@ layout('user', ['title' => 'Payments', 'nav' => '']);
 ?>
 <div class="container py-4">
     <h1 class="mb-1">Payments</h1>
-    <p class="text-secondary mb-4">AASRA supports <b>cash payments only</b>. After the service is completed, pay the provider in cash. The provider confirms receipt and an AASRA Admin verifies it. AASRA charges <b>no commission</b>: the provider receives the full amount.</p>
+    <p class="text-secondary mb-4">AASRA supports <b>cash payments only</b>. After the service is completed, pay the provider in cash. The provider then confirms receipt and the payment is recorded as Paid. AASRA charges <b>no commission</b>: the provider receives the full amount.</p>
     <div class="card-soft flush">
         <div class="table-responsive">
             <table class="table mb-0 align-middle">

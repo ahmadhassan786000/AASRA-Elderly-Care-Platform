@@ -6,7 +6,7 @@ if (!$x) {
   show_error_page(404);
   exit;
 }
-$bk = rows('SELECT b.*,p.name provider_name,s.category_name FROM bookings b JOIN providers p ON p.id=b.provider_id JOIN categories s ON s.id=b.category_id WHERE b.user_id=? ORDER BY b.booking_date DESC LIMIT 10', [$x['id']]);
+$bk = rows('SELECT b.*,p.name provider_name,s.category_name FROM bookings b JOIN providers p ON p.id=b.provider_id JOIN categories s ON s.id=b.category_id WHERE b.user_id=? ORDER BY b.created_at DESC, b.id DESC LIMIT 10', [$x['id']]);
 $pv = $x['role'] === 'provider' ? row('SELECT id FROM providers WHERE user_id=?', [$x['id']]) : null;
 layout('admin', ['title' => $x['name'], 'active' => 'users']);
 page_head($x['name'], 'Account details', '<div class="d-flex gap-2"><a class="btn btn-outline-secondary" href="' . e(url('admin/users')) . '">Back</a>' . ($x['role'] !== 'admin' ? '<a class="btn btn-success" href="' . e(url('admin/users/' . $x['id'] . '/edit')) . '">Edit</a>' : '') . '</div>');
@@ -23,6 +23,8 @@ page_head($x['name'], 'Account details', '<div class="d-flex gap-2"><a class="bt
         <dd><?= e($x['phone'] ?: '—') ?></dd>
         <dt>Address</dt>
         <dd><?= e($x['address'] ?: '—') ?></dd>
+        <?php if ($x['role'] === 'user'): ?><dt>Accessibility / Age Category</dt>
+        <dd><?= e(accessibility_label($x['accessibility_category'] ?? null)) ?></dd><?php endif; ?>
         <dt>Account type</dt>
         <dd><span class="tag"><?= e(ucfirst($x['role'])) ?></span></dd>
         <dt>Status</dt>

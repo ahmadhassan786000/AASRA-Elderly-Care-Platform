@@ -33,14 +33,62 @@ window.AASRA = window.AASRA || {};
         el.appendChild(b);
       }
     };
-    document.querySelectorAll(".alert").forEach(ensureClose);
+
+    // ---------- alerts disappear by themselves after 3 seconds ----------
+    // Applies to every .alert (server flash messages, alert_html(), A.notify() toasts and alerts added later by scripts).
+    // The close button keeps working. An alert that is a permanent on-page note opts out with data-no-autodismiss.
+    // Each alert is armed once (WeakSet), so re-adding or re-scanning the same element never creates a second timer.
+    const AUTO_DISMISS_MS = 3000;
+    const armed = new WeakSet();
+    const reduceMotion = () =>
+      window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const removeAlert = (el) => {
+      if (window.bootstrap && bootstrap.Alert) {
+        bootstrap.Alert.getOrCreateInstance(el).close(); // fires close.bs.alert / closed.bs.alert like a manual close
+      } else {
+        el.remove();
+      }
+    };
+    const dismissSmoothly = (el) => {
+      if (!el.isConnected) return; // already closed by the user or replaced by a newer message
+      if (reduceMotion()) return removeAlert(el);
+      // fade out, then collapse the height so the content below slides up instead of jumping
+      el.style.maxHeight = el.offsetHeight + "px";
+      el.style.overflow = "hidden";
+      void el.offsetHeight; // commit the starting values before the transition begins
+      el.style.transition =
+        "opacity .3s ease, max-height .3s ease .1s, margin .3s ease .1s, padding .3s ease .1s, border-width .3s ease .1s";
+      el.style.opacity = "0";
+      el.style.maxHeight = "0";
+      el.style.marginTop = el.style.marginBottom = "0";
+      el.style.paddingTop = el.style.paddingBottom = "0";
+      el.style.borderWidth = "0";
+      setTimeout(() => el.isConnected && removeAlert(el), 450);
+    };
+    const armAlert = (el) => {
+      if (
+        !el.matches ||
+        !el.matches(".alert") ||
+        el.hasAttribute("data-no-autodismiss") ||
+        el.hasAttribute("data-permanent") ||
+        armed.has(el)
+      )
+        return;
+      armed.add(el);
+      setTimeout(() => dismissSmoothly(el), AUTO_DISMISS_MS);
+    };
+    const prepareAlert = (el) => {
+      ensureClose(el);
+      armAlert(el);
+    };
+    document.querySelectorAll(".alert").forEach(prepareAlert);
     new MutationObserver((m) =>
       m.forEach((x) =>
         x.addedNodes.forEach((n) => {
           if (n.nodeType === 1) {
-            ensureClose(n);
+            prepareAlert(n);
             n.querySelectorAll &&
-              n.querySelectorAll(".alert").forEach(ensureClose);
+              n.querySelectorAll(".alert").forEach(prepareAlert);
           }
         }),
       ),

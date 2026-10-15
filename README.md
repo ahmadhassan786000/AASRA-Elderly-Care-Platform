@@ -209,3 +209,21 @@ Use the existing Apache configuration and `.htaccess` routing when working with 
 **Application type:** PHP / MySQL web application
 **Local development environment:** XAMPP
 **Database:** `aasra_db`
+
+## Updating an existing installation (cash-confirmation, alerts and Accessibility / Age Category update)
+
+Do **not** import `database/aasra_db.sql` over an existing database; it recreates (empties) the tables.
+
+1. Back up your database (phpMyAdmin > `aasra_db` > Export).
+2. Copy the updated project files over your existing project folder (`C:\xampp\htdocs\aasra`). Keep your `uploads/` folder and your `config/app.php` settings.
+3. In phpMyAdmin select `aasra_db`, open the **SQL** tab and run `database/migrations/001_add_accessibility_category.sql`. It only adds one nullable column to `users` and is safe to run twice.
+4. Optional: if you have payments left in the old `Verification Requested` state, run `database/migrations/002_optional_settle_legacy_cash_confirmations.sql` (read the comments in the file first).
+5. Hard-refresh the browser (Ctrl+F5) so the updated `assets/js/app.js` is loaded.
+
+What changed in this update:
+
+- All alerts (flash messages, form errors, notifications) close themselves after 3 seconds; the close button still works. A static note that must stay on screen can opt out with `data-no-autodismiss`. The code is in `assets/js/app.js`.
+- Payment IDs on the admin payments page are shown without `#`.
+- Admin > Payments is read-only: Verify / Reject are removed, the Status and Actions columns are replaced by one **History** column. A provider's "Confirm cash received" now records the payment as **Paid** and is shown in History.
+- The History dropdown is removed from the provider Payments page (history rows stay in the database; the user page keeps its history list).
+- Registration, My Profile and Admin > Edit user have an optional **Accessibility / Age Category** field (`users.accessibility_category`, values `disability`, `age_50_plus`, `none`, or NULL = not selected).
