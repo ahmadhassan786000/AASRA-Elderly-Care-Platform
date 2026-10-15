@@ -81,7 +81,7 @@ layout('auth', ['title' => 'Login', 'width' => 440]);
 <h1 class="text-center mb-1"><?= $adminLogin ? 'Administrator sign in' : 'Welcome back' ?></h1>
 <p class="text-secondary text-center mb-4"><?= $adminLogin ? 'Sign in with your AASRA administrator account.' : 'Log in to your AASRA account.' ?></p>
 
-<form method="post" id="loginForm" novalidate>
+<form method="post" id="loginForm" class="needs-validation" novalidate>
     <?= csrf_field() ?>
 
     <input
@@ -96,15 +96,13 @@ layout('auth', ['title' => 'Login', 'width' => 440]);
             id="email"
             name="email"
             type="email"
-            class="form-control form-control-lg"
+            class="form-control form-control-lg<?= !empty($errors['email']) ? ' is-invalid' : '' ?>"
             value="<?= e($email) ?>"
             autocomplete="email"
             required
             autofocus>
 
-        <?php if (!empty($errors['email'])): ?>
-            <div class="text-danger small mt-1"><?= e($errors['email']) ?></div>
-        <?php endif; ?>
+        <div class="invalid-feedback" data-default="Please enter a valid email address."><?= e($errors['email'] ?? 'Please enter a valid email address.') ?></div>
     </div>
 
     <div class="mb-4">
@@ -115,7 +113,7 @@ layout('auth', ['title' => 'Login', 'width' => 440]);
                 id="password"
                 name="password"
                 type="password"
-                class="form-control form-control-lg"
+                class="form-control form-control-lg<?= !empty($errors['password']) ? ' is-invalid' : '' ?>"
                 autocomplete="current-password"
                 required>
 
@@ -127,9 +125,7 @@ layout('auth', ['title' => 'Login', 'width' => 440]);
             </button>
         </div>
 
-        <?php if (!empty($errors['password'])): ?>
-            <div class="text-danger small mt-1"><?= e($errors['password']) ?></div>
-        <?php endif; ?>
+        <div class="invalid-feedback" data-default="Please enter your password."><?= e($errors['password'] ?? 'Please enter your password.') ?></div>
     </div>
 
     <button type="submit" class="btn btn-success btn-lg w-100">
@@ -140,94 +136,5 @@ layout('auth', ['title' => 'Login', 'width' => 440]);
 <?php if (!$adminLogin): ?><p class="mt-4 mb-0 text-center">
     New to AASRA? <a href="<?= e(url('register')) ?>">Create an account</a>
 </p><?php endif; ?>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const form = document.getElementById('loginForm');
-
-        if (!form) return;
-
-        const email = document.getElementById('email');
-        const password = document.getElementById('password');
-
-        function removeClientError(input) {
-            if (!input) return;
-
-            input.classList.remove('is-invalid');
-
-            const error = input.parentElement.querySelector('.client-field-error');
-
-            if (error) {
-                error.remove();
-            }
-        }
-
-        function showClientError(input, message) {
-            if (!input) return;
-
-            removeClientError(input);
-
-            input.classList.add('is-invalid');
-
-            const error = document.createElement('div');
-            error.className = 'client-field-error text-danger small mt-1';
-            error.textContent = message;
-
-            input.parentElement.appendChild(error);
-        }
-
-        function validateEmail() {
-            const value = email.value.trim();
-
-            if (!value || !email.validity.valid) {
-                showClientError(email, 'Please enter a valid email address.');
-                return false;
-            }
-
-            removeClientError(email);
-            return true;
-        }
-
-        function validatePassword() {
-            if (password.value === '') {
-                showClientError(password, 'Please enter your password.');
-                return false;
-            }
-
-            removeClientError(password);
-            return true;
-        }
-
-        email.addEventListener('blur', validateEmail);
-        password.addEventListener('blur', validatePassword);
-
-        email.addEventListener('input', function() {
-            if (email.classList.contains('is-invalid')) {
-                validateEmail();
-            }
-        });
-
-        password.addEventListener('input', function() {
-            if (password.classList.contains('is-invalid')) {
-                validatePassword();
-            }
-        });
-
-        form.addEventListener('submit', function(event) {
-            const validEmail = validateEmail();
-            const validPassword = validatePassword();
-
-            if (!validEmail || !validPassword) {
-                event.preventDefault();
-
-                const firstInvalid = form.querySelector('.is-invalid');
-
-                if (firstInvalid) {
-                    firstInvalid.focus();
-                }
-            }
-        });
-    });
-</script>
 
 <?php layout_end();

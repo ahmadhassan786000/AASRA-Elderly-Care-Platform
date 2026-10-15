@@ -4,15 +4,6 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!confirm(x.dataset.confirm)) e.preventDefault();
     }),
   );
-  document.querySelectorAll("form[data-validate]").forEach((f) =>
-    f.addEventListener("submit", (e) => {
-      if (!f.checkValidity()) {
-        e.preventDefault();
-        e.stopPropagation();
-      }
-      f.classList.add("was-validated");
-    }),
-  );
   document.querySelectorAll(".star-input").forEach((w) =>
     w.querySelectorAll("button").forEach((b) =>
       b.addEventListener("click", () => {

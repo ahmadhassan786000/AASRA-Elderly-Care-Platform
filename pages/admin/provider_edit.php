@@ -31,9 +31,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 layout('admin', ['title' => 'Edit provider', 'active' => 'providers']);
 page_head('Edit provider', $p['email']);
 ?>
-<div class="card-soft col-xl-9"><?php if ($err) echo alert_html('danger', $err); ?><form method="post" class="row g-3"><?= csrf_field() ?>
-        <div class="col-md-6"><label class="form-label" for="name">Name</label><input id="name" name="name" class="form-control" value="<?= e($p['name']) ?>" required maxlength="100"></div>
-        <div class="col-md-6"><label class="form-label" for="phone">Phone</label><input id="phone" name="phone" class="form-control" value="<?= e($p['phone']) ?>" maxlength="20"></div>
+<div class="card-soft col-xl-9"><?php if ($err) echo alert_html('danger', $err); ?><form method="post" class="row g-3 needs-validation" novalidate><?= csrf_field() ?>
+        <div class="col-md-6"><label class="form-label" for="name">Name</label><input id="name" name="name" class="form-control" value="<?= e($p['name']) ?>" required maxlength="100" minlength="2"><div class="invalid-feedback">Please enter a name (2–100 characters).</div></div>
+        <div class="col-md-6"><label class="form-label" for="phone">Phone</label><input id="phone" name="phone" class="form-control" value="<?= e($p['phone']) ?>" maxlength="20" pattern="[0-9+\s\-]{7,20}" inputmode="tel"><div class="invalid-feedback">Please enter a valid phone number (digits, +, - and spaces; 7–20 characters).</div></div>
         <div class="col-md-6"><label class="form-label" for="location">Location</label><input id="location" name="location" class="form-control" value="<?= e($p['location']) ?>" maxlength="190"></div>
         <div class="col-md-6"><label class="form-label" for="account_status">Account status</label><select id="account_status" name="account_status" class="form-select"><?php foreach (['Active', 'Inactive'] as $s): ?><option <?= $p['account_status'] === $s ? 'selected' : '' ?>><?= $s ?></option><?php endforeach; ?></select></div>
         <div class="col-12"><label class="form-label" for="skills">Skills</label><input id="skills" name="skills" class="form-control" value="<?= e($p['skills']) ?>" maxlength="500"></div>

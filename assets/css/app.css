@@ -2380,3 +2380,12 @@ body.user-area .hero-anim .container > p.text-success {
     flex: 1 1 8rem;
   }
 }
+
+/* Bootstrap validation feedback for password fields wrapped in .pw-wrap (feedback follows the wrapper) */
+.pw-wrap:has(.form-control.is-invalid) + .invalid-feedback,
+.was-validated .pw-wrap:has(.form-control:invalid) + .invalid-feedback {
+  display: block;
+}
+.was-validated .rating-input:has(input:invalid) + .invalid-feedback {
+  display: block;
+}

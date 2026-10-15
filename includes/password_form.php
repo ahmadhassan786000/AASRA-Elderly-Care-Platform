@@ -14,9 +14,9 @@ function handle_password_change(int $uid): string
 }
 function password_form_html(): string
 {
-    return '<form method="post" class="row g-3" autocomplete="off">' . csrf_field() . '<input type="hidden" name="form" value="password">
-    <div class="col-md-4"><label class="form-label" for="cp">Current password</label><input id="cp" type="password" name="current_password" class="form-control" required></div>
-    <div class="col-md-4"><label class="form-label" for="np">New password</label><input id="np" type="password" name="new_password" minlength="8" class="form-control" required></div>
-    <div class="col-md-4"><label class="form-label" for="cn">Confirm new password</label><input id="cn" type="password" name="confirm_password" minlength="8" class="form-control" required></div>
+    return '<form method="post" class="row g-3 needs-validation" novalidate autocomplete="off">' . csrf_field() . '<input type="hidden" name="form" value="password">
+    <div class="col-md-4"><label class="form-label" for="cp">Current password</label><input id="cp" type="password" name="current_password" class="form-control" required><div class="invalid-feedback">Please enter your current password.</div></div>
+    <div class="col-md-4"><label class="form-label" for="np">New password</label><input id="np" type="password" name="new_password" minlength="8" maxlength="72" class="form-control" required><div class="invalid-feedback">The new password must be 8 to 72 characters.</div></div>
+    <div class="col-md-4"><label class="form-label" for="cn">Confirm new password</label><input id="cn" type="password" name="confirm_password" minlength="8" maxlength="72" class="form-control" data-match="#np" required><div class="invalid-feedback">The two new passwords must match.</div></div>
     <div class="col-12"><button class="btn btn-outline-success">Change password</button></div></form>';
 }

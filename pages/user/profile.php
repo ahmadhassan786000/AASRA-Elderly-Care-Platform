@@ -27,10 +27,10 @@ layout('user', ['title' => 'My Profile', 'nav' => 'profile']);
     <div class="col-lg-8">
       <h1 class="mb-4">My profile</h1>
       <div class="card-soft mb-4">
-        <form method="post" class="row g-3"><?= csrf_field() ?>
-          <div class="col-md-6"><label class="form-label" for="name">Full name</label><input id="name" name="name" class="form-control" value="<?= e($me['name']) ?>" required maxlength="100"></div>
+        <form method="post" class="row g-3 needs-validation" novalidate><?= csrf_field() ?>
+          <div class="col-md-6"><label class="form-label" for="name">Full name</label><input id="name" name="name" class="form-control" value="<?= e($me['name']) ?>" required maxlength="100" minlength="2"><div class="invalid-feedback">Please enter your full name (2–100 characters).</div></div>
           <div class="col-md-6"><label class="form-label" for="email">Email</label><input id="email" class="form-control" value="<?= e($me['email']) ?>" disabled></div>
-          <div class="col-md-6"><label class="form-label" for="phone">Phone</label><input id="phone" name="phone" class="form-control" value="<?= e($me['phone']) ?>" maxlength="20"></div>
+          <div class="col-md-6"><label class="form-label" for="phone">Phone</label><input id="phone" name="phone" class="form-control" value="<?= e($me['phone']) ?>" maxlength="20" pattern="[0-9+\s\-]{7,20}" inputmode="tel"><div class="invalid-feedback">Please enter a valid phone number (digits, +, - and spaces; 7–20 characters).</div></div>
           <div class="col-12"><label class="form-label" for="address">Address / area</label><textarea id="address" name="address" class="form-control" rows="2" maxlength="255"><?= e($me['address']) ?></textarea>
             <div class="form-text">Used to recommend providers near you.</div>
           </div>

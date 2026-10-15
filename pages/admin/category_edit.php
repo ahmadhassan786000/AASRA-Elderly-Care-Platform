@@ -41,8 +41,8 @@ layout('admin', ['title' => $id ? 'Edit Category' : 'Add Category', 'active' => 
 page_head($id ? 'Edit Category' : 'Add Category', $id ? $s['category_name'] : 'Create a new category.');
 ?>
 <div class="card-soft col-xl-8"><?php if ($err) echo alert_html('danger', $err); ?>
-  <form method="post" enctype="multipart/form-data" class="row g-3" data-validate novalidate><?= csrf_field() ?>
-    <div class="col-md-8"><label class="form-label" for="category_name">Category Name</label><input id="category_name" name="category_name" class="form-control" value="<?= e($s['category_name']) ?>" required maxlength="120"></div>
+  <form method="post" enctype="multipart/form-data" class="row g-3 needs-validation" novalidate><?= csrf_field() ?>
+    <div class="col-md-8"><label class="form-label" for="category_name">Category Name</label><input id="category_name" name="category_name" class="form-control" value="<?= e($s['category_name']) ?>" required maxlength="120" minlength="2"><div class="invalid-feedback">Please enter a category name (2–120 characters).</div></div>
     <div class="col-md-4"><label class="form-label" for="status">Status</label><select id="status" name="status" class="form-select"><?php foreach (['Active', 'Inactive'] as $x): ?><option <?= $s['status'] === $x ? 'selected' : '' ?>><?= $x ?></option><?php endforeach; ?></select></div>
     <div class="col-12"><label class="form-label" for="description">Description</label><textarea id="description" name="description" class="form-control" rows="4" maxlength="1000"><?= e($s['description']) ?></textarea></div>
     <div class="col-12"><label class="form-label" for="image">Category image</label>

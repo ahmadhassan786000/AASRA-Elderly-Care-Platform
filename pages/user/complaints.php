@@ -31,12 +31,12 @@ layout('user', ['title' => 'Complaints', 'nav' => '']);
     <div class="col-lg-5">
       <div class="card-soft">
         <h2 class="h5 mb-3">Submit a complaint</h2>
-        <form method="post"><?= csrf_field() ?>
+        <form method="post" class="needs-validation" novalidate><?= csrf_field() ?>
           <div class="mb-3"><label class="form-label" for="booking_id">Related booking</label><select id="booking_id" name="booking_id" class="form-select">
               <option value="0">General (no booking)</option><?php foreach ($bs as $b): ?><option value="<?= (int)$b['id'] ?>"><?= (int)$b['id'] ?> — <?= e($b['name']) ?> (<?= e(fmt_date($b['booking_date'])) ?>)</option><?php endforeach; ?>
             </select></div>
-          <div class="mb-3"><label class="form-label" for="subject">Subject</label><input id="subject" name="subject" class="form-control" maxlength="180" required></div>
-          <div class="mb-3"><label class="form-label" for="description">Description</label><textarea id="description" name="description" class="form-control" rows="5" required></textarea></div>
+          <div class="mb-3"><label class="form-label" for="subject">Subject</label><input id="subject" name="subject" class="form-control" maxlength="180" required minlength="3"><div class="invalid-feedback">Please enter a subject (3–180 characters).</div></div>
+          <div class="mb-3"><label class="form-label" for="description">Description</label><textarea id="description" name="description" class="form-control" rows="5" required minlength="10" maxlength="3000"></textarea><div class="invalid-feedback">Please describe the problem (at least 10 characters).</div></div>
           <button class="btn btn-success">Submit complaint</button>
         </form>
       </div>

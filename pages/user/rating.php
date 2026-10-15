@@ -30,11 +30,12 @@ layout('user', ['title' => 'Rate booking', 'nav' => 'bookings']);
       <div class="card-soft">
         <h1 class="h3">Rate <?= e($b['provider_name']) ?></h1>
         <p class="text-secondary"><?= e($b['category_name']) ?> · <?= e(fmt_date($b['booking_date'])) ?></p>
-        <form method="post"><?= csrf_field() ?><input type="hidden" name="booking_id" value="<?= $bid ?>">
+        <form method="post" class="needs-validation" novalidate><?= csrf_field() ?><input type="hidden" name="booking_id" value="<?= $bid ?>">
           <fieldset class="mb-3">
             <legend class="form-label fs-6">Your rating</legend>
             <div class="rating-input">
               <?php for ($i = 5; $i >= 1; $i--): ?><input type="radio" name="rating" id="r<?= $i ?>" value="<?= $i ?>" required><label for="r<?= $i ?>" title="<?= $i ?> star<?= $i > 1 ? 's' : '' ?>">★</label><?php endfor; ?></div>
+            <div class="invalid-feedback">Please choose a rating from 1 to 5 stars.</div>
           </fieldset>
           <div class="mb-3"><label class="form-label" for="review">Review (optional)</label><textarea id="review" name="review" class="form-control" rows="4" maxlength="1000"></textarea></div>
           <button class="btn btn-success">Submit review</button>

@@ -94,7 +94,7 @@ layout('provider', ['title' => 'Verification', 'active' => 'verification']);
         </p>
       <?php endif; ?>
 
-      <form method="post" enctype="multipart/form-data">
+      <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
         <?= csrf_field() ?>
 
         <div class="mb-3">
@@ -115,6 +115,7 @@ layout('provider', ['title' => 'Verification', 'active' => 'verification']);
             class="form-control"
             accept=".pdf,.jpg,.jpeg,.png"
             required>
+          <div class="invalid-feedback">Please choose a PDF, JPG or PNG file.</div>
           <div class="form-text">PDF, JPG or PNG, up to 5 MB.</div>
         </div>
 

@@ -113,9 +113,9 @@ $tiles = [
                                 </form>
                                 <details>
                                     <summary class="btn btn-sm btn-outline-danger">Reject</summary>
-                                    <form method="post" class="mt-2"><?= csrf_field() ?><input type="hidden" name="action" value="reject"><input type="hidden" name="payment_id" value="<?= (int)$x['id'] ?>">
+                                    <form method="post" class="mt-2 needs-validation" novalidate><?= csrf_field() ?><input type="hidden" name="action" value="reject"><input type="hidden" name="payment_id" value="<?= (int)$x['id'] ?>">
                                         <label class="form-label small" for="reason<?= (int)$x['id'] ?>">Reason (required)</label>
-                                        <textarea id="reason<?= (int)$x['id'] ?>" name="reason" class="form-control form-control-sm mb-2" rows="2" maxlength="500" required></textarea>
+                                        <textarea id="reason<?= (int)$x['id'] ?>" name="reason" class="form-control form-control-sm mb-2" rows="2" maxlength="500" required></textarea><div class="invalid-feedback">Please enter the reason for rejecting this confirmation.</div>
                                         <button class="btn btn-sm btn-danger" data-confirm="Reject this confirmation? The provider will see your reason and can resubmit.">Reject confirmation</button>
                                     </form>
                                 </details>

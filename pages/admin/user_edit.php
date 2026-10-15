@@ -38,13 +38,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 layout('admin', ['title' => 'Edit user', 'active' => 'users']);
 page_head('Edit user', $x['email']);
 ?>
-<div class="card-soft col-xl-8"><?php if ($err) echo alert_html('danger', $err); ?><form method="post" class="row g-3" data-validate novalidate><?= csrf_field() ?>
-        <div class="col-md-6"><label class="form-label" for="name">Name</label><input id="name" name="name" class="form-control" value="<?= e($x['name']) ?>" required maxlength="100"></div>
-        <div class="col-md-6"><label class="form-label" for="email">Email</label><input id="email" name="email" type="email" class="form-control" value="<?= e($x['email']) ?>" required></div>
-        <div class="col-md-6"><label class="form-label" for="phone">Phone</label><input id="phone" name="phone" class="form-control" value="<?= e($x['phone']) ?>" maxlength="20"></div>
+<div class="card-soft col-xl-8"><?php if ($err) echo alert_html('danger', $err); ?><form method="post" class="row g-3 needs-validation" novalidate><?= csrf_field() ?>
+        <div class="col-md-6"><label class="form-label" for="name">Name</label><input id="name" name="name" class="form-control" value="<?= e($x['name']) ?>" required maxlength="100" minlength="2"><div class="invalid-feedback">Please enter a name (2–100 characters).</div></div>
+        <div class="col-md-6"><label class="form-label" for="email">Email</label><input id="email" name="email" type="email" class="form-control" value="<?= e($x['email']) ?>" required maxlength="190"><div class="invalid-feedback">Please enter a valid email address.</div></div>
+        <div class="col-md-6"><label class="form-label" for="phone">Phone</label><input id="phone" name="phone" class="form-control" value="<?= e($x['phone']) ?>" maxlength="20" pattern="[0-9+\s\-]{7,20}" inputmode="tel"><div class="invalid-feedback">Please enter a valid phone number (digits, +, - and spaces; 7–20 characters).</div></div>
         <div class="col-md-6"><label class="form-label" for="status">Status</label><select id="status" name="status" class="form-select"><?php foreach (['Active', 'Inactive'] as $s): ?><option <?= $x['status'] === $s ? 'selected' : '' ?>><?= $s ?></option><?php endforeach; ?></select></div>
         <div class="col-12"><label class="form-label" for="address">Address</label><input id="address" name="address" class="form-control" value="<?= e($x['address']) ?>" maxlength="255"></div>
-        <div class="col-md-6"><label class="form-label" for="password">Set new password (optional)</label><input id="password" name="password" type="password" class="form-control" autocomplete="new-password" minlength="8"></div>
+        <div class="col-md-6"><label class="form-label" for="password">Set new password (optional)</label><input id="password" name="password" type="password" class="form-control" autocomplete="new-password" minlength="8" maxlength="72"><div class="invalid-feedback">The password must be 8 to 72 characters.</div></div>
         <div class="col-12 d-flex gap-2"><button class="btn btn-success">Save changes</button><a class="btn btn-outline-secondary" href="<?= e(url('admin/users')) ?>">Cancel</a></div>
     </form>
 </div>

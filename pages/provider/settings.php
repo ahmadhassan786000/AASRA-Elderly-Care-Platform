@@ -32,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $bio = post('bio');
 
     if (mb_strlen($name) < 2 || mb_strlen($name) > 100) {
-        $errors['name'] = 'Please enter your full name (2â€“100 characters).';
+        $errors['name'] = 'Please enter your full name (2–100 characters).';
     }
 
     if ($phone !== '' && !preg_match('/^[0-9+\-\s]{7,20}$/', $phone)) {
@@ -120,7 +120,7 @@ layout('provider', [
 <form
     method="post"
     enctype="multipart/form-data"
-    class="card-soft mb-4"
+    class="card-soft mb-4 needs-validation"
     id="providerSettingsForm"
     novalidate>
     <?= csrf_field() ?>
@@ -135,18 +135,14 @@ layout('provider', [
                 id="photo"
                 type="file"
                 name="photo"
-                class="form-control"
+                class="form-control<?= !empty($errors['photo']) ? ' is-invalid' : '' ?>"
                 accept="image/jpeg,image/png,image/webp">
+
+            <div class="invalid-feedback" data-default="Please choose a JPG, PNG or WebP image."><?= e($errors['photo'] ?? 'Please choose a JPG, PNG or WebP image.') ?></div>
 
             <div class="form-text">
                 JPG, PNG or WebP, up to 2 MB.
             </div>
-
-            <?php if (!empty($errors['photo'])): ?>
-                <div class="field-error text-danger small mt-1">
-                    <?= e($errors['photo']) ?>
-                </div>
-            <?php endif; ?>
 
             <?php if ($p['photo']): ?>
                 <div class="form-check mt-1">
@@ -174,14 +170,11 @@ layout('provider', [
                 name="name"
                 class="form-control <?= isset($errors['name']) ? 'is-invalid' : '' ?>"
                 value="<?= e($name) ?>"
+                minlength="2"
                 maxlength="100"
                 required>
 
-            <?php if (isset($errors['name'])): ?>
-                <div class="field-error text-danger small mt-1">
-                    <?= e($errors['name']) ?>
-                </div>
-            <?php endif; ?>
+            <div class="invalid-feedback" data-default="Please enter your full name (2–100 characters)."><?= e($errors['name'] ?? 'Please enter your full name (2–100 characters).') ?></div>
         </div>
 
         <div class="col-md-6">
@@ -202,13 +195,11 @@ layout('provider', [
                 class="form-control <?= isset($errors['phone']) ? 'is-invalid' : '' ?>"
                 value="<?= e($phone) ?>"
                 maxlength="20"
+                pattern="[0-9+\s\-]{7,20}"
+                inputmode="tel"
                 placeholder="03xx xxxxxxx">
 
-            <?php if (isset($errors['phone'])): ?>
-                <div class="field-error text-danger small mt-1">
-                    <?= e($errors['phone']) ?>
-                </div>
-            <?php endif; ?>
+            <div class="invalid-feedback" data-default="Please enter a valid phone number (digits, +, - and spaces; 7–20 characters)."><?= e($errors['phone'] ?? 'Please enter a valid phone number (digits, +, - and spaces; 7–20 characters).') ?></div>
         </div>
 
         <div class="col-md-6">
@@ -222,11 +213,7 @@ layout('provider', [
                 maxlength="190"
                 placeholder="e.g. Gulberg, Lahore">
 
-            <?php if (isset($errors['location'])): ?>
-                <div class="field-error text-danger small mt-1">
-                    <?= e($errors['location']) ?>
-                </div>
-            <?php endif; ?>
+            <div class="invalid-feedback" data-default="Location must not exceed 190 characters."><?= e($errors['location'] ?? 'Location must not exceed 190 characters.') ?></div>
         </div>
 
         <div class="col-12">
@@ -240,11 +227,7 @@ layout('provider', [
                 maxlength="500"
                 placeholder="e.g. Mobility support, medication reminders, cooking">
 
-            <?php if (isset($errors['skills'])): ?>
-                <div class="field-error text-danger small mt-1">
-                    <?= e($errors['skills']) ?>
-                </div>
-            <?php endif; ?>
+            <div class="invalid-feedback" data-default="Skills must not exceed 500 characters."><?= e($errors['skills'] ?? 'Skills must not exceed 500 characters.') ?></div>
         </div>
 
         <div class="col-12">
@@ -257,11 +240,7 @@ layout('provider', [
                 rows="4"
                 maxlength="2000"><?= e($bio) ?></textarea>
 
-            <?php if (isset($errors['bio'])): ?>
-                <div class="field-error text-danger small mt-1">
-                    <?= e($errors['bio']) ?>
-                </div>
-            <?php endif; ?>
+            <div class="invalid-feedback" data-default="Bio must not exceed 2,000 characters."><?= e($errors['bio'] ?? 'Bio must not exceed 2,000 characters.') ?></div>
         </div>
 
         <div class="col-12">
@@ -282,202 +261,5 @@ layout('provider', [
     <h2 class="h5 mb-3">Change password</h2>
     <?= password_form_html() ?>
 </div>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const form = document.getElementById('providerSettingsForm');
-
-        if (!form) return;
-
-        const fields = {
-            name: document.getElementById('name'),
-            phone: document.getElementById('phone'),
-            location: document.getElementById('location'),
-            skills: document.getElementById('skills'),
-            bio: document.getElementById('bio')
-        };
-
-        function removeClientError(input) {
-            if (!input) return;
-
-            input.classList.remove('is-invalid');
-
-            const error = input.parentElement.querySelector(
-                '.client-field-error'
-            );
-
-            if (error) {
-                error.remove();
-            }
-        }
-
-        function showClientError(input, message) {
-            if (!input) return;
-
-            removeClientError(input);
-
-            input.classList.add('is-invalid');
-
-            const error = document.createElement('div');
-
-            error.className =
-                'client-field-error text-danger small mt-1';
-
-            error.textContent = message;
-
-            input.parentElement.appendChild(error);
-        }
-
-        function validateName() {
-            const value = fields.name.value.trim();
-
-            if (value.length < 2) {
-                showClientError(
-                    fields.name,
-                    'Please enter your full name.'
-                );
-                return false;
-            }
-
-            if (value.length > 100) {
-                showClientError(
-                    fields.name,
-                    'Full name must not exceed 100 characters.'
-                );
-                return false;
-            }
-
-            removeClientError(fields.name);
-            return true;
-        }
-
-        function validatePhone() {
-            const value = fields.phone.value.trim();
-
-            if (value === '') {
-                removeClientError(fields.phone);
-                return true;
-            }
-
-            const pattern = /^[0-9+\-\s]{7,20}$/;
-
-            if (!pattern.test(value)) {
-                showClientError(
-                    fields.phone,
-                    'Please enter a valid phone number.'
-                );
-                return false;
-            }
-
-            removeClientError(fields.phone);
-            return true;
-        }
-
-        function validateLocation() {
-            const value = fields.location.value.trim();
-
-            if (value.length > 190) {
-                showClientError(
-                    fields.location,
-                    'Location must not exceed 190 characters.'
-                );
-                return false;
-            }
-
-            removeClientError(fields.location);
-            return true;
-        }
-
-        function validateSkills() {
-            const value = fields.skills.value.trim();
-
-            if (value.length > 500) {
-                showClientError(
-                    fields.skills,
-                    'Skills must not exceed 500 characters.'
-                );
-                return false;
-            }
-
-            removeClientError(fields.skills);
-            return true;
-        }
-
-        function validateBio() {
-            const value = fields.bio.value.trim();
-
-            if (value.length > 2000) {
-                showClientError(
-                    fields.bio,
-                    'Bio must not exceed 2,000 characters.'
-                );
-                return false;
-            }
-
-            removeClientError(fields.bio);
-            return true;
-        }
-
-        fields.name.addEventListener('blur', validateName);
-        fields.phone.addEventListener('blur', validatePhone);
-        fields.location.addEventListener('blur', validateLocation);
-        fields.skills.addEventListener('blur', validateSkills);
-        fields.bio.addEventListener('blur', validateBio);
-
-        fields.name.addEventListener('input', function() {
-            if (fields.name.classList.contains('is-invalid')) {
-                validateName();
-            }
-        });
-
-        fields.phone.addEventListener('input', function() {
-            if (fields.phone.classList.contains('is-invalid')) {
-                validatePhone();
-            }
-        });
-
-        fields.location.addEventListener('input', function() {
-            if (fields.location.classList.contains('is-invalid')) {
-                validateLocation();
-            }
-        });
-
-        fields.skills.addEventListener('input', function() {
-            if (fields.skills.classList.contains('is-invalid')) {
-                validateSkills();
-            }
-        });
-
-        fields.bio.addEventListener('input', function() {
-            if (fields.bio.classList.contains('is-invalid')) {
-                validateBio();
-            }
-        });
-
-        form.addEventListener('submit', function(event) {
-            const validName = validateName();
-            const validPhone = validatePhone();
-            const validLocation = validateLocation();
-            const validSkills = validateSkills();
-            const validBio = validateBio();
-
-            if (
-                !validName ||
-                !validPhone ||
-                !validLocation ||
-                !validSkills ||
-                !validBio
-            ) {
-                event.preventDefault();
-
-                const firstInvalid = form.querySelector('.is-invalid');
-
-                if (firstInvalid) {
-                    firstInvalid.focus();
-                }
-            }
-        });
-    });
-</script>
 
 <?php layout_end();

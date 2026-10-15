@@ -53,15 +53,15 @@ layout('user', ['title' => 'Book ' . $p['name'], 'nav' => 'providers']);
           </div>
         </div>
         <?php if ($error) echo alert_html('danger', $error); ?>
-        <form method="post" data-validate novalidate><?= csrf_field() ?>
+        <form method="post" class="needs-validation" novalidate><?= csrf_field() ?>
           <?php if ($offs): ?>
-            <div class="mb-3"><label class="form-label" for="offering_id">Service</label><select id="offering_id" name="offering_id" class="form-select" required><?php foreach ($offs as $o): ?><option value="<?= (int)$o['id'] ?>" <?= (int)($_POST['offering_id'] ?? get('service', get('offering', '0'))) === (int)$o['id'] ? 'selected' : '' ?>><?= e($o['title']) ?> — <?= e($o['category_name']) ?> (<?= e(money($o['price'])) ?>)</option><?php endforeach; ?></select></div>
+            <div class="mb-3"><label class="form-label" for="offering_id">Service</label><select id="offering_id" name="offering_id" class="form-select" required><?php foreach ($offs as $o): ?><option value="<?= (int)$o['id'] ?>" <?= (int)($_POST['offering_id'] ?? get('service', get('offering', '0'))) === (int)$o['id'] ? 'selected' : '' ?>><?= e($o['title']) ?> — <?= e($o['category_name']) ?> (<?= e(money($o['price'])) ?>)</option><?php endforeach; ?></select><div class="invalid-feedback">Please choose a service.</div></div>
           <?php else: ?>
             <div class="alert alert-info">This provider has no bookable services right now.</div>
           <?php endif; ?>
           <div class="row">
-            <div class="col-md-6 mb-3"><label class="form-label" for="booking_date">Date</label><input id="booking_date" name="booking_date" type="date" min="<?= date('Y-m-d', strtotime('+1 day')) ?>" class="form-control" value="<?= e($_POST['booking_date'] ?? '') ?>" required></div>
-            <div class="col-md-6 mb-3"><label class="form-label" for="booking_time">Time</label><input id="booking_time" name="booking_time" type="time" class="form-control" value="<?= e($_POST['booking_time'] ?? '') ?>" required></div>
+            <div class="col-md-6 mb-3"><label class="form-label" for="booking_date">Date</label><input id="booking_date" name="booking_date" type="date" min="<?= date('Y-m-d', strtotime('+1 day')) ?>" class="form-control" value="<?= e($_POST['booking_date'] ?? '') ?>" required><div class="invalid-feedback">Please choose a date from tomorrow onwards.</div></div>
+            <div class="col-md-6 mb-3"><label class="form-label" for="booking_time">Time</label><input id="booking_time" name="booking_time" type="time" class="form-control" value="<?= e($_POST['booking_time'] ?? '') ?>" required><div class="invalid-feedback">Please choose a time.</div></div>
           </div>
           <div class="mb-3"><label class="form-label" for="requirements">Requirements</label><textarea id="requirements" name="requirements" class="form-control" rows="4" maxlength="1000" placeholder="Tell the provider what help you need, and anything they should know."><?= e($_POST['requirements'] ?? '') ?></textarea></div>
           <button class="btn btn-success btn-lg" <?= $offs ? '' : ' disabled' ?>>Send booking request</button>

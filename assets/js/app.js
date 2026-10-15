@@ -58,15 +58,38 @@ window.AASRA = window.AASRA || {};
       },
       true,
     );
-    document.querySelectorAll("form[data-validate]").forEach((f) =>
-      f.addEventListener("submit", (e) => {
+    // Bootstrap 5 form validation: any <form class="needs-validation" novalidate>.
+    // One delegated listener (works for forms added later). AJAX forms simply do not use the class.
+    const matchTarget = (el) => (el.dataset.match ? document.querySelector(el.dataset.match) : null);
+    const syncMatch = (el) =>
+      el.setCustomValidity(matchTarget(el) && el.value !== matchTarget(el).value ? "Does not match." : "");
+    document.addEventListener(
+      "submit",
+      (e) => {
+        const f = e.target;
+        if (!(f instanceof HTMLFormElement) || !f.classList.contains("needs-validation")) return;
+        f.querySelectorAll("[data-match]").forEach(syncMatch); // e.g. confirm password
         if (!f.checkValidity()) {
           e.preventDefault();
           e.stopPropagation();
+          f.querySelector(":invalid")?.focus();
         }
         f.classList.add("was-validated");
-      }),
+      },
+      true,
     );
+    document.addEventListener("input", (e) => {
+      const el = e.target;
+      if (!(el instanceof HTMLElement) || !el.closest(".needs-validation")) return;
+      if (el.matches("[data-match]")) syncMatch(el);
+      document.querySelectorAll('[data-match="#' + el.id + '"]').forEach(syncMatch);
+      // a server-side error disappears once the user edits the field; Bootstrap's own state takes over
+      if (el.classList.contains("is-invalid")) {
+        el.classList.remove("is-invalid");
+        const fb = (el.closest(".pw-wrap") || el).parentElement.querySelector(".invalid-feedback[data-default]");
+        if (fb) fb.textContent = fb.dataset.default;
+      }
+    });
     document.querySelectorAll(".pw-toggle").forEach((b) =>
       b.addEventListener("click", () => {
         const i = b.parentElement.querySelector("input");

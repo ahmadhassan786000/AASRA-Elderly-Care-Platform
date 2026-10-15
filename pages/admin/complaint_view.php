@@ -36,7 +36,7 @@ page_head('Complaint ' . $id, $c['subject'], '<a class="btn btn-outline-secondar
   <div class="col-lg-5">
     <div class="card-soft">
       <h2 class="h5">Respond</h2>
-      <form method="post"><?= csrf_field() ?>
+      <form method="post" class="needs-validation" novalidate><?= csrf_field() ?>
         <div class="mb-3"><label class="form-label" for="status">Status</label><select id="status" name="status" class="form-select"><?php foreach (['Pending', 'Under Review', 'Resolved'] as $x): ?><option <?= $c['status'] === $x ? 'selected' : '' ?>><?= $x ?></option><?php endforeach; ?></select></div>
         <div class="mb-3"><label class="form-label" for="admin_response">Response to the user</label><textarea id="admin_response" name="admin_response" class="form-control" rows="5" maxlength="2000"><?= e($c['admin_response']) ?></textarea></div>
         <button class="btn btn-success">Update complaint</button>

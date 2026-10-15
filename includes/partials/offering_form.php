@@ -2,10 +2,13 @@
 /* Shared add/edit form for a provider's service.
    Expects: $c (current values), $err (field errors), $types (admin-defined active categories; null when editing),
    $existing (the service being edited, or null), $submitLabel. */
-$f = fn(string $k) => isset($err[$k]) ? '<div class="field-error text-danger small mt-1">' . e($err[$k]) . '</div>' : '';
+// Bootstrap feedback: shows the server-side message when there is one, otherwise the default for the browser check.
+$defaults = ['category_id' => 'Please choose a category.', 'title' => 'Please enter a title (3–150 characters).', 'description' => 'The description must not exceed 1,000 characters.',
+  'price' => 'Please enter a price between 0 and 1,000,000 (up to 2 decimals).', 'experience' => 'Experience must not exceed 120 characters.', 'availability' => 'Availability must not exceed 255 characters.'];
+$f = fn(string $k) => '<div class="invalid-feedback" data-default="' . e($defaults[$k] ?? '') . '">' . e($err[$k] ?? ($defaults[$k] ?? '')) . '</div>';
 $bad = fn(string $k) => isset($err[$k]) ? ' is-invalid' : '';
 ?>
-<form method="post" data-validate novalidate><?= csrf_field() ?>
+<form method="post" class="needs-validation" novalidate><?= csrf_field() ?>
   <input type="hidden" name="action" value="<?= $existing ? 'update' : 'create' ?>">
   <?php if (!empty($err['general'])) echo alert_html('danger', $err['general']); ?>
   <div class="mb-3">
