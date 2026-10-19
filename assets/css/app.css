@@ -2401,3 +2401,12 @@ tr[id^="booking-"], div[id^="complaint-"] { scroll-margin-top: 5rem; }
 /* notifications */
 .notif-dot { display: inline-block; width: .5rem; height: .5rem; border-radius: 50%; background: #198754; margin-right: .4rem; vertical-align: middle; }
 .notif-msg { overflow-wrap: anywhere; }
+
+/* complaints: booking identification, readable text blocks and the admin response (a normal section, not an alert) */
+.req-text.clamp-3 { display: -webkit-box; -webkit-line-clamp: 3; line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.complaint-text .req-text { color: var(--ink); font-size: .95rem; line-height: 1.55; }
+.complaint-section-label { font-size: .75rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); margin: 0 0 .35rem; }
+.complaint-booking { line-height: 1.4; }
+.complaint-booking__main { overflow-wrap: anywhere; }
+.complaint-details { margin-top: .75rem; }
+.complaint-response { margin-top: 1rem; padding: .75rem 1rem; background: var(--surface-2); border: 1px solid var(--line); border-left: 3px solid var(--brand); border-radius: .5rem; }

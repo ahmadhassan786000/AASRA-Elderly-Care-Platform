@@ -4,9 +4,9 @@ $cu = current_user();
 $pv = current_provider();
 $active = $active ?? '';
 $pendingReq = (int)val("SELECT COUNT(*) FROM bookings WHERE provider_id=? AND status='Pending'", [$pv['id']]);
-// Payments needing the PROVIDER: completed bookings of this provider whose cash is not yet confirmed (Pending) or whose
-// confirmation was rejected (Rejected, resubmit). Requested/Paid are not counted. payments.booking_id is unique -> no duplicates.
-$pendingPay = (int)val("SELECT COUNT(*) FROM payments pay JOIN bookings b ON b.id=pay.booking_id WHERE b.provider_id=? AND b.status='Completed' AND pay.payment_status IN ('Pending','Rejected')", [$pv['id']]);
+// Payments needing the PROVIDER: completed bookings of this provider whose cash is not yet confirmed (Pending). Only Pending and
+// Paid payments are listed on the Payments page, so only Pending is counted. payments.booking_id is unique -> no duplicates.
+$pendingPay = (int)val("SELECT COUNT(*) FROM payments pay JOIN bookings b ON b.id=pay.booking_id WHERE b.provider_id=? AND b.status='Completed' AND pay.payment_status='Pending'", [$pv['id']]);
 $activeBookings = provider_active_booking_count((int)$pv['id']); // accepted, not yet completed/cancelled/rejected
 $unread = (int)val('SELECT COUNT(*) FROM notifications WHERE provider_id=? AND is_read=0', [$pv['id']]);
 $items = [

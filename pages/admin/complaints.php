@@ -24,7 +24,7 @@ if ($f['provider'] !== '') {
   $w .= ' AND p.name LIKE ?';
   $a[] = '%' . $f['provider'] . '%';
 }
-$list = rows("SELECT c.*,u.name user_name,p.name provider_name FROM complaints c JOIN users u ON u.id=c.user_id LEFT JOIN providers p ON p.id=c.provider_id WHERE $w ORDER BY c.created_at DESC, c.id DESC", $a);
+$list = rows("SELECT c.*,u.name user_name,p.name provider_name," . COMPLAINT_BOOKING_COLS . " FROM complaints c JOIN users u ON u.id=c.user_id LEFT JOIN providers p ON p.id=c.provider_id" . COMPLAINT_BOOKING_JOIN . "WHERE $w ORDER BY c.created_at DESC, c.id DESC", $a);
 layout('admin', ['title' => 'Complaints', 'active' => 'complaints']);
 page_head('Complaints', 'Review and respond to user complaints.');
 ?>
@@ -48,6 +48,7 @@ page_head('Complaints', 'Review and respond to user complaints.');
           <th class="ps-4">ID</th>
           <th>User</th>
           <th>Provider</th>
+          <th>Booking</th>
           <th>Subject</th>
           <th>Status</th>
           <th>Date</th>
@@ -59,6 +60,7 @@ page_head('Complaints', 'Review and respond to user complaints.');
             <td class="ps-4 id-cell"><?= (int)$c['id'] ?></td>
             <td><?= e($c['user_name']) ?></td>
             <td><?= e($c['provider_name'] ?? '—') ?></td>
+            <td style="min-width:11rem"><?= complaint_booking_html($c, true) ?></td>
             <td style="max-width:280px">
               <div class="clamp-2"><?= e($c['subject']) ?></div>
             </td>

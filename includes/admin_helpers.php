@@ -41,6 +41,8 @@ function delete_error(Throwable $e): string
 }
 
 // Sidebar badges: records that need an ADMIN decision right now. One row is counted once (no joins that could repeat it).
+//  providers    - providers whose approval is still Pending (providers.verification_status='Pending'); Approved, Rejected and
+//                 Not Submitted providers are never counted. Same rule as the "Pending" option of Admin > Providers > Verification.
 //  verification - providers who submitted documents and are waiting for review (same rule as Admin > Verification)
 //  payments     - always 0: provider cash confirmations are a read-only record, so no admin decision is pending
 //  complaints   - complaints not yet resolved (Pending or Under Review)
@@ -48,8 +50,15 @@ function delete_error(Throwable $e): string
 function admin_pending_counts(): array
 {
     return [
+        'providers'    => admin_pending_provider_count(),
         'verification' => (int) val("SELECT COUNT(*) FROM providers p WHERE p.verification_status='Pending' AND EXISTS (SELECT 1 FROM provider_documents d WHERE d.provider_id=p.id)"),
         'payments'     => 0,
         'complaints'   => (int) val("SELECT COUNT(*) FROM complaints WHERE status IN ('Pending','Under Review')"),
     ];
+}
+
+// Pending providers, read live from the database (also used by pages/admin/api.php so the sidebar badge can refresh after an approval / rejection).
+function admin_pending_provider_count(): int
+{
+    return (int) val("SELECT COUNT(*) FROM providers WHERE verification_status='Pending'");
 }

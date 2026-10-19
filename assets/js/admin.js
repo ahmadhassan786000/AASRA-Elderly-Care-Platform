@@ -66,6 +66,13 @@ document.addEventListener("DOMContentLoaded", () => {
         cc.hidden = r.pendingComplaintCount < 1;
       }
     }
+    if (Number.isInteger(r.pendingProviderCount)) {
+      const pc = document.getElementById("pendingProvidersCount");
+      if (pc) {
+        pc.textContent = r.pendingProviderCount;
+        pc.hidden = r.pendingProviderCount < 1;
+      }
+    }
     if (
       payload.action === "verification" &&
       Number.isInteger(r.pendingVerificationCount)

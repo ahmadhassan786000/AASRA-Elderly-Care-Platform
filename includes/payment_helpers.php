@@ -94,6 +94,15 @@ function payment_display_status(array $pay): string
 // The same rule in SQL (filters and summaries). Aliases: pay = payments, b = bookings.
 const PAYMENT_EFFECTIVE_STATUS_SQL = "(CASE WHEN pay.payment_status IN ('Paid','Failed') THEN pay.payment_status WHEN b.status IN ('Cancelled','Rejected') THEN b.status ELSE pay.payment_status END)";
 
+// Which payment rows the User, Provider and Admin payment pages list (aliases: pay = payments, b = bookings). One rule for all three:
+//  - Paid      : always listed (real payment history is preserved, whatever happened to the booking afterwards).
+//  - Pending   : listed only while the booking is still valid. A Cancelled or Rejected booking never owes a payment, so its
+//                leftover 'Pending' payment row is NOT a financial status and is not shown (the row itself stays in the database).
+//  - Any other value (legacy Verification Requested / Rejected / Failed) is not a Pending or Paid payment and is not listed.
+// The only filter statuses offered on the pages are therefore Pending and Paid (PAYMENT_FILTER_STATUSES).
+const PAYMENT_LIST_SQL = "(pay.payment_status='Paid' OR (pay.payment_status='Pending' AND b.status NOT IN ('Cancelled','Rejected')))";
+const PAYMENT_FILTER_STATUSES = ['Pending', 'Paid'];
+
 // Records the booking outcome in the payment's history. Call ONLY right after the booking row was really changed by a
 // conditional UPDATE (so a refresh or repeated request cannot reach it twice). No payment row is created here, and the
 // financial status is copied unchanged (from_status = to_status). A missing table/enum value never breaks the booking action.

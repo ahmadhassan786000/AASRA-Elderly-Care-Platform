@@ -19,6 +19,7 @@ require_once dirname(__DIR__) . '/admin_helpers.php';
 $pending = admin_pending_counts();
 // sidebar item => [badge element id, count]; badges are hidden at zero (live-updated by assets/js/admin.js)
 $badges = [
+    'providers'    => ['pendingProvidersCount', $pending['providers']],
     'verification' => ['pendingVerificationCount', $pending['verification']],
     'payments'     => ['pendingPaymentsCount', $pending['payments']],
     'complaints'   => ['pendingComplaintsCount', $pending['complaints']],

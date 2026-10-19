@@ -24,7 +24,7 @@ $tiles = [
   ['value', 'Booking value', 'bi-cash-stack'],
   ['complaints', 'Pending complaints', 'bi-exclamation-triangle']
 ];
-$complaints = rows('SELECT c.*,u.name user_name,p.name provider_name FROM complaints c JOIN users u ON u.id=c.user_id LEFT JOIN providers p ON p.id=c.provider_id ORDER BY c.created_at DESC LIMIT 5');
+$complaints = rows('SELECT c.*,u.name user_name,p.name provider_name,' . COMPLAINT_BOOKING_COLS . ' FROM complaints c JOIN users u ON u.id=c.user_id LEFT JOIN providers p ON p.id=c.provider_id' . COMPLAINT_BOOKING_JOIN . 'ORDER BY c.created_at DESC LIMIT 5');
 $verif = rows('SELECT p.id,p.name,p.verification_status,(SELECT MAX(uploaded_at) FROM provider_documents WHERE provider_id=p.id) submitted FROM providers p WHERE EXISTS(SELECT 1 FROM provider_documents d WHERE d.provider_id=p.id) ORDER BY submitted DESC LIMIT 5');
 layout('admin', ['title' => 'Admin Dashboard', 'active' => 'dashboard']);
 page_head('Dashboard', 'AASRA platform overview.');
@@ -48,6 +48,7 @@ page_head('Dashboard', 'AASRA platform overview.');
               <th class="ps-4">ID</th>
               <th>User</th>
               <th>Provider</th>
+              <th>Booking</th>
               <th>Subject</th>
               <th>Status</th>
               <th>Date</th>
@@ -59,6 +60,7 @@ page_head('Dashboard', 'AASRA platform overview.');
                 <td class="ps-4 id-cell"><?= (int)$c['id'] ?></td>
                 <td><?= e($c['user_name']) ?></td>
                 <td><?= e($c['provider_name'] ?? '—') ?></td>
+                <td style="min-width:11rem"><?= complaint_booking_html($c, true) ?></td>
                 <td style="max-width:240px">
                   <div class="clamp-2"><?= e($c['subject']) ?></div>
                 </td>

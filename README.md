@@ -250,3 +250,12 @@ Until the migration is run, pages that read the new columns will show a database
 - Sign-up (regular users): Date of birth (required) and Handicapped Yes/No (required). Allowed only if age is 50+ (calculated on the server) or Handicapped = Yes. Handicapped = Yes requires 1 to 5 documents (PDF/JPG/PNG, up to 5 MB each). Providers' sign-up is unchanged.
 - Documents are stored under `uploads/user_documents` (Apache denies direct access) with random names, and are streamed by PHP only to the owner (`/user/documents/ID`) or an administrator (`/admin/user-documents/ID`).
 - The old Accessibility / Age Category field is removed from the forms; its column is kept so existing data is not lost.
+
+
+## Update: complaints, pending providers badge, payments (no database change)
+
+- **Complaints:** a related booking is now required (checked in the browser and on the server; the booking must belong to the user). Complaint records show "Booking #ID" and the service name (never the category) for User, Admin and notifications. The admin response is a normal section under the details; long text has See More / See Less. Older complaints without a booking show "No booking linked".
+- **Admin sidebar:** the Providers item shows the live number of providers whose verification status is Pending.
+- **Provider Availability page removed** (route `provider/availability`). The optional per-service Availability field in Provider > Services is unchanged.
+- **Payments:** User, Provider and Admin pages list only Paid payments and Pending payments of bookings that are not Cancelled/Rejected (`PAYMENT_LIST_SQL` in `includes/payment_helpers.php`). Nothing is deleted. The Provider payments filter was removed; User and Admin filters offer Pending / Paid.
+- Hard-refresh the browser (Ctrl+F5) after copying the files so the updated JS/CSS load.

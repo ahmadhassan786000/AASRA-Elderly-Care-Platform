@@ -73,11 +73,13 @@ function notify_complaint_update(array $c, string $status, ?string $response = n
 {
     $cid = (int)$c['id'];
     $bid = !empty($c['booking_id']) ? (int)$c['booking_id'] : 0;
-    $msg = 'Your complaint #' . $cid . ($bid ? ' regarding booking #' . $bid : '') . ' has been updated. Status: ' . $status . '.';
+    $svc = $bid ? complaint_booking_service_name($bid) : ''; // exact service name (never the category), same wording for user and provider
+    $ref = $bid ? 'booking #' . $bid . ($svc !== '' ? ' (' . $svc . ')' : '') : '';
+    $msg = 'Your complaint #' . $cid . ($ref ? ' regarding ' . $ref : '') . ' has been updated. Status: ' . $status . '.';
     if ($response !== null && trim($response) !== '') $msg .= ' Response: ' . mb_substr(trim($response), 0, 300);
     notify((int)$c['user_id'], null, 'Complaint update', $msg, 'complaint', 'complaint', $cid);
     if (!empty($c['provider_id']))
-        notify(null, (int)$c['provider_id'], 'Complaint update', 'Complaint #' . $cid . ($bid ? ' related to booking #' . $bid : '') . ' has been updated. Status: ' . $status . '.', 'complaint', 'complaint', $cid);
+        notify(null, (int)$c['provider_id'], 'Complaint update', 'Complaint #' . $cid . ($ref ? ' related to ' . $ref : '') . ' has been updated. Status: ' . $status . '.', 'complaint', 'complaint', $cid);
 }
 
 // Verification status changed by the Admin -> the PROVIDER.

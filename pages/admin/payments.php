@@ -6,27 +6,28 @@ require_once APP_ROOT . '/includes/payment_helpers.php';
 // Read-only page: a provider's cash-received confirmation is recorded automatically and shown in the History column.
 // The Admin does not verify or reject it, so this page has no POST actions.
 
+// Only valid Pending and Paid payments are listed and counted (PAYMENT_LIST_SQL): a Cancelled / Rejected booking's leftover
+// 'Pending' row is not a payment status and is excluded everywhere on this page (nothing is deleted from the database).
 // Summary. A payment is Paid once the provider has confirmed the cash was received.
 $s = row("SELECT COUNT(*) total,
-  COALESCE(SUM(" . PAYMENT_EFFECTIVE_STATUS_SQL . "='Pending'),0) pending,
+  COALESCE(SUM(pay.payment_status='Pending'),0) pending,
   COALESCE(SUM(pay.payment_status='Paid'),0) paid,
   COALESCE(SUM(CASE WHEN pay.payment_status='Paid' THEN pay.amount END),0) paid_total
-  FROM payments pay JOIN bookings b ON b.id=pay.booking_id");
+  FROM payments pay JOIN bookings b ON b.id=pay.booking_id WHERE " . PAYMENT_LIST_SQL);
 $commission = round((float)$s['paid_total'] * PAYMENT_COMMISSION_PERCENT / 100, 2); // 0% policy -> always 0
 
 $f = ['status' => get('status'), 'q' => get('q')];
-$w = '1=1';
+$w = PAYMENT_LIST_SQL;
 $a = [];
-// Same rule as the Status column (payment_display_status): a cancelled/rejected booking counts as Cancelled/Rejected.
-if (in_array($f['status'], ['Pending', 'Paid', 'Cancelled', 'Rejected'], true)) {
-    $w .= ' AND ' . PAYMENT_EFFECTIVE_STATUS_SQL . '=?';
+if (in_array($f['status'], PAYMENT_FILTER_STATUSES, true)) {
+    $w .= ' AND pay.payment_status=?';
     $a[] = $f['status'];
 }
 if ($f['q'] !== '') {
     $n = (int)ltrim($f['q'], '#');
     $l = '%' . $f['q'] . '%';
-    $w .= ' AND (pay.id=? OR pay.booking_id=? OR u.name LIKE ? OR p.name LIKE ? OR s.category_name LIKE ? OR ' . BOOKING_SERVICE_NAME_SQL . ' LIKE ?)';
-    array_push($a, $n, $n, $l, $l, $l, $l);
+    $w .= ' AND (pay.id=? OR pay.booking_id=? OR u.name LIKE ? OR p.name LIKE ? OR ' . BOOKING_SERVICE_NAME_SQL . ' LIKE ?)';
+    array_push($a, $n, $n, $l, $l, $l);
 }
 $list = rows("SELECT pay.*,b.status bstatus,b.cancellation_reason,u.name user_name,p.name provider_name,s.category_name," . BOOKING_SERVICE_NAME_SQL . " AS service_name
   FROM payments pay JOIN bookings b ON b.id=pay.booking_id JOIN users u ON u.id=b.user_id JOIN providers p ON p.id=b.provider_id JOIN categories s ON s.id=b.category_id" . BOOKING_SERVICE_JOIN . "
@@ -53,7 +54,7 @@ $tiles = [
     <div class="row g-2 align-items-end">
         <div class="col-md-5"><label for="q">Search</label><input id="q" name="q" class="form-control" placeholder="Payment or booking ID, user, provider, service" value="<?= e($f['q']) ?>"></div>
         <div class="col-md-4"><label for="status">Status</label><select id="status" name="status" class="form-select">
-                <option value="">All</option><?php foreach (['Pending', 'Paid', 'Cancelled', 'Rejected'] as $x): ?><option <?= $f['status'] === $x ? 'selected' : '' ?>><?= e($x) ?></option><?php endforeach; ?>
+                <option value="">All</option><?php foreach (PAYMENT_FILTER_STATUSES as $x): ?><option <?= $f['status'] === $x ? 'selected' : '' ?>><?= e($x) ?></option><?php endforeach; ?>
             </select></div>
         <div class="col-md-3 d-flex gap-2"><button class="btn btn-success flex-grow-1">Filter</button><?= filter_reset('admin/payments') ?></div>
     </div>

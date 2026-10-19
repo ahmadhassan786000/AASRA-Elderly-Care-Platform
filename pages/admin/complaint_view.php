@@ -2,7 +2,7 @@
 $admin = require_role('admin');
 require_once APP_ROOT . '/includes/admin_helpers.php';
 $id = (int)get('id');
-$c = row('SELECT c.*,u.name user_name,u.email user_email,p.name provider_name FROM complaints c JOIN users u ON u.id=c.user_id LEFT JOIN providers p ON p.id=c.provider_id WHERE c.id=?', [$id]);
+$c = row('SELECT c.*,u.name user_name,u.email user_email,p.name provider_name,' . COMPLAINT_BOOKING_COLS . ' FROM complaints c JOIN users u ON u.id=c.user_id LEFT JOIN providers p ON p.id=c.provider_id' . COMPLAINT_BOOKING_JOIN . 'WHERE c.id=?', [$id]);
 if (!$c) {
   show_error_page(404);
   exit;
@@ -29,8 +29,14 @@ page_head('Complaint ' . $id, $c['subject'], '<a class="btn btn-outline-secondar
       <div class="d-flex justify-content-between align-items-start mb-3">
         <h2 class="h5 mb-0"><?= e($c['subject']) ?></h2><?= badge($c['status']) ?>
       </div>
-      <p class="text-secondary small">From <b><?= e($c['user_name']) ?></b> (<?= e($c['user_email']) ?>) · <?= e($c['provider_name'] ? 'About ' . $c['provider_name'] : 'General') ?> · <?= e(fmt_date($c['created_at'], 'd M Y, g:i A')) ?></p>
-      <p style="white-space:pre-wrap"><?= e($c['description']) ?></p>
+      <p class="text-secondary small mb-3">From <b><?= e($c['user_name']) ?></b> (<?= e($c['user_email']) ?>) · Complaint #<?= (int)$c['id'] ?> · <?= e(fmt_date($c['created_at'], 'd M Y, g:i A')) ?></p>
+      <h3 class="complaint-section-label">Related booking</h3>
+      <?= complaint_booking_html($c) ?>
+      <div class="complaint-details">
+        <h3 class="complaint-section-label">Complaint details</h3>
+        <?= expandable_text_html('cdesc-' . (int)$c['id'], $c['description']) ?>
+      </div>
+      <?= complaint_response_html((int)$c['id'], $c['admin_response']) ?>
     </div>
   </div>
   <div class="col-lg-5">
