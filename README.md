@@ -227,3 +227,26 @@ What changed in this update:
 - Admin > Payments is read-only: Verify / Reject are removed, the Status and Actions columns are replaced by one **History** column. A provider's "Confirm cash received" now records the payment as **Paid** and is shown in History.
 - The History dropdown is removed from the provider Payments page (history rows stay in the database; the user page keeps its history list).
 - Registration, My Profile and Admin > Edit user have an optional **Accessibility / Age Category** field (`users.accessibility_category`, values `disability`, `age_50_plus`, `none`, or NULL = not selected).
+
+## Update: booking address, exact service names, payment filters, provider badge, notifications
+
+**Required for existing databases:** run `database/migrations/005_booking_address_service_name_notifications.sql` once (phpMyAdmin > `aasra_db` > SQL tab). It only adds nullable columns/indexes (`bookings.offering_id`, `bookings.service_name`, `bookings.service_address`, `notifications.related_type/related_id/event_key`), is safe to run twice, and does not touch existing rows (apart from filling the service-name snapshot where the service link already exists). Back up first. Do not import `aasra_db.sql` over existing data. Fresh installs already include the columns.
+
+Until the migration is run, pages that read the new columns will show a database error, so run it before using the updated files.
+
+- Booking page: "Service Location / Booking Address" is prefilled from My Profile and saved per booking (profile address is never changed). Shown to the user, the assigned provider and the admin. Older bookings show "Not provided".
+- Provider services are listed newest first (`created_at DESC, id DESC`).
+- Provider requests/bookings: long requirements show See More / See Less.
+- The exact service name (booking-time snapshot) is shown in bookings, payments, dashboards and notifications, with the category shown separately. Older bookings without a recorded service fall back to the category.
+- Provider Payments has server-side filters: status, payment date range, service, booking ID and search.
+- Provider sidebar: "Bookings" badge = accepted/confirmed bookings not yet completed, cancelled or rejected (database count for the signed-in provider).
+- Notifications (User and Provider only): contextual messages, View Details links, unread marker, no duplicates (`notifications.event_key`). There is no Admin notification feature.
+
+## Update: payment outcome, date of birth / Handicapped sign-up, supporting documents
+
+**Required for existing databases:** run `database/migrations/006_age_handicap_documents_payment_outcome.sql` once (phpMyAdmin > `aasra_db` > SQL tab). It is idempotent and non-destructive: it adds `users.date_of_birth` and `users.is_handicapped` (NULL for existing accounts), creates `user_documents`, and extends the allowed `payment_history.event` values. Back up first. Run `005` as well if you have not already. Do not import `aasra_db.sql` over existing data.
+
+- Payments (Admin, User, Provider): a cancelled or rejected booking shows **Cancelled** / **Rejected** instead of Pending. A real financial state (Paid, Failed) is never overridden, and `payments.payment_status` is never changed by a cancellation or rejection. New cancellations/rejections are written once to the payment history ("User cancelled the service.", "Provider rejected the service."); older ones are shown from the booking's real status.
+- Sign-up (regular users): Date of birth (required) and Handicapped Yes/No (required). Allowed only if age is 50+ (calculated on the server) or Handicapped = Yes. Handicapped = Yes requires 1 to 5 documents (PDF/JPG/PNG, up to 5 MB each). Providers' sign-up is unchanged.
+- Documents are stored under `uploads/user_documents` (Apache denies direct access) with random names, and are streamed by PHP only to the owner (`/user/documents/ID`) or an administrator (`/admin/user-documents/ID`).
+- The old Accessibility / Age Category field is removed from the forms; its column is kept so existing data is not lost.

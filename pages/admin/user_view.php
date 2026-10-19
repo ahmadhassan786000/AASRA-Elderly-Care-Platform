@@ -6,7 +6,7 @@ if (!$x) {
   show_error_page(404);
   exit;
 }
-$bk = rows('SELECT b.*,p.name provider_name,s.category_name FROM bookings b JOIN providers p ON p.id=b.provider_id JOIN categories s ON s.id=b.category_id WHERE b.user_id=? ORDER BY b.created_at DESC, b.id DESC LIMIT 10', [$x['id']]);
+$bk = rows('SELECT b.*,p.name provider_name,s.category_name,' . BOOKING_SERVICE_NAME_SQL . ' AS service_name FROM bookings b JOIN providers p ON p.id=b.provider_id JOIN categories s ON s.id=b.category_id' . BOOKING_SERVICE_JOIN . 'WHERE b.user_id=? ORDER BY b.created_at DESC, b.id DESC LIMIT 10', [$x['id']]);
 $pv = $x['role'] === 'provider' ? row('SELECT id FROM providers WHERE user_id=?', [$x['id']]) : null;
 layout('admin', ['title' => $x['name'], 'active' => 'users']);
 page_head($x['name'], 'Account details', '<div class="d-flex gap-2"><a class="btn btn-outline-secondary" href="' . e(url('admin/users')) . '">Back</a>' . ($x['role'] !== 'admin' ? '<a class="btn btn-success" href="' . e(url('admin/users/' . $x['id'] . '/edit')) . '">Edit</a>' : '') . '</div>');
@@ -23,8 +23,13 @@ page_head($x['name'], 'Account details', '<div class="d-flex gap-2"><a class="bt
         <dd><?= e($x['phone'] ?: '—') ?></dd>
         <dt>Address</dt>
         <dd><?= e($x['address'] ?: '—') ?></dd>
-        <?php if ($x['role'] === 'user'): ?><dt>Accessibility / Age Category</dt>
-        <dd><?= e(accessibility_label($x['accessibility_category'] ?? null)) ?></dd><?php endif; ?>
+        <?php if ($x['role'] === 'user'): ?><dt>Date of birth</dt>
+        <dd><?= !empty($x['date_of_birth']) ? e(fmt_date($x['date_of_birth'])) . ' (' . user_age($x['date_of_birth']) . ' years)' : 'Not recorded' ?></dd>
+        <dt>Handicapped</dt>
+        <dd><?= e(handicapped_label($x['is_handicapped'] ?? null)) ?></dd>
+        <?php $uDocs = user_documents((int)$x['id']); if ($uDocs): ?><dt>Supporting documents</dt>
+        <dd><?php foreach ($uDocs as $i => $d): ?><a class="d-block" target="_blank" rel="noopener" href="<?= e(url('admin/user-documents/' . (int)$d['id'])) ?>"><i class="bi bi-file-earmark-text"></i> <?= e($d['original_name'] ?: 'Document ' . ($i + 1)) ?></a><?php endforeach; ?></dd><?php endif; ?>
+        <?php endif; ?>
         <dt>Account type</dt>
         <dd><span class="tag"><?= e(ucfirst($x['role'])) ?></span></dd>
         <dt>Status</dt>
@@ -46,7 +51,8 @@ page_head($x['name'], 'Account details', '<div class="d-flex gap-2"><a class="bt
             <tr>
               <th class="ps-4">ID</th>
               <th>Provider</th>
-              <th>Category</th>
+              <th>Service</th>
+              <th>Service location</th>
               <th>Date</th>
               <th class="pe-4">Status</th>
             </tr>
@@ -55,7 +61,8 @@ page_head($x['name'], 'Account details', '<div class="d-flex gap-2"><a class="bt
             <?php foreach ($bk as $b): ?><tr>
                 <td class="ps-4 id-cell"><?= (int)$b['id'] ?></td>
                 <td><?= e($b['provider_name']) ?></td>
-                <td><?= e($b['category_name']) ?></td>
+                <td><b><?= e($b['service_name']) ?></b><br><small class="text-secondary"><?= e($b['category_name']) ?></small></td>
+                <td style="max-width:220px"><?= booking_address_html($b['service_address']) ?></td>
                 <td><?= e(fmt_date($b['booking_date'])) ?></td>
                 <td class="pe-4"><?= badge($b['status']) ?></td>
               </tr><?php endforeach; ?></tbody>

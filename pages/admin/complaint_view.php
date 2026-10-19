@@ -16,7 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     redirect('admin/complaints/' . $id);
   }
   q('UPDATE complaints SET status=?,admin_response=?,resolved_at=IF(?="Resolved",NOW(),NULL) WHERE id=?', [$st, $resp ?: null, $st, $id]);
-  notify((int)$c['user_id'], null, 'Complaint update', 'Your complaint #' . $id . ' is now ' . $st . '.' . ($resp ? ' Response: ' . $resp : ''), 'complaint');
+  if ($c['status'] !== $st || trim((string)$c['admin_response']) !== trim($resp)) notify_complaint_update($c, $st, $resp); // skip when nothing changed
   flash('success', 'Complaint updated successfully.');
   redirect('admin/complaints');
 }

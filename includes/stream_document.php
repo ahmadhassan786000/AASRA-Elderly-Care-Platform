@@ -1,9 +1,9 @@
 <?php
-function stream_document(array $d): void
+function stream_document(array $d, string $dir = 'documents'): void
 {
     $rel = (string)$d['document_path'];
     $abs = realpath(APP_ROOT . '/' . $rel);
-    $base = realpath(APP_ROOT . '/uploads/documents');
+    $base = realpath(APP_ROOT . '/uploads/' . $dir);
     if (!$abs || !$base || !str_starts_with($abs, $base . DIRECTORY_SEPARATOR) || !is_file($abs)) {
         show_error_page(404);
         exit;

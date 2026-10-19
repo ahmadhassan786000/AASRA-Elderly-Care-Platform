@@ -6,7 +6,7 @@ $pid = (int)$p['id'];
 $c = provider_completeness($p);
 $counts = array_column(rows('SELECT status,COUNT(*) c FROM bookings WHERE provider_id=? GROUP BY status', [$pid]), 'c', 'status');
 $rt = row('SELECT COALESCE(AVG(rating),0) a,COUNT(*) c FROM ratings WHERE provider_id=?', [$pid]);
-$recent = rows('SELECT b.*,u.name user_name,s.category_name FROM bookings b JOIN users u ON u.id=b.user_id JOIN categories s ON s.id=b.category_id WHERE b.provider_id=? ORDER BY b.created_at DESC, b.id DESC LIMIT 6', [$pid]);
+$recent = rows('SELECT b.*,u.name user_name,s.category_name,' . BOOKING_SERVICE_NAME_SQL . ' AS service_name FROM bookings b JOIN users u ON u.id=b.user_id JOIN categories s ON s.id=b.category_id' . BOOKING_SERVICE_JOIN . 'WHERE b.provider_id=? ORDER BY b.created_at DESC, b.id DESC LIMIT 6', [$pid]);
 $tiles = [['Pending requests', $counts['Pending'] ?? 0, 'bi-inbox'], ['Upcoming', ($counts['Accepted'] ?? 0) + ($counts['Confirmed'] ?? 0), 'bi-calendar-event'], ['Completed', $counts['Completed'] ?? 0, 'bi-check2-circle'], ['Rating', $rt['c'] ? number_format((float)$rt['a'], 1) . ' ★' : '—', 'bi-star']];
 layout('provider', ['title' => 'Dashboard', 'active' => 'dashboard']);
 ?>
@@ -46,7 +46,7 @@ layout('provider', ['title' => 'Dashboard', 'active' => 'dashboard']);
           <thead>
             <tr>
               <th class="ps-4">Client</th>
-              <th>Category</th>
+              <th>Service</th>
               <th>Date</th>
               <th class="pe-4">Status</th>
             </tr>
@@ -54,7 +54,7 @@ layout('provider', ['title' => 'Dashboard', 'active' => 'dashboard']);
           <tbody>
             <?php foreach ($recent as $b): ?><tr>
                 <td class="ps-4"><?= e($b['user_name']) ?></td>
-                <td><?= e($b['category_name']) ?></td>
+                <td><?= e($b['service_name']) ?></td>
                 <td><?= e(fmt_date($b['booking_date'])) ?></td>
                 <td class="pe-4"><?= badge($b['status']) ?></td>
               </tr><?php endforeach; ?></tbody>

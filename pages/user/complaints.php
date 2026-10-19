@@ -44,7 +44,7 @@ layout('user', ['title' => 'Complaints', 'nav' => '']);
     <div class="col-lg-7">
       <div class="card-soft">
         <h2 class="h5 mb-2">My complaints</h2>
-        <?php foreach ($cs as $c): ?><div class="border-bottom py-3">
+        <?php foreach ($cs as $c): ?><div class="border-bottom py-3" id="complaint-<?= (int)$c['id'] ?>">
             <div class="d-flex justify-content-between gap-2"><b><?= e($c['subject']) ?></b><?= badge($c['status']) ?></div>
             <div class="small text-secondary"><?= e(fmt_date($c['created_at'])) ?><?= $c['provider_name'] ? ' · ' . e($c['provider_name']) : '' ?></div>
             <p class="small mb-1 mt-2"><?= e($c['description']) ?></p><?php if ($c['admin_response']): ?><div class="alert alert-success py-2 mb-0 small" data-no-autodismiss><b>AASRA:</b> <?= e($c['admin_response']) ?></div><?php endif; ?>

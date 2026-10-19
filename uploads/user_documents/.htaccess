@@ -1,0 +1,2 @@
+# User sign-up documents are private; they are streamed only to admins/owners by PHP.
+Require all denied

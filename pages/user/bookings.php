@@ -1,18 +1,20 @@
 <?php
 $u = require_role('user');
+require_once APP_ROOT . '/includes/payment_helpers.php';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   check_csrf();
   $id = (int)($_POST['booking_id'] ?? 0);
   $b = row("SELECT * FROM bookings WHERE id=? AND user_id=? AND status IN ('Pending','Accepted','Confirmed')", [$id, $u['id']]);
-  if ($b) {
-    q("UPDATE bookings SET status='Cancelled',cancellation_reason=? WHERE id=?", ['Cancelled by user', $id]);
-    notify(null, (int)$b['provider_id'], 'Booking cancelled', $u['name'] . ' cancelled the booking on ' . fmt_date($b['booking_date']) . '.', 'booking');
+  // conditional UPDATE: a double click or stale page cannot cancel (and notify) twice
+  if ($b && q("UPDATE bookings SET status='Cancelled',cancellation_reason=? WHERE id=? AND user_id=? AND status IN ('Pending','Accepted','Confirmed')", ['Cancelled by user', $id, $u['id']])->affected_rows === 1) {
+    notify_booking_status($id, 'Cancelled', 'user');
+    payment_record_booking_outcome($id, 'booking_cancelled_by_user', 'user', (int)$u['id']);
     flash('success', 'Booking cancelled.');
   } else flash('danger', 'That booking cannot be cancelled.');
   redirect('user/bookings');
 }
 $st = get('status');
-$sql = 'SELECT b.*,p.name provider_name,p.id pid,s.category_name FROM bookings b JOIN providers p ON p.id=b.provider_id JOIN categories s ON s.id=b.category_id WHERE b.user_id=?';
+$sql = 'SELECT b.*,p.name provider_name,p.id pid,s.category_name,' . BOOKING_SERVICE_NAME_SQL . ' AS service_name FROM bookings b JOIN providers p ON p.id=b.provider_id JOIN categories s ON s.id=b.category_id' . BOOKING_SERVICE_JOIN . 'WHERE b.user_id=?';
 $a = [$u['id']];
 if ($st !== '') {
   $sql .= ' AND b.status=?';
@@ -37,7 +39,8 @@ layout('user', ['title' => 'My Bookings', 'nav' => 'bookings']);
           <tr>
             <th class="ps-4">Booking</th>
             <th>Provider</th>
-            <th>Category</th>
+            <th>Service</th>
+            <th>Service location</th>
             <th>When</th>
             <th>Charge</th>
             <th>Status</th>
@@ -45,10 +48,11 @@ layout('user', ['title' => 'My Bookings', 'nav' => 'bookings']);
           </tr>
         </thead>
         <tbody>
-          <?php foreach ($list as $b): ?><tr>
+          <?php foreach ($list as $b): ?><tr id="booking-<?= (int)$b['id'] ?>">
               <td class="ps-4 id-cell"><?= (int)$b['id'] ?></td>
               <td><a href="<?= e(url('user/providers/' . $b['pid'])) ?>"><?= e($b['provider_name']) ?></a></td>
-              <td><?= e($b['category_name']) ?></td>
+              <td><b><?= e($b['service_name']) ?></b><br></td>
+              <td style="max-width:220px"><?= booking_address_html($b['service_address']) ?></td>
               <td><?= e(fmt_date($b['booking_date'])) ?><br><small class="text-secondary"><?= e(date('g:i A', strtotime($b['booking_time']))) ?></small></td>
               <td><?= e(money($b['charges'])) ?></td>
               <td><?= badge($b['status']) ?></td>

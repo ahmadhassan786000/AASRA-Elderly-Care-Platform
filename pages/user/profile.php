@@ -10,12 +10,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name = post('name');
     $phone = post('phone');
     $addr = post('address');
-    $acc = post('accessibility_category');
     if (mb_strlen($name) < 2 || mb_strlen($name) > 100) flash('danger', 'Please enter a valid name.');
     elseif ($phone !== '' && !preg_match('/^[0-9+\-\s]{7,20}$/', $phone)) flash('danger', 'Please enter a valid phone number.');
-    elseif (!accessibility_valid($acc)) flash('danger', 'Please choose a valid Accessibility / Age Category.');
     else {
-      q('UPDATE users SET name=?,phone=?,address=?,accessibility_category=? WHERE id=?', [$name, $phone ?: null, mb_substr($addr, 0, 255) ?: null, $acc !== '' ? $acc : null, $u['id']]);
+      q('UPDATE users SET name=?,phone=?,address=? WHERE id=?', [$name, $phone ?: null, mb_substr($addr, 0, 255) ?: null, $u['id']]);
       flash('success', 'Profile updated.');
     }
   }
@@ -36,7 +34,16 @@ layout('user', ['title' => 'My Profile', 'nav' => 'profile']);
           <div class="col-12"><label class="form-label" for="address">Address / area</label><textarea id="address" name="address" class="form-control" rows="2" maxlength="255"><?= e($me['address']) ?></textarea>
             <div class="form-text">Used to recommend providers near you.</div>
           </div>
-          <div class="col-md-6"><label class="form-label" for="accessibility_category">Accessibility / Age Category</label><select id="accessibility_category" name="accessibility_category" class="form-select"><?= accessibility_select_options((string)($me['accessibility_category'] ?? '')) ?></select></div>
+          <div class="col-md-6"><label class="form-label">Date of birth</label>
+            <div class="form-control-plaintext"><?= $me['date_of_birth'] ? e(fmt_date($me['date_of_birth'])) . ' <span class="text-secondary">(' . user_age($me['date_of_birth']) . ' years)</span>' : '<span class="text-secondary">Not recorded</span>' ?></div>
+          </div>
+          <div class="col-md-6"><label class="form-label">Handicapped</label>
+            <div class="form-control-plaintext"><?= e(handicapped_label($me['is_handicapped'])) ?></div>
+          </div>
+          <?php $myDocs = user_documents((int)$u['id']); if ($myDocs): ?><div class="col-12"><label class="form-label">Supporting documents</label>
+              <div class="d-flex flex-wrap gap-2"><?php foreach ($myDocs as $i => $d): ?><a class="btn btn-sm btn-outline-secondary" target="_blank" rel="noopener" href="<?= e(url('user/documents/' . (int)$d['id'])) ?>"><i class="bi bi-file-earmark-text"></i> <?= e($d['original_name'] ?: 'Document ' . ($i + 1)) ?></a><?php endforeach; ?></div>
+            </div><?php endif; ?>
+          <div class="col-12 form-text mt-0">Date of birth and Handicapped were set when you registered and cannot be changed here.</div>
           <div class="col-12"><button class="btn btn-success">Save changes</button></div>
         </form>
       </div>

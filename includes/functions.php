@@ -124,9 +124,20 @@ function service_thumb(array $s, string $cls = 'svc-thumb'): string
     return '<div class="' . e($cls) . ' svc-thumb-ph"><i class="bi ' . service_icon($s['category_name']) . '"></i></div>';
 }
 
-function notify(?int $userId, ?int $providerId, string $title, string $message, string $type = 'system'): void
+function notify(?int $userId, ?int $providerId, string $title, string $message, string $type = 'system', ?string $relatedType = null, ?int $relatedId = null, ?string $eventKey = null): void
 {
-    q('INSERT INTO notifications(user_id,provider_id,title,message,type) VALUES(?,?,?,?,?)', [$userId, $providerId, $title, $message, $type]);
+    // Recipient is a User or a Provider only. $eventKey (unique per recipient + event) makes a repeated event a no-op.
+    // A notification problem is logged and never breaks the booking/payment action that triggered it.
+    try {
+        try {
+            q('INSERT IGNORE INTO notifications(user_id,provider_id,title,message,type,related_type,related_id,event_key) VALUES(?,?,?,?,?,?,?,?)', [$userId, $providerId, $title, $message, $type, $relatedType, $relatedId, $eventKey]);
+        } catch (mysqli_sql_exception $e) {
+            if ((int)$e->getCode() !== 1054) throw $e; // 1054 = unknown column: migration 005 not applied yet -> legacy insert
+            q('INSERT INTO notifications(user_id,provider_id,title,message,type) VALUES(?,?,?,?,?)', [$userId, $providerId, $title, $message, $type]);
+        }
+    } catch (Throwable $e) {
+        error_log('notify failed: ' . $e->getMessage());
+    }
 }
 
 /* ---------- uploads ---------- */

@@ -131,3 +131,58 @@ function booking_duplicate_exists(int $userId, int $providerId, int $offeringId,
         [$userId, $providerId, $categoryId, $start, $end]
     );
 }
+
+/* ---------- exact service name ----------
+   bookings.service_name is a snapshot of the service title taken at booking time; bookings.offering_id links to the
+   provider_offerings row. Display name = snapshot -> current offering title -> category (only for older bookings that
+   never recorded their service). Queries use:  SELECT ..., BOOKING_SERVICE_NAME_SQL AS service_name FROM bookings b
+   JOIN categories s ON s.id=b.category_id BOOKING_SERVICE_JOIN  (aliases: b = bookings, s = categories, o = offering). */
+const BOOKING_SERVICE_NAME_SQL = "COALESCE(NULLIF(b.service_name,''), o.title, s.category_name)";
+const BOOKING_SERVICE_JOIN = ' LEFT JOIN provider_offerings o ON o.id=b.offering_id ';
+
+/* ---------- provider navigation badge ----------
+   Accepted bookings that are not yet Completed / Cancelled / Rejected. 'Confirmed' is treated like Accepted by the existing
+   workflow. Pending requests belong to the Requests badge and are not counted here. */
+function provider_active_booking_count(int $providerId): int
+{
+    static $cache = [];
+    if (!isset($cache[$providerId]))
+        $cache[$providerId] = (int)val("SELECT COUNT(*) FROM bookings WHERE provider_id=? AND status IN ('Accepted','Confirmed')", [$providerId]);
+    return $cache[$providerId];
+}
+
+/* ---------- service address ---------- */
+const BOOKING_ADDRESS_MIN = 5;
+const BOOKING_ADDRESS_MAX = 500;
+// Returns an error message, or null when the address is acceptable. Control characters are stripped by booking_address_clean().
+function booking_address_error(string $address): ?string
+{
+    $len = mb_strlen($address);
+    if ($len < BOOKING_ADDRESS_MIN) return 'Please enter the service location (at least ' . BOOKING_ADDRESS_MIN . ' characters).';
+    if ($len > BOOKING_ADDRESS_MAX) return 'The service location must not exceed ' . BOOKING_ADDRESS_MAX . ' characters.';
+    return null;
+}
+function booking_address_clean(string $address): string
+{
+    $address = preg_replace('/[^\P{C}\n]+/u', '', $address) ?? ''; // drop control characters except line breaks
+    $address = preg_replace("/\n{3,}/", "\n\n", str_replace("\r", '', $address)) ?? '';
+    return trim($address);
+}
+function booking_address_html(?string $address): string
+{
+    $address = trim((string)$address);
+    if ($address === '') return '<span class="text-secondary">Not provided</span>';
+    return '<span class="addr-text">' . e($address) . '</span>';
+}
+
+/* ---------- expandable requirements ("See More" / "See Less") ----------
+   The full text stays in the database and in the page; only the preview is clipped with CSS. assets/js/app.js reveals the
+   button only when the text really overflows, so short requirements get no control. */
+function requirements_html(int $bookingId, ?string $text, string $maxWidth = '280px'): string
+{
+    $text = trim((string)$text);
+    if ($text === '') return '';
+    $id = 'req-' . $bookingId;
+    return '<div class="req-box small" style="max-width:' . e($maxWidth) . '"><div class="req-text clamp-2 text-secondary" id="' . e($id) . '">' . e($text) . '</div>'
+        . '<button type="button" class="btn btn-link btn-sm p-0 req-toggle" hidden aria-expanded="false" aria-controls="' . e($id) . '" data-more="See More" data-less="See Less">See More</button></div>';
+}

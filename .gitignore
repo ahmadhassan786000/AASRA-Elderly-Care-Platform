@@ -13,6 +13,9 @@ uploads/services/*
 
 # Keep upload directories
 !uploads/documents/.gitkeep
+uploads/user_documents/*
+!uploads/user_documents/.gitkeep
+!uploads/user_documents/.htaccess
 !uploads/providers/.gitkeep
 !uploads/services/.gitkeep
 

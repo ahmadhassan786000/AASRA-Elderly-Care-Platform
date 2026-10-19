@@ -7,13 +7,14 @@ $pendingReq = (int)val("SELECT COUNT(*) FROM bookings WHERE provider_id=? AND st
 // Payments needing the PROVIDER: completed bookings of this provider whose cash is not yet confirmed (Pending) or whose
 // confirmation was rejected (Rejected, resubmit). Requested/Paid are not counted. payments.booking_id is unique -> no duplicates.
 $pendingPay = (int)val("SELECT COUNT(*) FROM payments pay JOIN bookings b ON b.id=pay.booking_id WHERE b.provider_id=? AND b.status='Completed' AND pay.payment_status IN ('Pending','Rejected')", [$pv['id']]);
+$activeBookings = provider_active_booking_count((int)$pv['id']); // accepted, not yet completed/cancelled/rejected
 $unread = (int)val('SELECT COUNT(*) FROM notifications WHERE provider_id=? AND is_read=0', [$pv['id']]);
 $items = [
     ['dashboard', 'provider', 'bi-speedometer2', 'Dashboard', 0],
     ['profile', 'provider/profile', 'bi-person-vcard', 'Profile', 0],
     ['services', 'provider/services', 'bi-grid', 'Services', 0],
     ['requests', 'provider/requests', 'bi-inbox', 'Booking Requests', $pendingReq],
-    ['bookings', 'provider/bookings', 'bi-calendar-check', 'Bookings', 0],
+    ['bookings', 'provider/bookings', 'bi-calendar-check', 'Bookings', $activeBookings],
     ['reviews', 'provider/reviews', 'bi-star', 'Reviews', 0],
     ['verification', 'provider/verification', 'bi-patch-check', 'Verification', 0],
     ['payments', 'provider/payments', 'bi-credit-card', 'Payments', $pendingPay],

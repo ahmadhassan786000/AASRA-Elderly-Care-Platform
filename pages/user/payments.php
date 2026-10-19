@@ -3,7 +3,7 @@
 // the provider confirms it and it is recorded as Paid.
 $u = require_role('user');
 require_once APP_ROOT . '/includes/payment_helpers.php';
-$list = rows('SELECT pay.*,b.status bstatus,p.name provider_name,s.category_name FROM payments pay JOIN bookings b ON b.id=pay.booking_id JOIN providers p ON p.id=b.provider_id JOIN categories s ON s.id=b.category_id WHERE b.user_id=? ORDER BY pay.created_at DESC, pay.id DESC', [$u['id']]);
+$list = rows('SELECT pay.*,b.status bstatus,b.cancellation_reason,p.name provider_name,s.category_name,' . BOOKING_SERVICE_NAME_SQL . ' AS service_name FROM payments pay JOIN bookings b ON b.id=pay.booking_id JOIN providers p ON p.id=b.provider_id JOIN categories s ON s.id=b.category_id' . BOOKING_SERVICE_JOIN . 'WHERE b.user_id=? ORDER BY pay.created_at DESC, pay.id DESC', [$u['id']]);
 $hist = payment_histories(array_column($list, 'id'));
 layout('user', ['title' => 'Payments', 'nav' => '']);
 ?>
@@ -25,17 +25,16 @@ layout('user', ['title' => 'Payments', 'nav' => '']);
                     </tr>
                 </thead>
                 <tbody>
-                    <?php foreach ($list as $x): ?><tr>
+                    <?php foreach ($list as $x): ?><tr id="booking-<?= (int)$x['booking_id'] ?>">
                             <td class="ps-4 id-cell"><?= (int)$x['booking_id'] ?></td>
-                            <td><?= e($x['category_name']) ?></td>
+                            <td><b><?= e($x['service_name']) ?></b><br></td>
                             <td><?= e($x['provider_name']) ?></td>
                             <td><?= badge($x['bstatus']) ?></td>
                             <td class="text-nowrap"><b><?= e(money($x['amount'])) ?></b></td>
                             <td>Cash</td>
                             <td class="pe-4" style="min-width:16rem">
-                                <?= payment_badge($x['payment_status']) ?>
+                                <?= payment_badge(payment_display_status($x)) ?>
                                 <div class="small text-secondary mt-1"><?= e(payment_status_text($x, 'user')) ?></div>
-                                <?= payment_history_html($hist[(int)$x['id']] ?? [], false) ?>
                             </td>
                         </tr><?php endforeach; ?></tbody>
             </table>

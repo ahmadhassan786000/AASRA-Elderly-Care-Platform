@@ -2389,3 +2389,15 @@ body.user-area .hero-anim .container > p.text-success {
 .was-validated .rating-input:has(input:invalid) + .invalid-feedback {
   display: block;
 }
+
+/* booking requirements: See More / See Less (assets/js/app.js) */
+.req-text { white-space: pre-line; overflow-wrap: anywhere; }
+.req-text.clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.req-toggle { text-decoration: none; font-size: .8125rem; }
+.addr-text { white-space: pre-line; overflow-wrap: anywhere; }
+/* row/section reached from a notification link */
+tr:target > td, .border-bottom:target { background: var(--bs-success-bg-subtle, #d1e7dd); }
+tr[id^="booking-"], div[id^="complaint-"] { scroll-margin-top: 5rem; }
+/* notifications */
+.notif-dot { display: inline-block; width: .5rem; height: .5rem; border-radius: 50%; background: #198754; margin-right: .4rem; vertical-align: middle; }
+.notif-msg { overflow-wrap: anywhere; }

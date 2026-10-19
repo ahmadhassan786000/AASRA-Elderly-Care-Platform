@@ -17,6 +17,9 @@ require APP_ROOT . '/includes/functions.php';
 require APP_ROOT . '/includes/db.php';
 require APP_ROOT . '/includes/auth.php';
 require APP_ROOT . '/includes/content.php';
+require_once APP_ROOT . '/includes/booking_helpers.php';
+require_once APP_ROOT . '/includes/notification_helpers.php';
+require_once APP_ROOT . '/includes/user_registration_helpers.php';
 
 set_exception_handler(function (Throwable $e) {
     error_log('AASRA: ' . $e);

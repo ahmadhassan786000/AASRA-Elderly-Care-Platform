@@ -21,7 +21,7 @@ const OFFERING_MAX_PER_PROVIDER = 50;
 
 function provider_offerings(int $pid): array
 {
-    return rows('SELECT o.*,s.category_name,s.status category_status FROM provider_offerings o JOIN categories s ON s.id=o.category_id WHERE o.provider_id=? ORDER BY s.category_name,o.title', [$pid]);
+    return rows('SELECT o.*,s.category_name,s.status category_status FROM provider_offerings o JOIN categories s ON s.id=o.category_id WHERE o.provider_id=? ORDER BY o.created_at DESC, o.id DESC', [$pid]); // newest service first
 }
 // One offering, only if it belongs to provider $pid (the id always comes from the logged-in session, never the browser).
 function provider_offering(int $pid, int $id)
@@ -122,8 +122,13 @@ function provider_booking_action(int $pid, string $name): array
     $b = row('SELECT * FROM bookings WHERE id=? AND provider_id=?', [$id, $pid]);
     if (!$b || !isset($map[$action]) || !in_array($b['status'], $map[$action][1])) return ['danger', 'That action is not available for this booking.'];
     $new = $map[$action][0];
-    q('UPDATE bookings SET status=? WHERE id=?', [$new, $id]);
-    notify((int)$b['user_id'], null, 'Booking ' . strtolower($new), $name . ' marked your booking on ' . fmt_date($b['booking_date']) . ' as ' . $new . '.', 'booking');
+    // Conditional UPDATE: only the first of two identical submissions changes the booking and sends the notification.
+    $in = "'" . implode("','", $map[$action][1]) . "'";
+    $reason = $action === 'cancel' ? 'Cancelled by provider' : null; // lets every page say who cancelled
+    if (q("UPDATE bookings SET status=?,cancellation_reason=COALESCE(?,cancellation_reason) WHERE id=? AND provider_id=? AND status IN ($in)", [$new, $reason, $id, $pid])->affected_rows !== 1) return ['danger', 'That action is not available for this booking.'];
+    notify_booking_status($id, $new, 'provider');
+    if ($action === 'reject') payment_record_booking_outcome($id, 'booking_rejected_by_provider', 'provider', (int)(current_user()['id'] ?? 0) ?: null);
+    if ($action === 'cancel') payment_record_booking_outcome($id, 'booking_cancelled_by_provider', 'provider', (int)(current_user()['id'] ?? 0) ?: null);
     if ($new === 'Completed') payment_ensure_record($id); // normally created at booking time; this covers older bookings. Completion is NOT payment.
     return ['success', 'Booking ' . strtolower($new) . '.'];
 }
@@ -137,16 +142,18 @@ function booking_table(array $list, bool $actions, string $redirect): void
                         <th class="ps-4">Booking</th>
                         <th>Client</th>
                         <th>Service</th>
+                        <th>Service Location</th>
                         <th>When</th>
                         <th>Charge</th>
                         <th>Status</th><?php if ($actions): ?><th class="pe-4 text-end">Action</th><?php endif; ?>
                     </tr>
                 </thead>
                 <tbody>
-                    <?php foreach ($list as $b): ?><tr>
+                    <?php foreach ($list as $b): ?><tr id="booking-<?= (int)$b['id'] ?>">
                             <td class="ps-4 id-cell"><?= (int)$b['id'] ?></td>
-                            <td><?= e($b['user_name']) ?><?php if ($b['requirements']): ?><div class="small text-secondary clamp-2" style="max-width:280px"><?= e($b['requirements']) ?></div><?php endif; ?></td>
-                            <td><?= e($b['category_name']) ?></td>
+                            <td><?= e($b['user_name']) ?><?= requirements_html((int)$b['id'], $b['requirements']) ?></td>
+                            <td><?= e($b['service_name']) ?><br></td>
+                            <td style="min-width:11rem;max-width:240px"><?= booking_address_html($b['service_address']) ?></td>
                             <td><?= e(fmt_date($b['booking_date'])) ?><br><small class="text-secondary"><?= e(date('g:i A', strtotime($b['booking_time']))) ?></small></td>
                             <td><?= e(money($b['charges'])) ?></td>
                             <td><?= badge($b['status']) ?></td>

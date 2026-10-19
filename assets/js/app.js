@@ -94,6 +94,27 @@ window.AASRA = window.AASRA || {};
       ),
     ).observe(document.body, { childList: true, subtree: true });
 
+    // ---------- booking requirements: See More / See Less ----------
+    // The full text is always in the page (clipped to 2 lines by CSS). The button is shown only when the text overflows.
+    const initReq = (box) => {
+      const t = box.querySelector(".req-text");
+      const b = box.querySelector(".req-toggle");
+      if (!t || !b) return;
+      if (t.classList.contains("clamp-2")) b.hidden = !(t.scrollHeight > t.clientHeight + 1);
+    };
+    document.querySelectorAll(".req-box").forEach(initReq);
+    window.addEventListener("resize", () => document.querySelectorAll(".req-box").forEach(initReq));
+    document.addEventListener("click", (e) => {
+      const b = e.target.closest && e.target.closest(".req-toggle");
+      if (!b) return;
+      const t = document.getElementById(b.getAttribute("aria-controls"));
+      if (!t) return;
+      const open = b.getAttribute("aria-expanded") === "true";
+      t.classList.toggle("clamp-2", open);
+      b.setAttribute("aria-expanded", open ? "false" : "true");
+      b.textContent = open ? b.dataset.more : b.dataset.less;
+    });
+
     // ---------- confirm, validation, password toggle ----------
     document.addEventListener(
       "click",

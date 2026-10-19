@@ -8,10 +8,10 @@ require_once APP_ROOT . '/includes/payment_helpers.php';
 
 // Summary. A payment is Paid once the provider has confirmed the cash was received.
 $s = row("SELECT COUNT(*) total,
-  COALESCE(SUM(payment_status='Pending'),0) pending,
-  COALESCE(SUM(payment_status='Paid'),0) paid,
-  COALESCE(SUM(CASE WHEN payment_status='Paid' THEN amount END),0) paid_total
-  FROM payments");
+  COALESCE(SUM(" . PAYMENT_EFFECTIVE_STATUS_SQL . "='Pending'),0) pending,
+  COALESCE(SUM(pay.payment_status='Paid'),0) paid,
+  COALESCE(SUM(CASE WHEN pay.payment_status='Paid' THEN pay.amount END),0) paid_total
+  FROM payments pay JOIN bookings b ON b.id=pay.booking_id");
 $commission = round((float)$s['paid_total'] * PAYMENT_COMMISSION_PERCENT / 100, 2); // 0% policy -> always 0
 
 $f = ['status' => get('status'), 'q' => get('q')];
@@ -19,17 +19,17 @@ $w = '1=1';
 $a = [];
 // Same rule as the Status column (payment_display_status): a cancelled/rejected booking counts as Cancelled/Rejected.
 if (in_array($f['status'], ['Pending', 'Paid', 'Cancelled', 'Rejected'], true)) {
-    $w .= " AND CASE WHEN b.status IN ('Cancelled','Rejected') THEN b.status ELSE pay.payment_status END=?";
+    $w .= ' AND ' . PAYMENT_EFFECTIVE_STATUS_SQL . '=?';
     $a[] = $f['status'];
 }
 if ($f['q'] !== '') {
     $n = (int)ltrim($f['q'], '#');
     $l = '%' . $f['q'] . '%';
-    $w .= ' AND (pay.id=? OR pay.booking_id=? OR u.name LIKE ? OR p.name LIKE ? OR s.category_name LIKE ?)';
-    array_push($a, $n, $n, $l, $l, $l);
+    $w .= ' AND (pay.id=? OR pay.booking_id=? OR u.name LIKE ? OR p.name LIKE ? OR s.category_name LIKE ? OR ' . BOOKING_SERVICE_NAME_SQL . ' LIKE ?)';
+    array_push($a, $n, $n, $l, $l, $l, $l);
 }
-$list = rows("SELECT pay.*,b.status bstatus,u.name user_name,p.name provider_name,s.category_name
-  FROM payments pay JOIN bookings b ON b.id=pay.booking_id JOIN users u ON u.id=b.user_id JOIN providers p ON p.id=b.provider_id JOIN categories s ON s.id=b.category_id
+$list = rows("SELECT pay.*,b.status bstatus,b.cancellation_reason,u.name user_name,p.name provider_name,s.category_name," . BOOKING_SERVICE_NAME_SQL . " AS service_name
+  FROM payments pay JOIN bookings b ON b.id=pay.booking_id JOIN users u ON u.id=b.user_id JOIN providers p ON p.id=b.provider_id JOIN categories s ON s.id=b.category_id" . BOOKING_SERVICE_JOIN . "
   WHERE $w ORDER BY COALESCE(pay.provider_confirmed_at, pay.created_at) DESC, pay.id DESC LIMIT 500", $a);
 $hist = payment_histories(array_column($list, 'id'));
 
@@ -81,7 +81,7 @@ $tiles = [
                         <td><?= (int)$x['booking_id'] ?></td>
                         <td><?= e($x['user_name']) ?></td>
                         <td><?= e($x['provider_name']) ?></td>
-                        <td><?= e($x['category_name']) ?></td>
+                        <td><?= e($x['service_name']) ?><br></td>
                         <td class="text-nowrap"><b><?= e(money($x['amount'])) ?></b></td>
                         <td>Cash</td>
                         <?php $ds = payment_display_status($x); ?>

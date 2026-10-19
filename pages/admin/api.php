@@ -33,7 +33,7 @@ switch ($action) {
 
     case 'verification':
         if (!in_array($value, ['Approved', 'Rejected', 'Pending'], true)) fail('Invalid status.');
-        $p = row('SELECT id,user_id FROM providers WHERE id=?', [$id]);
+        $p = row('SELECT id,user_id,verification_status FROM providers WHERE id=?', [$id]);
         if (!$p) fail('Provider not found.', 404);
         $note = $value === 'Rejected' ? mb_substr(post('note'), 0, 500) : null;
         q('UPDATE providers SET verification_status=?,verification_note=? WHERE id=?', [$value, $note ?: null, $id]);
@@ -44,7 +44,7 @@ switch ($action) {
             q("UPDATE provider_documents SET verification_status='Approved' WHERE provider_id=? AND verification_status='Pending'", [$id]);
             $extra[] = ['key' => "provider_status:$id", 'badge' => badge('Active')];
         }
-        notify(null, $id, 'Verification ' . strtolower($value), 'Your verification status is now ' . $value . '.' . ($note ? ' Note: ' . $note : ''), 'verification');
+        if ($p['verification_status'] !== $value) notify_verification_update($id, $value, $note); // only when the status really changed
         $pendingVerificationCount = (int) val("SELECT COUNT(*) FROM providers p WHERE p.verification_status='Pending' AND EXISTS (SELECT 1 FROM provider_documents d WHERE d.provider_id=p.id)");
         json_out(['ok' => true, 'message' => $value === 'Approved' ? 'Provider approved and activated.' : ($value === 'Rejected' ? 'Provider rejected.' : 'Provider set to pending.'), 'key' => "provider_verification:$id", 'status' => $value, 'badge' => badge($value), 'extra' => $extra, 'pendingVerificationCount' => $pendingVerificationCount]);
 
@@ -62,10 +62,10 @@ switch ($action) {
 
     case 'complaint_status':
         if (!in_array($value, ['Pending', 'Under Review', 'Resolved'], true)) fail('Invalid status.');
-        $c = row('SELECT id,user_id FROM complaints WHERE id=?', [$id]);
+        $c = row('SELECT id,user_id,provider_id,booking_id,status FROM complaints WHERE id=?', [$id]);
         if (!$c) fail('Complaint not found.', 404);
         q('UPDATE complaints SET status=?,resolved_at=IF(?="Resolved",NOW(),NULL) WHERE id=?', [$value, $value, $id]);
-        notify((int)$c['user_id'], null, 'Complaint update', 'Your complaint #' . $id . ' is now ' . $value . '.', 'complaint');
+        if ($c['status'] !== $value) notify_complaint_update($c, $value); // only when the status really changed
         json_out(['ok' => true, 'message' => 'Status updated successfully.', 'key' => "complaint_status:$id", 'status' => $value, 'badge' => badge($value), 'pendingComplaintCount' => (int) val("SELECT COUNT(*) FROM complaints WHERE status IN ('Pending','Under Review')")]);
 
     case 'delete_user':
