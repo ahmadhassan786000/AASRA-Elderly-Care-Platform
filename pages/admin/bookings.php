@@ -9,7 +9,7 @@ if ($f['q'] !== '') {
   $l = '%' . $f['q'] . '%';
   array_push($a, $l, $l, $l, $l);
 }
-if (in_array($f['status'], ['Pending', 'Accepted', 'Rejected', 'Confirmed', 'Completed', 'Cancelled'])) {
+if (in_array($f['status'], ['Pending', 'Accepted', 'Rejected', 'Completed', 'Cancelled'])) {
   $w .= ' AND b.status=?';
   $a[] = $f['status'];
 }
@@ -21,7 +21,7 @@ page_head('Bookings', 'All bookings across the platform.');
   <div class="row g-2 align-items-end">
     <div class="col-md-6"><label for="q">Search</label><input id="q" name="q" class="form-control" placeholder="User, provider or category" value="<?= e($f['q']) ?>"></div>
     <div class="col-md-3"><label for="status">Status</label><select id="status" name="status" class="form-select">
-        <option value="">All</option><?php foreach (['Pending', 'Accepted', 'Confirmed', 'Completed', 'Rejected', 'Cancelled'] as $x): ?><option <?= $f['status'] === $x ? 'selected' : '' ?>><?= $x ?></option><?php endforeach; ?>
+        <option value="">All</option><?php foreach (['Pending', 'Accepted', 'Completed', 'Rejected', 'Cancelled'] as $x): ?><option <?= $f['status'] === $x ? 'selected' : '' ?>><?= $x ?></option><?php endforeach; ?>
       </select></div>
     <div class="col-md-3 d-flex gap-2"><button class="btn btn-success flex-grow-1">Filter</button><?= filter_reset('admin/bookings') ?></div>
   </div>

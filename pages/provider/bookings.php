@@ -25,6 +25,6 @@ layout('provider', ['title' => 'Bookings', 'active' => 'bookings']);
         <p>Accepted, completed and closed bookings.</p>
     </div>
 </div>
-<div class="chips mb-3"><?php foreach (['' => 'All', 'Accepted' => 'Accepted', 'Confirmed' => 'Confirmed', 'Completed' => 'Completed', 'Rejected' => 'Rejected', 'Cancelled' => 'Cancelled'] as $k => $l): ?><a class="chip <?= $st === $k ? 'active' : '' ?>" href="<?= e(url('provider/bookings' . ($k ? '?status=' . $k : ''))) ?>"><?= e($l) ?></a><?php endforeach; ?></div>
+<div class="chips mb-3"><?php foreach (['' => 'All', 'Accepted' => 'Accepted', 'Completed' => 'Completed', 'Rejected' => 'Rejected', 'Cancelled' => 'Cancelled'] as $k => $l): ?><a class="chip <?= $st === $k ? 'active' : '' ?>" href="<?= e(url('provider/bookings' . ($k ? '?status=' . $k : ''))) ?>"><?= e($l) ?></a><?php endforeach; ?></div>
 <?php booking_table($list, true, 'provider/bookings');
 layout_end();

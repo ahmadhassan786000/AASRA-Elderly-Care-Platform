@@ -31,7 +31,7 @@ layout('user', ['title' => 'My Bookings', 'nav' => 'bookings']);
       <p>Track requests, cancel plans and rate completed visits.</p>
     </div><a class="btn btn-success" href="<?= e(url('user/providers')) ?>"><i class="bi bi-plus-lg"></i> New booking</a>
   </div>
-  <div class="chips mb-3"><?php foreach (['' => 'All', 'Pending' => 'Pending', 'Accepted' => 'Accepted', 'Confirmed' => 'Confirmed', 'Completed' => 'Completed', 'Cancelled' => 'Cancelled'] as $k => $l): ?><a class="chip <?= $st === $k ? 'active' : '' ?>" href="<?= e(url('user/bookings' . ($k ? '?status=' . $k : ''))) ?>"><?= e($l) ?></a><?php endforeach; ?></div>
+  <div class="chips mb-3"><?php foreach (['' => 'All', 'Pending' => 'Pending', 'Accepted' => 'Accepted', 'Completed' => 'Completed', 'Cancelled' => 'Cancelled'] as $k => $l): ?><a class="chip <?= $st === $k ? 'active' : '' ?>" href="<?= e(url('user/bookings' . ($k ? '?status=' . $k : ''))) ?>"><?= e($l) ?></a><?php endforeach; ?></div>
   <div class="card-soft flush">
     <div class="table-responsive">
       <table class="table mb-0">
