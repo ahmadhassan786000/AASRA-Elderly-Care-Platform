@@ -19,7 +19,7 @@ define('SOCIAL_LINKS', [
 if (!defined('AASRA_DB_CONFIG')) {
     define('AASRA_DB_CONFIG', [
         'host' => 'localhost',
-        'name' => 'aasra_db',
+        'name' => 'aasra',
         'user' => 'root',
         'pass' => '',
         'port' => 3306,
