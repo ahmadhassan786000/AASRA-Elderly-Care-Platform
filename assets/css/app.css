@@ -292,9 +292,10 @@ a {
 
 /* public / user header + footer */
 .site-header {
-  background: color-mix(in srgb, var(--surface) 92%, transparent);
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid var(--line);
+  /* soft mint-green gradient (deeper on the logo side, lighter where the buttons are) so the existing dark
+     text and green buttons keep their contrast: ink 12.8-14:1, brand green 4.4:1+ */
+  background: linear-gradient(90deg, #d2ebdb 0%, #e9f6ee 100%);
+  border-bottom: 1px solid #b9dcc7;
   z-index: 1030;
 }
 .site-header .navbar {
