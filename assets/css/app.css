@@ -1,4 +1,4 @@
-﻿/* AASRA â€” design tokens */
+/* AASRA â€” design tokens */
 :root {
   --brand: #16803c;
   --brand-600: #136a32;
@@ -231,6 +231,16 @@ a {
 .icon-btn:hover {
   background: var(--brand-soft);
   color: var(--brand-ink);
+}
+.site-header .navbar .icon-btn {
+  background: var(--brand-soft);
+  border-color: #cde7d5;
+  color: var(--brand-ink);
+}
+.site-header .navbar .icon-btn:hover {
+  background: #d3ebdb;
+  border-color: #b9dcc7;
+  color: var(--brand-700);
 }
 .dot-badge {
   position: absolute;
@@ -737,6 +747,10 @@ html:has(.auth-body) {
   padding: 2rem 1.8rem;
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.3);
 }
+.auth-card:has(#registerForm) {
+  padding-top: 1.5rem;
+  padding-bottom: 1.5rem;
+}
 .auth-card h1 {
   font-size: 1.5rem;
 }
@@ -783,6 +797,95 @@ html:has(.auth-body) {
 }
 .type-opt input:focus-visible + label {
   outline: 3px solid var(--amber);
+}
+.register-choice-control {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: calc(2.7rem + 2px);
+  padding: 0.5rem 0.85rem;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background-color: var(--surface);
+}
+.register-choice-control .form-check {
+  display: flex;
+  align-items: center;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+}
+.register-choice-control .form-check-input {
+  float: none;
+  flex: 0 0 auto;
+  margin: 0 0.35rem 0 0;
+}
+.register-choice-control .form-check-label {
+  cursor: pointer;
+}
+@media (max-width: 575.98px) {
+  .auth-bg:has(#registerForm) {
+    padding: 0.5rem 1rem;
+  }
+  .auth-card:has(#registerForm) {
+    padding: 0.85rem 1rem;
+    font-size: 0.9rem;
+    line-height: 1.4;
+  }
+  .auth-card:has(#registerForm) > .text-center.mb-4 {
+    margin-bottom: 0.75rem !important;
+  }
+  .auth-card:has(#registerForm) > .text-center.mb-4 img {
+    width: 36px;
+    height: 36px;
+  }
+  .auth-card:has(#registerForm) h1 {
+    font-size: 1.25rem;
+  }
+  .auth-card:has(#registerForm) > p.text-secondary {
+    font-size: 0.8rem;
+    margin-bottom: 0.75rem !important;
+  }
+  .auth-card:has(#registerForm) .form-label {
+    font-size: 0.8rem;
+    margin-bottom: 0.15rem;
+  }
+  .auth-card:has(#registerForm) .form-control,
+  .auth-card:has(#registerForm) .form-select {
+    font-size: 0.875rem;
+    padding: 0.35rem 0.55rem;
+    min-height: 34px;
+  }
+  .auth-card:has(#registerForm) .register-choice-control {
+    min-height: 34px;
+    padding: 0.35rem 0.55rem;
+  }
+  .auth-card:has(#registerForm) .form-text {
+    font-size: 0.7rem;
+    line-height: 1.2;
+    margin-top: 0.15rem;
+  }
+  .auth-card:has(#registerForm) .form-check-label {
+    font-size: 0.8rem;
+  }
+  .auth-card:has(#registerForm) .row.g-2 {
+    --bs-gutter-y: 0.35rem;
+  }
+  .auth-card:has(#registerForm) #registerForm > .mb-2,
+  .auth-card:has(#registerForm) #registerForm > .row > .mb-2 {
+    margin-bottom: 0.35rem !important;
+  }
+  .auth-card:has(#registerForm) #registerForm > .row > .mb-3 {
+    margin-bottom: 0.5rem !important;
+  }
+  .auth-card:has(#registerForm) #registerForm > .btn {
+    font-size: 0.95rem;
+    padding: 0.4rem 0.75rem;
+  }
+  .auth-card:has(#registerForm) > p.mt-4 {
+    font-size: 0.8rem;
+    margin-top: 0.5rem !important;
+  }
 }
 .pw-wrap {
   position: relative;

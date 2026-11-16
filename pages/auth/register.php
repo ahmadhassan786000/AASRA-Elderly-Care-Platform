@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 if (current_user() && auth_refresh()) redirect(home_for_role(current_user()['role']));
 
 $errors = [];
@@ -105,7 +105,7 @@ layout('auth', ['title' => 'Create account', 'width' => 500]);
 ?>
 
 <h1 class="text-center mb-1">Create your account</h1>
-<p class="text-secondary text-center mb-4">It only takes a minute.</p>
+<p class="text-secondary text-center mb-3">To register you must be at least 50 years old or select Handicapped.</p>
 
 <?php if ($eligibility_error): ?>
   <div class="alert alert-danger d-flex align-items-start gap-2" role="alert" data-no-autodismiss><i class="bi bi-exclamation-triangle-fill mt-1"></i><div class="flex-grow-1"><?= e($eligibility_error) ?></div></div>
@@ -118,7 +118,7 @@ layout('auth', ['title' => 'Create account', 'width' => 500]);
 <form method="post" id="registerForm" class="needs-validation" enctype="multipart/form-data" novalidate>
   <?= csrf_field() ?>
 
-  <div class="mb-3">
+  <div class="mb-2">
     <label class="form-label" for="account_type">Account type</label>
     <select id="account_type" name="account_type" class="form-select<?= !empty($errors['account_type']) ? ' is-invalid' : '' ?>" required>
       <option value="user" <?= $type === 'user' ? 'selected' : '' ?>>User</option>
@@ -127,36 +127,38 @@ layout('auth', ['title' => 'Create account', 'width' => 500]);
     <div class="invalid-feedback" data-default="Please choose an account type."><?= e($errors['account_type'] ?? 'Please choose an account type.') ?></div>
   </div>
 
-  <div class="mb-3">
-    <label class="form-label" for="name">Full name</label>
-    <input
-      id="name"
-      name="name"
-      class="form-control<?= !empty($errors['name']) ? ' is-invalid' : '' ?>"
-      value="<?= e($name) ?>"
-      minlength="2"
-      maxlength="100"
-      autocomplete="name"
-      required>
-    <div class="invalid-feedback" data-default="Please enter your full name (2–100 characters)."><?= e($errors['name'] ?? 'Please enter your full name (2–100 characters).') ?></div>
+  <div class="row g-2">
+    <div class="col-6 mb-2">
+      <label class="form-label" for="name">Full name</label>
+      <input
+        id="name"
+        name="name"
+        class="form-control<?= !empty($errors['name']) ? ' is-invalid' : '' ?>"
+        value="<?= e($name) ?>"
+        minlength="2"
+        maxlength="100"
+        autocomplete="name"
+        required>
+      <div class="invalid-feedback" data-default="Please enter your full name (2–100 characters)."><?= e($errors['name'] ?? 'Please enter your full name (2–100 characters).') ?></div>
+    </div>
+
+    <div class="col-6 mb-2">
+      <label class="form-label" for="email">Email</label>
+      <input
+        id="email"
+        name="email"
+        type="email"
+        class="form-control<?= !empty($errors['email']) ? ' is-invalid' : '' ?>"
+        value="<?= e($email) ?>"
+        maxlength="190"
+        autocomplete="email"
+        required>
+      <div class="invalid-feedback" data-default="Please enter a valid email address."><?= e($errors['email'] ?? 'Please enter a valid email address.') ?></div>
+    </div>
   </div>
 
-  <div class="mb-3">
-    <label class="form-label" for="email">Email</label>
-    <input
-      id="email"
-      name="email"
-      type="email"
-      class="form-control<?= !empty($errors['email']) ? ' is-invalid' : '' ?>"
-      value="<?= e($email) ?>"
-      maxlength="190"
-      autocomplete="email"
-      required>
-    <div class="invalid-feedback" data-default="Please enter a valid email address."><?= e($errors['email'] ?? 'Please enter a valid email address.') ?></div>
-  </div>
-
-  <div id="userOnlyFields" class="<?= $type === 'provider' ? 'd-none' : '' ?>">
-    <div class="mb-3">
+  <div id="userOnlyFields" class="row g-2 <?= $type === 'provider' ? 'd-none' : '' ?>">
+    <div class="col-6 mb-2">
       <label class="form-label" for="date_of_birth">Date of birth</label>
       <input
         id="date_of_birth"
@@ -171,9 +173,9 @@ layout('auth', ['title' => 'Create account', 'width' => 500]);
       <div class="invalid-feedback" data-default="Please enter a valid date of birth."><?= e($errors['date_of_birth'] ?? 'Please enter a valid date of birth.') ?></div>
     </div>
 
-    <fieldset class="mb-3">
+    <fieldset class="col-6 mb-2">
       <legend class="form-label fs-6">Handicapped</legend>
-      <div class="d-flex gap-4">
+      <div class="register-choice-control">
         <div class="form-check">
           <input class="form-check-input<?= !empty($errors['handicapped']) ? ' is-invalid' : '' ?>" type="radio" name="handicapped" id="handicapped_yes" value="yes" <?= $handicapped === 'yes' ? 'checked' : '' ?> <?= $type === 'user' ? 'required' : 'disabled' ?>>
           <label class="form-check-label" for="handicapped_yes">Yes</label>
@@ -184,10 +186,9 @@ layout('auth', ['title' => 'Create account', 'width' => 500]);
         </div>
       </div>
       <div class="invalid-feedback d-block<?= empty($errors['handicapped']) ? ' d-none' : '' ?>" id="handicappedError"><?= e($errors['handicapped'] ?? 'Please select Yes or No.') ?></div>
-      <div class="form-text">To register you must be at least <?= USER_MIN_AGE ?> years old <b>or</b> select Handicapped.</div>
     </fieldset>
 
-    <div class="mb-3 <?= $handicapped === 'yes' && $type === 'user' ? '' : 'd-none' ?>" id="disabilityDocs">
+    <div class="col-12 mb-2 <?= $handicapped === 'yes' && $type === 'user' ? '' : 'd-none' ?>" id="disabilityDocs">
       <label class="form-label" for="disability_documents">Supporting documents</label>
       <input
         id="disability_documents"
@@ -202,43 +203,45 @@ layout('auth', ['title' => 'Create account', 'width' => 500]);
     </div>
   </div>
 
-  <div class="mb-3">
-    <label class="form-label" for="password">Password</label>
-    <div class="pw-wrap">
-      <input
-        id="password"
-        name="password"
-        type="password"
-        minlength="8"
-        maxlength="72"
-        class="form-control<?= !empty($errors['password']) ? ' is-invalid' : '' ?>"
-        autocomplete="new-password"
-        required>
-      <button type="button" class="pw-toggle" aria-label="Show password">
-        <i class="bi bi-eye"></i>
-      </button>
+  <div class="row g-2">
+    <div class="col-6 mb-3">
+      <label class="form-label" for="password">Password</label>
+      <div class="pw-wrap">
+        <input
+          id="password"
+          name="password"
+          type="password"
+          minlength="8"
+          maxlength="72"
+          class="form-control<?= !empty($errors['password']) ? ' is-invalid' : '' ?>"
+          autocomplete="new-password"
+          required>
+        <button type="button" class="pw-toggle" aria-label="Show password">
+          <i class="bi bi-eye"></i>
+        </button>
+      </div>
+      <div class="invalid-feedback" data-default="Password must be 8 to 72 characters."><?= e($errors['password'] ?? 'Password must be 8 to 72 characters.') ?></div>
     </div>
-    <div class="invalid-feedback" data-default="Password must be 8 to 72 characters."><?= e($errors['password'] ?? 'Password must be 8 to 72 characters.') ?></div>
-  </div>
 
-  <div class="mb-4">
-    <label class="form-label" for="confirm_password">Confirm password</label>
-    <div class="pw-wrap">
-      <input
-        id="confirm_password"
-        name="confirm_password"
-        type="password"
-        minlength="8"
-        maxlength="72"
-        class="form-control<?= !empty($errors['confirm_password']) ? ' is-invalid' : '' ?>"
-        data-match="#password"
-        autocomplete="new-password"
-        required>
-      <button type="button" class="pw-toggle" aria-label="Show password">
-        <i class="bi bi-eye"></i>
-      </button>
+    <div class="col-6 mb-3">
+      <label class="form-label" for="confirm_password">Confirm password</label>
+      <div class="pw-wrap">
+        <input
+          id="confirm_password"
+          name="confirm_password"
+          type="password"
+          minlength="8"
+          maxlength="72"
+          class="form-control<?= !empty($errors['confirm_password']) ? ' is-invalid' : '' ?>"
+          data-match="#password"
+          autocomplete="new-password"
+          required>
+        <button type="button" class="pw-toggle" aria-label="Show password">
+          <i class="bi bi-eye"></i>
+        </button>
+      </div>
+      <div class="invalid-feedback" data-default="The two passwords must match."><?= e($errors['confirm_password'] ?? 'The two passwords must match.') ?></div>
     </div>
-    <div class="invalid-feedback" data-default="The two passwords must match."><?= e($errors['confirm_password'] ?? 'The two passwords must match.') ?></div>
   </div>
 
   <button type="submit" class="btn btn-success btn-lg w-100">
